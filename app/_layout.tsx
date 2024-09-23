@@ -70,8 +70,19 @@ export default function RootLayout() {
         <Stack.Screen
           name='index'
           options={{
-            title: 'Starter Base',
-            headerRight: () => <ThemeToggle />,
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name='addItemScreen'
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name='listScreen'
+          options={{
+            headerShown: false
           }}
         />
       </Stack>
