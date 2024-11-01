@@ -5,8 +5,7 @@ import { Text } from '~/components/ui/text';
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <View>
+      <View className='justify-start'>
         <Text>This screen doesn't exist.</Text>
 
         <Link href='/'>

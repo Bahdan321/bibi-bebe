@@ -2,15 +2,17 @@ import '~/global.css';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Theme, ThemeProvider } from '@react-navigation/native';
-import { SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack, Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { PortalHost } from '@rn-primitives/portal';
 import { ThemeToggle } from '~/components/ThemeToggle';
 import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -66,15 +68,27 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-      <Stack>
-        <Stack.Screen
-          name='index'
-          options={{
-            title: 'Starter Base',
-            headerRight: () => <ThemeToggle />,
-          }}
-        />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="(protected)" />
+        {/* <Stack.Screen name="(public)" /> */}
       </Stack>
+      {/* <Tabs>
+        <Tabs.Screen name="index" options={{
+          tabBarIcon: ({ focused, color, size }) => (
+            <View style={{
+              padding: 12,
+              borderRadius: 30,
+              backgroundColor: focused ? "transparent" : 'transparent'
+            }}>
+              <SimpleLineIcons name="pie-chart" size={size} color={color} />
+            </View>
+          ),
+        }} />
+      </Tabs> */}
       <PortalHost />
     </ThemeProvider>
   );
