@@ -13,6 +13,7 @@ import { ThemeToggle } from '~/components/ThemeToggle';
 import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { useFonts } from 'expo-font';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -34,7 +35,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
-
+  const [loaded, error] = useFonts({
+    'JetBrains': require('../assets/fonts/JetBrainsMonoNL-Regular.ttf'),
+  });
   React.useEffect(() => {
     (async () => {
       const theme = await AsyncStorage.getItem('theme');
@@ -57,9 +60,11 @@ export default function RootLayout() {
       setAndroidNavigationBar(colorTheme);
       setIsColorSchemeLoaded(true);
     })().finally(() => {
-      SplashScreen.hideAsync();
+      if (loaded || error) {
+        SplashScreen.hideAsync();
+      }
     });
-  }, []);
+  }, [loaded, error]);
 
   if (!isColorSchemeLoaded) {
     return null;
@@ -76,19 +81,6 @@ export default function RootLayout() {
         <Stack.Screen name="(protected)" />
         {/* <Stack.Screen name="(public)" /> */}
       </Stack>
-      {/* <Tabs>
-        <Tabs.Screen name="index" options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <View style={{
-              padding: 12,
-              borderRadius: 30,
-              backgroundColor: focused ? "transparent" : 'transparent'
-            }}>
-              <SimpleLineIcons name="pie-chart" size={size} color={color} />
-            </View>
-          ),
-        }} />
-      </Tabs> */}
       <PortalHost />
     </ThemeProvider>
   );
