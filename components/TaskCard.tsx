@@ -10,6 +10,7 @@ interface TaskCardProps {
     themeText: string;
     onNavigate: () => void;
     onAddTask: () => void;
+    index?: boolean;
 }
 
 const getRandomGradient = () => {
@@ -38,7 +39,7 @@ const getRandomGradient = () => {
 
 
 
-export const TaskCard: React.FC<TaskCardProps> = ({ themeText, onNavigate, onAddTask }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ themeText, onNavigate, onAddTask, index = true }) => {
     return (
         <View className='' style={{ padding: wp('1'), }}>
             <LinearGradient
@@ -55,29 +56,37 @@ export const TaskCard: React.FC<TaskCardProps> = ({ themeText, onNavigate, onAdd
             >
                 <View className='flex flex-col'>
                     <View className='flex flex-row'>
-                        <Text className='text-white font-extrabold text-center' style={{ fontSize: wp('12') }}>{themeText}</Text>
+                        {index ? (
+                            <Text className='text-white font-extrabold text-center' style={{ fontSize: wp('12') }}>{themeText}</Text>
+                        ) : (
+                            <Text className='text-white font-extrabold text-center' style={{ fontSize: wp('12'), paddingTop: wp('12') }}>{themeText}</Text>
+                        )}
                     </View>
                 </View>
-                <View className='absolute bottom-0 left-0'>
-                    <TouchableOpacity
-                        className='rounded-full bg-blue-500 justify-center'
-                        style={{ height: hp('15'), width: hp('15'), margin: wp('3') }}
-                        onPress={onNavigate}
-                    >
-                        <AntDesign name="ellipsis1" size={wp('16')} color="white" className='text-center' />
-                    </TouchableOpacity>
-                </View>
-                <View className='absolute bottom-0 right-0'>
-                    <TouchableOpacity
-                        className='rounded-full bg-blue-200 justify-center'
-                        style={{
-                            height: hp('15'), width: hp('15'), margin: wp('3')
-                        }}
-                        onPress={onAddTask}
-                    >
-                        <Entypo name="plus" size={wp('16')} color="black" className='text-center' />
-                    </TouchableOpacity>
-                </View>
+                {index && (
+                    <>
+                        <View className='absolute bottom-0 left-0'>
+                            <TouchableOpacity
+                                className='rounded-full bg-blue-500 justify-center'
+                                style={{ height: hp('15'), width: hp('15'), margin: wp('3') }}
+                                onPress={onNavigate}
+                            >
+                                <AntDesign name="ellipsis1" size={wp('16')} color="white" className='text-center' />
+                            </TouchableOpacity>
+                        </View>
+                        <View className='absolute bottom-0 right-0'>
+                            <TouchableOpacity
+                                className='rounded-full bg-blue-200 justify-center'
+                                style={{
+                                    height: hp('15'), width: hp('15'), margin: wp('3')
+                                }}
+                                onPress={onAddTask}
+                            >
+                                <Entypo name="plus" size={wp('16')} color="black" className='text-center' />
+                            </TouchableOpacity>
+                        </View>
+                    </>
+                )}
             </LinearGradient>
         </View >
     );

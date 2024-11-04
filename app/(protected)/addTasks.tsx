@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, TextInput } fro
 import React from 'react'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { CustomButton } from '~/components/CustomButton';
-import { CircleButton } from '~/components/ui/CircleButton';
+import { CircleButton } from '~/components/CircleButton';
 import { router } from 'expo-router';
 
 export default function addTasks() {

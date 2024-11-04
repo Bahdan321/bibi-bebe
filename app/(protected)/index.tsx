@@ -41,8 +41,8 @@ export default function Home() {
                 */}
                 <View className='flex flex-col justify-items-center mt-60'>
                     <ScrollView>
-                        <TaskCard themeText='Важно' onNavigate={() => { router.navigate(`/(protected)/list/1`) }} onAddTask={() => { router.navigate("/(protected)/addTasks") }} />
-                        <TaskCard themeText='Не важно' onNavigate={() => { router.navigate(`/(protected)/list/2`) }} onAddTask={() => { router.navigate("/(protected)/addTasks") }} />
+                        <TaskCard themeText='Важно' onNavigate={() => { router.navigate(`/(protected)/list/${taskLists[0].id}`) }} onAddTask={() => { router.navigate("/(protected)/addTasks") }} />
+                        <TaskCard themeText='Не важно' onNavigate={() => { router.navigate(`/(protected)/list/${taskLists[1].id}`) }} onAddTask={() => { router.navigate("/(protected)/addTasks") }} />
                     </ScrollView>
                 </View>
             </View>
