@@ -7,7 +7,9 @@ export default function PublicLayout() {
                 headerShown: false,
             }}
         >
-            <Stack.Screen name="home" />
+            <Stack.Screen name="index" />
+            <Stack.Screen name="addTasks" />
+            {/* <Stack.Screen name="list" /> */}
         </Stack>
     );
 }
