@@ -5,6 +5,7 @@ import { CircleButton } from '~/components/CircleButton';
 import { TaskCard } from '~/components/TaskCard';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Entypo from '@expo/vector-icons/Entypo';
+import TasksList from '~/components/TasksList';
 
 export default function TaskList() {
     const { listId } = useLocalSearchParams();
@@ -30,7 +31,7 @@ export default function TaskList() {
                                 style={{
                                     height: hp('15'), width: hp('15'), margin: wp('3')
                                 }}
-                                onPress={() => { }}
+                                onPress={() => { router.navigate("/(protected)/addTasks") }}
                             >
                                 <Entypo name="plus" size={wp('16')} color="black" className='text-center' />
                             </TouchableOpacity>
@@ -39,6 +40,9 @@ export default function TaskList() {
                     {/* 
                     Список задач
                     */}
+                    <View style={{ paddingTop: hp('6') }}>
+                        <TasksList></TasksList>
+                    </View>
                 </View>
             </View>
         </SafeAreaView >
