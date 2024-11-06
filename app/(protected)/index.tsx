@@ -6,10 +6,10 @@ import { TaskCard } from '~/components/TaskCard';
 import { router, useRouter } from 'expo-router';
 import { useDatabase, TaskList } from '~/context/dbProvider';
 import { AddNewListButton } from '~/components/AddNewListButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
     const GITHUB_AVATAR_URI = 'https://github.com/mrzachnugent.png';
-    const { getTaskLists } = useDatabase();
     const { taskLists, loadTaskLists } = useDatabase();
 
     useEffect(() => {
@@ -50,6 +50,7 @@ export default function Home() {
                                 themeText={list.name}
                                 onNavigate={() => { router.navigate(`/(protected)/list/${taskLists[0].id}`) }}
                                 onAddTask={() => { router.navigate("/(protected)/addTasks") }}
+                                gradient={list.gradient}
                             />
                         ))}
                     </ScrollView>

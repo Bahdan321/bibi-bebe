@@ -10,40 +10,16 @@ interface TaskCardProps {
     themeText: string;
     onNavigate: () => void;
     onAddTask: () => void;
+    gradient: string[];
     index?: boolean;
+
 }
 
-const getRandomGradient = () => {
-    const colors = ["red", "blue", "white", "black", "orange", "green", "purple", "gray"];
-
-    const getRandomInt = (min: number, max: number) => {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
-    const getRandomColors = (colorsArray: string[]) => {
-        const numColors = getRandomInt(2, 2);
-        const selectedColors = new Set();
-
-        while (selectedColors.size < numColors) {
-            const randomIndex = getRandomInt(0, colorsArray.length - 1);
-            selectedColors.add(colorsArray[randomIndex]);
-        }
-
-        return Array.from(selectedColors);
-    };
-
-    return getRandomColors(colors);
-};
-
-
-
-export const TaskCard: React.FC<TaskCardProps> = ({ themeText, onNavigate, onAddTask, index = true }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ themeText, onNavigate, onAddTask, gradient, index = true }) => {
     return (
         <View className='' style={{ padding: wp('1'), }}>
             <LinearGradient
-                colors={getRandomGradient()}
+                colors={gradient}
                 className=''
                 style={{
                     height: hp('50'), paddingLeft: wp('6'), paddingTop: wp('12'),
