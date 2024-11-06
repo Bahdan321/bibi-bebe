@@ -9,6 +9,7 @@ export default function PublicLayout() {
         >
             <Stack.Screen name="index" />
             <Stack.Screen name="addTasks" />
+            <Stack.Screen name="addList" />
             {/* <Stack.Screen name="list" /> */}
         </Stack>
     );
