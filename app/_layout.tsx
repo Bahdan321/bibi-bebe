@@ -14,6 +14,7 @@ import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useFonts } from 'expo-font';
+import { DatabaseProvider } from '~/context/dbProvider';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -73,14 +74,16 @@ export default function RootLayout() {
   return (
     // <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
     //   <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="(protected)" />
-      {/* <Stack.Screen name="(public)" /> */}
-    </Stack>
+    <DatabaseProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="(protected)" />
+        {/* <Stack.Screen name="(public)" /> */}
+      </Stack>
+    </DatabaseProvider>
     //   <PortalHost />
     // </ThemeProvider>
   );

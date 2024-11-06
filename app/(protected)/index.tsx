@@ -1,20 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, SafeAreaView, ScrollView } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { TaskCard } from '~/components/TaskCard';
 import { router } from 'expo-router';
-import { DBContext } from '~/context/dbProvider';
+import { useDatabase, TaskList } from '~/context/dbProvider';
 import { AddNewListButton } from '~/components/AddNewListButton';
 
 export default function Home() {
     const GITHUB_AVATAR_URI = 'https://github.com/mrzachnugent.png';
+    const { getTaskLists } = useDatabase();
+    const [taskLists, setTaskLists] = useState<TaskList[]>([]);
 
-    // const taskLists = [
-    //     { id: 1, name: 'Важное' },
-    //     { id: 2, name: 'Учебная Практика' },
-    //     { id: 3, name: 'Ппе' },
-    // ];
+    useEffect(() => {
+        const fetchTaskLists = async () => {
+            try {
+                const lists = await getTaskLists();
+                setTaskLists(lists);
+                console.log(lists);
+            } catch (error) {
+                console.error('Failed to load task lists:', error);
+            }
+        };
+
+        fetchTaskLists();
+    }, []);
 
     return (
         <SafeAreaView className='' style={{ marginTop: hp('3') }}>
@@ -44,8 +54,14 @@ export default function Home() {
                 <View className='flex flex-col justify-items-center mt-60'>
                     <ScrollView>
                         <AddNewListButton />
-                        <TaskCard themeText='Важно' onNavigate={() => { router.navigate(`/(protected)/list/${taskLists[0].id}`) }} onAddTask={() => { router.navigate("/(protected)/addTasks") }} />
-                        <TaskCard themeText='Не важно' onNavigate={() => { router.navigate(`/(protected)/list/${taskLists[1].id}`) }} onAddTask={() => { router.navigate("/(protected)/addTasks") }} />
+                        {taskLists.map((list, index) => (
+                            <TaskCard
+                                key={list.id}
+                                themeText={list.name}
+                                onNavigate={() => { router.navigate(`/(protected)/list/${taskLists[0].id}`) }}
+                                onAddTask={() => { router.navigate("/(protected)/addTasks") }}
+                            />
+                        ))}
                     </ScrollView>
                 </View>
             </View>

@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type Task = {
+export type Task = {
     id: string;
     title: string;
     isCompleted: boolean;
 };
 
-type TaskList = {
+export type TaskList = {
     id: string;
     name: string;
     gradient: string[];
@@ -43,7 +43,11 @@ export const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
             try {
                 const storedTaskLists = await AsyncStorage.getItem('taskLists');
                 if (storedTaskLists) {
-                    setTaskLists(JSON.parse(storedTaskLists));
+                    const parsedTaskLists = JSON.parse(storedTaskLists);
+                    setTaskLists(parsedTaskLists);
+                    console.log('Loaded task lists:', parsedTaskLists);
+                } else {
+                    console.log('No task lists found');
                 }
             } catch (error) {
                 console.error('Failed to load task lists:', error);
@@ -62,11 +66,15 @@ export const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
     };
 
     const createTaskList = async (name: string, gradient: string[]) => {
-        const id = Date.now().toString();
-        const newTaskList: TaskList = { id, name, gradient, tasks: [] };
-        const updatedTaskLists = [...taskLists, newTaskList];
-        setTaskLists(updatedTaskLists);
-        await saveTaskLists(updatedTaskLists);
+        try {
+            const id = Date.now().toString();
+            const newTaskList: TaskList = { id, name, gradient, tasks: [] };
+            const updatedTaskLists = [...taskLists, newTaskList];
+            setTaskLists(updatedTaskLists);
+            await saveTaskLists(updatedTaskLists);
+        } catch (error) {
+            console.error('Failed to create task list:', error);
+        }
     };
 
     const addTaskToList = async (listId: string, task: Task) => {
@@ -93,7 +101,20 @@ export const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
     };
 
     const getTaskLists = async (): Promise<TaskList[]> => {
-        return taskLists;
+        try {
+            const storedTaskLists = await AsyncStorage.getItem('taskLists');
+            if (storedTaskLists) {
+                const parsedTaskLists = JSON.parse(storedTaskLists);
+                console.log('Retrieved task lists:', parsedTaskLists);
+                return parsedTaskLists;
+            } else {
+                console.log('No task lists found');
+                return [];
+            }
+        } catch (error) {
+            console.error('Failed to retrieve task lists:', error);
+            return [];
+        }
     };
 
     return (
