@@ -48,8 +48,8 @@ export default function Home() {
                             <TaskCard
                                 key={list.id}
                                 themeText={list.name}
-                                onNavigate={() => { router.navigate(`/(protected)/list/${taskLists[0].id}`) }}
-                                onAddTask={() => { router.navigate("/(protected)/addTasks") }}
+                                onNavigate={() => { router.navigate(`/(protected)/list/${list.id}`) }}
+                                onAddTask={() => { router.navigate(`/(protected)/addTask/${list.id}`) }}
                                 gradient={list.gradient}
                             />
                         ))}

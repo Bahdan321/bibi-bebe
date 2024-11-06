@@ -4,20 +4,25 @@ import TaskItem, { Task } from './TaskItem';
 import Separator from './Separator';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const TasksList: React.FC = () => {
-    const [tasks, setTasks] = useState<Task[]>([
-        { id: '1', title: 'Реализовать дичайший потенциал', isCompleted: false },
-        { id: '2', title: 'Доделать BibiBebe', isCompleted: false },
-        { id: '3', title: 'Купить чебупиццу во второй раз', isCompleted: true },
-        { id: '4', title: 'Купить чебупиццу', isCompleted: true },
-    ]);
+interface TaskListProps {
+    tasks: Task[];
+    onToggleComplete: (taskId: string) => void;
+}
+
+const TasksList: React.FC<TaskListProps> = ({ tasks, onToggleComplete }) => {
+    // const [tasks, setTasks] = useState<Task[]>([
+    //     { id: '1', title: 'Реализовать дичайший потенциал', isCompleted: false },
+    //     { id: '2', title: 'Доделать BibiBebe', isCompleted: false },
+    //     { id: '3', title: 'Купить чебупиццу во второй раз', isCompleted: true },
+    //     { id: '4', title: 'Купить чебупиццу', isCompleted: true },
+    // ]);
 
     const handleToggleComplete = (id: string) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === id ? { ...task, isCompleted: !task.isCompleted } : task
-            )
-        );
+        // setTasks((prevTasks) =>
+        //     prevTasks.map((task) =>
+        //         task.id === id ? { ...task, isCompleted: !task.isCompleted } : task
+        //     )
+        // );
     };
 
     const activeTasks = tasks.filter((task) => !task.isCompleted);
@@ -29,7 +34,7 @@ const TasksList: React.FC = () => {
                 data={activeTasks}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <TaskItem task={item} onToggleComplete={handleToggleComplete} />
+                    <TaskItem task={item} onToggleComplete={onToggleComplete(item.id)} />
                 )}
                 ListHeaderComponent={() => <Text style={styles.header}>Active Tasks</Text>}
             />
@@ -41,7 +46,7 @@ const TasksList: React.FC = () => {
                 data={completedTasks}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <TaskItem task={item} onToggleComplete={handleToggleComplete} />
+                    <TaskItem task={item} onToggleComplete={onToggleComplete(item.id)} />
                 )}
             />
         </View>

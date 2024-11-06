@@ -1,11 +1,45 @@
 import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, TextInput } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { CustomButton } from '~/components/CustomButton';
 import { CircleButton } from '~/components/CircleButton';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { MiniTaskCard } from '~/components/miniTaskCard';
+import { useDatabase } from '~/context/dbProvider';
 
 export default function addTasks() {
+    const { listId } = useLocalSearchParams();
+    const { taskLists, addTaskToList } = useDatabase();
+    const [taskName, setTaskName] = useState<string>('');
+
+    const currentList = taskLists.find(list => list.id === listId);
+
+    const handleAddTask = async () => {
+        if (!taskName.trim()) {
+            alert('Введите название задачи');
+            return;
+        }
+
+        if (currentList) {
+            const newTask = {
+                id: Date.now().toString(), // Используйте уникальный идентификатор для задачи
+                title: taskName,
+                isCompleted: false,
+            };
+
+            await addTaskToList(currentList.id, newTask);
+            router.back(); // Возвращаемся на предыдущую страницу после добавления задачи
+        }
+    };
+
+    if (!currentList) {
+        return (
+            <SafeAreaView style={{ marginTop: hp('3') }}>
+                <Text>Список не найден</Text>
+            </SafeAreaView>
+        );
+    }
+
     return (
         <SafeAreaView className='' style={{ marginTop: hp('3') }}>
             <View className='' style={{ padding: wp('1'), }}>
@@ -23,10 +57,22 @@ export default function addTasks() {
                             </View>
                         </View>
                         <View className='flex flex-col justify-items-center' style={{ paddingTop: hp('4') }}>
-                            <Text className='text-gray-400 font-light' style={{ fontSize: wp('6') }}>Списки</Text>
+                            <Text className='text-gray-400 font-light' style={{ fontSize: wp('6') }}>Список</Text>
                             <ScrollView
                                 horizontal={true}
                             >
+                                <TouchableOpacity
+                                    onPress={() => {
+
+                                    }}
+                                >
+                                    <MiniTaskCard
+                                        themeText={currentList.name}
+                                        height={hp('8')}
+                                        width={wp('50')}
+                                        gradient={currentList?.gradient}
+                                    />
+                                </TouchableOpacity>
                             </ScrollView>
                         </View>
                         <View className='flex flex-col justify-items-center' style={{ paddingTop: hp('4') }}>
@@ -36,6 +82,12 @@ export default function addTasks() {
                                     placeholder="Введите название задачи"
                                     className='text-black mt-2 border border-black rounded-full px-4 py-8 font-extrabold text-center'
                                     style={{ fontSize: wp('6') }}
+                                    onChangeText={(text) => {
+                                        if (text.length > 0) {
+                                            setTaskName(text);
+                                        }
+                                    }
+                                    }
                                 />
                             </View>
                             {/* <View className='pt-2'>
@@ -50,7 +102,7 @@ export default function addTasks() {
                             </View> */}
                             <View className='flex flex-col-reverse'>
                                 <View className='pt-2'>
-                                    <CustomButton title='Создать' onPress={() => { }} />
+                                    <CustomButton title='Создать' onPress={() => { handleAddTask() }} />
                                 </View>
                             </View>
                         </View>

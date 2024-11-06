@@ -15,7 +15,7 @@ interface TaskCardProps {
 
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ themeText, onNavigate, onAddTask, gradient, index = true }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ themeText, onNavigate, onAddTask, gradient, index = true, }) => {
     return (
         <View className='' style={{ padding: wp('1'), }}>
             <LinearGradient

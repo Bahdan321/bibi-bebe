@@ -6,9 +6,21 @@ import { TaskCard } from '~/components/TaskCard';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Entypo from '@expo/vector-icons/Entypo';
 import TasksList from '~/components/TasksList';
+import { useDatabase } from '~/context/dbProvider';
 
 export default function TaskList() {
     const { listId } = useLocalSearchParams();
+    const { taskLists, toggleTaskCompletion } = useDatabase();
+
+    const currentList = taskLists.find(list => list.id === listId);
+
+    if (!currentList) {
+        return (
+            <SafeAreaView style={{ marginTop: hp('3') }}>
+                <Text>Список не найден</Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView className='' style={{ marginTop: hp('3') }}>
@@ -17,7 +29,7 @@ export default function TaskList() {
                     {/* 
                     Блок с карточкой списка и кнопками
                     */}
-                    <TaskCard themeText='Важно' onNavigate={() => { }} onAddTask={() => { }} index={false} />
+                    <TaskCard themeText={currentList.name} onNavigate={() => { }} onAddTask={() => { }} gradient={currentList.gradient} index={false} />
                     <View className='absolute left-0 p-8'>
                         <CircleButton onPress={() => { router.back() }} iconName='keyboard-arrow-left' />
                     </View>
@@ -31,7 +43,7 @@ export default function TaskList() {
                                 style={{
                                     height: hp('15'), width: hp('15'), margin: wp('3')
                                 }}
-                                onPress={() => { router.navigate("/(protected)/addTasks") }}
+                                onPress={() => { router.navigate(`/(protected)/addTask/${listId}`) }}
                             >
                                 <Entypo name="plus" size={wp('16')} color="black" className='text-center' />
                             </TouchableOpacity>
@@ -41,7 +53,7 @@ export default function TaskList() {
                     Список задач
                     */}
                     <View style={{ paddingTop: hp('6') }}>
-                        <TasksList></TasksList>
+                        <TasksList tasks={currentList.tasks} onToggleComplete={() => { }}></TasksList>
                     </View>
                 </View>
             </View>
