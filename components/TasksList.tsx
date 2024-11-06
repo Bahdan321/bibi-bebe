@@ -51,6 +51,7 @@ const TasksList: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
+        flexWrap: 'wrap',
     },
     header: {
         fontSize: 18,

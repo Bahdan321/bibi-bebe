@@ -32,16 +32,14 @@ export default function addTasks() {
                         <View className='flex flex-col justify-items-center' style={{ paddingTop: hp('4') }}>
                             <Text className='text-gray-400 font-light' style={{ fontSize: wp('6') }}>Название</Text>
                             <View className='pt-4'>
-                                {/* Первое поле ввода текста */}
                                 <TextInput
                                     placeholder="Введите название задачи"
-                                    className='text-black mt-2 border border-black rounded-full px-4 py-6 font-extrabold text-center'
+                                    className='text-black mt-2 border border-black rounded-full px-4 py-8 font-extrabold text-center'
                                     style={{ fontSize: wp('6') }}
                                 />
                             </View>
-                            <View className='pt-2'>
+                            {/* <View className='pt-2'>
                                 <Text className='text-gray-400 font-light' style={{ fontSize: wp('6') }}>Описание</Text>
-                                {/* Второе поле ввода текста */}
                                 <TextInput
                                     placeholder="Введите описание задачи (Необязательно)"
                                     className='text-black mt-2 border border-black rounded-full px-4 py-6 font-extrabold text-center'
@@ -49,9 +47,11 @@ export default function addTasks() {
                                     numberOfLines={3}
                                     style={{ fontSize: wp('6') }}
                                 />
-                            </View>
-                            <View className='pt-2'>
-                                <CustomButton title='Создать' onPress={() => { }} />
+                            </View> */}
+                            <View className='flex flex-col-reverse'>
+                                <View className='pt-2'>
+                                    <CustomButton title='Создать' onPress={() => { }} />
+                                </View>
                             </View>
                         </View>
                     </View>
