@@ -15,6 +15,8 @@ export type TaskList = {
 };
 
 type DatabaseContextProps = {
+    taskLists: TaskList[];
+    loadTaskLists: () => Promise<void>;
     createTaskList: (name: string, gradient: string[]) => Promise<void>;
     addTaskToList: (listId: string, task: Task) => Promise<void>;
     toggleTaskCompletion: (listId: string, taskId: string) => Promise<void>;
@@ -38,22 +40,22 @@ export const useDatabase = () => {
 export const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
     const [taskLists, setTaskLists] = useState<TaskList[]>([]);
 
-    useEffect(() => {
-        const loadTaskLists = async () => {
-            try {
-                const storedTaskLists = await AsyncStorage.getItem('taskLists');
-                if (storedTaskLists) {
-                    const parsedTaskLists = JSON.parse(storedTaskLists);
-                    setTaskLists(parsedTaskLists);
-                    console.log('Loaded task lists:', parsedTaskLists);
-                } else {
-                    console.log('No task lists found');
-                }
-            } catch (error) {
-                console.error('Failed to load task lists:', error);
+    const loadTaskLists = async () => {
+        try {
+            const storedTaskLists = await AsyncStorage.getItem('taskLists');
+            if (storedTaskLists) {
+                const parsedTaskLists = JSON.parse(storedTaskLists);
+                setTaskLists(parsedTaskLists);
+                console.log('Loaded task lists:', parsedTaskLists);
+            } else {
+                console.log('No task lists found');
             }
-        };
+        } catch (error) {
+            console.error('Failed to load task lists:', error);
+        }
+    };
 
+    useEffect(() => {
         loadTaskLists();
     }, []);
 
@@ -120,6 +122,8 @@ export const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
     return (
         <DatabaseContext.Provider
             value={{
+                taskLists,
+                loadTaskLists,
                 createTaskList,
                 addTaskToList,
                 toggleTaskCompletion,

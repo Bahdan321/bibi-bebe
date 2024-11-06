@@ -1,29 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, FocusEvent } from 'react';
 import { View, Text, SafeAreaView, ScrollView } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Avatar, AvatarImage } from '~/components/ui/avatar';
 import { TaskCard } from '~/components/TaskCard';
-import { router } from 'expo-router';
+import { router, useRouter } from 'expo-router';
 import { useDatabase, TaskList } from '~/context/dbProvider';
 import { AddNewListButton } from '~/components/AddNewListButton';
 
 export default function Home() {
     const GITHUB_AVATAR_URI = 'https://github.com/mrzachnugent.png';
     const { getTaskLists } = useDatabase();
-    const [taskLists, setTaskLists] = useState<TaskList[]>([]);
+    const { taskLists, loadTaskLists } = useDatabase();
 
     useEffect(() => {
-        const fetchTaskLists = async () => {
-            try {
-                const lists = await getTaskLists();
-                setTaskLists(lists);
-                console.log(lists);
-            } catch (error) {
-                console.error('Failed to load task lists:', error);
-            }
-        };
-
-        fetchTaskLists();
+        loadTaskLists(); // Initial fetch when the component mounts
     }, []);
 
     return (
