@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams, router } from 'expo-router';
 import { CircleButton } from '~/components/CircleButton';
@@ -7,10 +7,12 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import Entypo from '@expo/vector-icons/Entypo';
 import TasksList from '~/components/TasksList';
 import { useDatabase } from '~/context/dbProvider';
+import { DeleteModal } from '~/components/DeleteModal';
 
 export default function TaskList() {
     const { listId } = useLocalSearchParams();
-    const { taskLists, toggleTaskCompletion } = useDatabase();
+    const { taskLists, toggleTaskCompletion, deleteTaskList } = useDatabase();
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
     const currentList = taskLists.find(list => list.id === listId);
 
@@ -30,11 +32,19 @@ export default function TaskList() {
                     Блок с карточкой списка и кнопками
                     */}
                     <TaskCard themeText={currentList.name} onNavigate={() => { }} onAddTask={() => { }} gradient={currentList.gradient} index={false} />
+                    {/* 
+                    Кнопка назад    
+                    */}
                     <View className='absolute left-0 p-8'>
                         <CircleButton onPress={() => { router.back() }} iconName='keyboard-arrow-left' />
                     </View>
+                    {/* 
+                    Кнопка удаления списка    
+                    */}
                     <View className='absolute right-0 p-8'>
-                        <CircleButton onPress={() => { }} iconName='blur-on' />
+                        <CircleButton onPress={() => {
+                            setIsModalVisible(true)
+                        }} iconName='blur-on' />
                     </View>
                     <View className=' justify-center'>
                         <View className='absolute self-center'>
@@ -56,6 +66,17 @@ export default function TaskList() {
                         <TasksList tasks={currentList.tasks} onToggleComplete={(taskId) => toggleTaskCompletion(listId, taskId)}></TasksList>
                     </View>
                 </View>
+                <DeleteModal
+                    Modaltext='Вы точно хотите удалить этот список?'
+                    firstButtonText='Нет'
+                    secondButtonText='Удалить'
+                    firstButtonAction={() => { setIsModalVisible(false) }}
+                    secondButtonAction={() => {
+                        deleteTaskList(listId);
+                        router.back();
+                    }}
+                    visible={isModalVisible}
+                />
             </View>
         </SafeAreaView >
     );

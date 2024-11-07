@@ -21,6 +21,7 @@ type DatabaseContextProps = {
     addTaskToList: (listId: string, task: Task) => Promise<void>;
     toggleTaskCompletion: (listId: string, taskId: string) => Promise<void>;
     getTaskLists: () => Promise<TaskList[]>;
+    deleteTaskList: (listId: string) => Promise<void>;
 };
 
 type DatabaseProviderProps = {
@@ -119,6 +120,17 @@ export const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
         }
     };
 
+    const deleteTaskList = async (listId: string) => {
+        try {
+            const updatedTaskLists = taskLists.filter(list => list.id !== listId);
+            setTaskLists(updatedTaskLists);
+            await saveTaskLists(updatedTaskLists);
+            console.log(`Deleted task list with id: ${listId}`);
+        } catch (error) {
+            console.error('Failed to delete task list:', error);
+        }
+    }
+
     return (
         <DatabaseContext.Provider
             value={{
@@ -128,6 +140,7 @@ export const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
                 addTaskToList,
                 toggleTaskCompletion,
                 getTaskLists,
+                deleteTaskList,
             }}
         >
             {children}
