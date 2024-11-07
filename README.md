@@ -24,7 +24,7 @@ BibiBebe разработан с использованием следующих
 - **[Yarn](https://yarnpkg.com/)**
 
 ## 📊 IDeF0 диаграмма
-Код создан на основе <a href="https://github.com/Bahdan321/bibi-bebe/blob/assets/diagrams/diagram.png">IDeF0 диаграммы</a>
+<kbd> <img src="/assets/diagrams/diagram.png" width="500px"/> </kbd>
 
 ---
 
