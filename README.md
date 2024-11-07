@@ -30,7 +30,7 @@ BibiBebe разработан с использованием следующих
 
 ## ⌛ Установка
 
-Перед самой установкой убедитесь, что вы уже установили [yarn](https://classic.yarnpkg.com/lang/en/docs/install/) и [expo](https://docs.expo.dev/).И также скачали официальное мобильное приложение [Expo GO](https://expo.dev/go) чтобы после запуска BibiBebe протестировать его. 
+Перед самой установкой убедитесь, что вы уже установили [yarn](https://classic.yarnpkg.com/lang/en/docs/install/) и [expo](https://docs.expo.dev/).И также скачали официальное мобильное приложение [Expo GO](https://expo.dev/go).
 
 ### 1. **Клонирование репозитория**
 
