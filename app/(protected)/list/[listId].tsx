@@ -53,7 +53,7 @@ export default function TaskList() {
                     Список задач
                     */}
                     <View style={{ paddingTop: hp('6') }}>
-                        <TasksList tasks={currentList.tasks} onToggleComplete={() => { }}></TasksList>
+                        <TasksList tasks={currentList.tasks} onToggleComplete={(taskId) => toggleTaskCompletion(listId, taskId)}></TasksList>
                     </View>
                 </View>
             </View>

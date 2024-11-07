@@ -34,7 +34,7 @@ const TasksList: React.FC<TaskListProps> = ({ tasks, onToggleComplete }) => {
                 data={activeTasks}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <TaskItem task={item} onToggleComplete={onToggleComplete(item.id)} />
+                    <TaskItem task={item} onToggleComplete={onToggleComplete} />
                 )}
                 ListHeaderComponent={() => <Text style={styles.header}>Active Tasks</Text>}
             />
@@ -46,7 +46,7 @@ const TasksList: React.FC<TaskListProps> = ({ tasks, onToggleComplete }) => {
                 data={completedTasks}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <TaskItem task={item} onToggleComplete={onToggleComplete(item.id)} />
+                    <TaskItem task={item} onToggleComplete={onToggleComplete} />
                 )}
             />
         </View>
