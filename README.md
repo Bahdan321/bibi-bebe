@@ -35,7 +35,7 @@ BibiBebe разработан с использованием следующих
 ### 1. **Клонирование репозитория**
 
 ```bash
-git clone https://github.com/your-username/bibibebe.git
+git clone https://github.com/Bahdan321/bibi-bebe.git
 cd bibibebe
 ```
 
