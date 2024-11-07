@@ -8,7 +8,6 @@ export type Task = {
     isCompleted: boolean;
 };
 
-
 type TaskItemProps = {
     task: Task;
     onToggleComplete: (id: string) => void;
@@ -16,12 +15,17 @@ type TaskItemProps = {
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete }) => {
     return (
-        <View className='flex flex-col'>
+        <View className="flex flex-col">
             <TouchableOpacity style={styles.taskContainer} onPress={() => onToggleComplete(task.id)}>
                 <View style={styles.checkbox}>
                     {task.isCompleted && <View style={styles.checkedMark} />}
                 </View>
-                <Text className='font-extrabold' style={[styles.taskTitle, task.isCompleted && styles.completedText]}>
+                <Text
+                    className="font-extrabold"
+                    style={[styles.taskTitle, task.isCompleted && styles.completedText]}
+                    numberOfLines={5}
+                    ellipsizeMode='head'
+                >
                     {task.title}
                 </Text>
             </TouchableOpacity>
@@ -52,7 +56,9 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     taskTitle: {
-        fontSize: wp('5'),
+        fontSize: wp('4%'),
+        maxWidth: wp('70%'),
+        color: '#000',
     },
     completedText: {
         textDecorationLine: 'line-through',

@@ -42,7 +42,9 @@ export default function Home() {
                 Блоки с задачами пользователя
                 */}
                 <View className='flex flex-col justify-items-center mt-60'>
-                    <ScrollView>
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                    >
                         <AddNewListButton />
                         {taskLists.map((list, index) => (
                             <TaskCard

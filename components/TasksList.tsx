@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, FlatList, StyleSheet, ScrollView } from 'react-native';
 import TaskItem, { Task } from './TaskItem';
 import Separator from './Separator';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -10,63 +10,59 @@ interface TaskListProps {
 }
 
 const TasksList: React.FC<TaskListProps> = ({ tasks, onToggleComplete }) => {
-    // const [tasks, setTasks] = useState<Task[]>([
-    //     { id: '1', title: 'Реализовать дичайший потенциал', isCompleted: false },
-    //     { id: '2', title: 'Доделать BibiBebe', isCompleted: false },
-    //     { id: '3', title: 'Купить чебупиццу во второй раз', isCompleted: true },
-    //     { id: '4', title: 'Купить чебупиццу', isCompleted: true },
-    // ]);
-
-    const handleToggleComplete = (id: string) => {
-        // setTasks((prevTasks) =>
-        //     prevTasks.map((task) =>
-        //         task.id === id ? { ...task, isCompleted: !task.isCompleted } : task
-        //     )
-        // );
-    };
-
     const activeTasks = tasks.filter((task) => !task.isCompleted);
     const completedTasks = tasks.filter((task) => task.isCompleted);
 
+    // Объединение активных и завершенных задач в один список с заголовками
+    const combinedTasks = [
+        { id: 'header-active', title: 'Активные задачи', type: 'header' },
+        ...activeTasks.map((task) => ({ ...task, type: 'task' })),
+        { id: 'separator', type: 'separator' }, // Разделитель
+        { id: 'header-completed', title: `Завершенные задачи (${completedTasks.length})`, type: 'header' },
+        ...completedTasks.map((task) => ({ ...task, type: 'task' })),
+    ];
+
     return (
-        <View style={styles.container}>
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+        >
             <FlatList
-                data={activeTasks}
+                data={combinedTasks}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <TaskItem task={item} onToggleComplete={onToggleComplete} />
-                )}
-                ListHeaderComponent={() => <Text style={styles.header}>Active Tasks</Text>}
+                renderItem={({ item }) => {
+                    if (item.type === 'header') {
+                        return <Text style={styles.header}>{item.title}</Text>;
+                    }
+                    if (item.type === 'separator') {
+                        return (
+                            <View style={styles.separatorContainer}>
+                                <Separator />
+                            </View>
+                        );
+                    }
+                    return <TaskItem task={item} onToggleComplete={onToggleComplete} />;
+                }}
+                contentContainerStyle={styles.container}
+                scrollEnabled={false}
             />
-            <View style={{ paddingTop: hp('2'), justifyContent: 'center', alignItems: 'center' }}>
-                <Separator />
-            </View>
-            <Text style={styles.completedHeader}>Completed ({completedTasks.length})</Text>
-            <FlatList
-                data={completedTasks}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <TaskItem task={item} onToggleComplete={onToggleComplete} />
-                )}
-            />
-        </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
-        flexWrap: 'wrap',
+        paddingHorizontal: 20,
+        paddingBottom: hp('2%'),
     },
     header: {
-        fontSize: 18,
+        fontSize: wp('6%'),
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginVertical: hp('1%'),
     },
-    completedHeader: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginTop: 20,
+    separatorContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: hp('1%'),
     },
 });
 

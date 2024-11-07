@@ -57,7 +57,7 @@ export default function addTasks() {
                             </View>
                         </View>
                         <View className='flex flex-col justify-items-center' style={{ paddingTop: hp('4') }}>
-                            <Text className='text-gray-400 font-light' style={{ fontSize: wp('6') }}>Список</Text>
+                            <Text className='text-black font-medium' style={{ fontSize: wp('6') }}>Список</Text>
                             <ScrollView
                                 horizontal={true}
                             >
@@ -76,7 +76,7 @@ export default function addTasks() {
                             </ScrollView>
                         </View>
                         <View className='flex flex-col justify-items-center' style={{ paddingTop: hp('4') }}>
-                            <Text className='text-gray-400 font-light' style={{ fontSize: wp('6') }}>Название</Text>
+                            <Text className='text-black font-medium' style={{ fontSize: wp('6') }}>Название</Text>
                             <View className='pt-4'>
                                 <TextInput
                                     placeholder="Введите название задачи"

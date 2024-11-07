@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams, router } from 'expo-router';
 import { CircleButton } from '~/components/CircleButton';
 import { TaskCard } from '~/components/TaskCard';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Entypo from '@expo/vector-icons/Entypo';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import TasksList from '~/components/TasksList';
 import { useDatabase } from '~/context/dbProvider';
 import { DeleteModal } from '~/components/DeleteModal';
@@ -25,9 +26,9 @@ export default function TaskList() {
     }
 
     return (
-        <SafeAreaView className='' style={{ marginTop: hp('3') }}>
-            <View className='' style={{ padding: wp('1'), }}>
-                <View className='flex flex-col'>
+        <SafeAreaView className='' style={{ marginTop: hp('3'), flex: 1 }}>
+            <View className='' style={{ padding: wp('1'), flex: 1 }}>
+                <View className='flex flex-col flex-1' >
                     {/* 
                     Блок с карточкой списка и кнопками
                     */}
@@ -44,7 +45,7 @@ export default function TaskList() {
                     <View className='absolute right-0 p-8'>
                         <CircleButton onPress={() => {
                             setIsModalVisible(true)
-                        }} iconName='blur-on' />
+                        }} iconName='delete-outline' />
                     </View>
                     <View className=' justify-center'>
                         <View className='absolute self-center'>
@@ -62,7 +63,7 @@ export default function TaskList() {
                     {/* 
                     Список задач
                     */}
-                    <View style={{ paddingTop: hp('6') }}>
+                    <View style={{ paddingTop: hp('6'), flex: 1 }}>
                         <TasksList tasks={currentList.tasks} onToggleComplete={(taskId) => toggleTaskCompletion(listId, taskId)}></TasksList>
                     </View>
                 </View>
