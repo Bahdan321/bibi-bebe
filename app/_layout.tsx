@@ -17,11 +17,11 @@ import { useFonts } from 'expo-font';
 import { DatabaseProvider } from '~/context/dbProvider';
 
 const LIGHT_THEME: Theme = {
-  dark: false,
+  dark: true,
   colors: NAV_THEME.light,
 };
 const DARK_THEME: Theme = {
-  dark: true,
+  dark: false,
   colors: NAV_THEME.dark,
 };
 
