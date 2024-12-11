@@ -1,4 +1,5 @@
 # BibiBebe - Task Tracker
+<a href="https://www.figma.com/design/cGb0XG88njyCGuYhnCV5jJ/BibiBebe-MoodBoard?node-id=0-1&node-type=canvas&t=ZWNAVFL2o1xm2pV7-0">Ссылка на Figma</a>
 
 <kbd> <img src="/assets/screenshots/Menu.jpg" width="200px"/> <img src="/assets/screenshots/List.jpg" width="200px"/> <img src="/assets/screenshots/Add New Task.jpg" width="200px"/> <img src="/assets/screenshots/Add New List.jpg" width="200px"/></kbd>
 
