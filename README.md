@@ -1,10 +1,11 @@
 # BibiBebe - Task Tracker
-## Прототип
-<a href="https://www.figma.com/design/cGb0XG88njyCGuYhnCV5jJ/BibiBebe-MoodBoard?node-id=0-1&node-type=canvas&t=ZWNAVFL2o1xm2pV7-0">Ссылка на Figma</a>
 
 <kbd> <img src="/assets/screenshots/Menu.jpg" width="200px"/> <img src="/assets/screenshots/List.jpg" width="200px"/> <img src="/assets/screenshots/Add New Task.jpg" width="200px"/> <img src="/assets/screenshots/Add New List.jpg" width="200px"/></kbd>
 
 BibiBebe — это простой и удобный трекер задач, который позволяет организовать и управлять задачами в списках. С помощью приложения вы можете создавать и удалять списки задач, добавлять в них задачи, а также легко менять состояние задач между активными и выполненными.
+
+## Прототип
+<a href="https://www.figma.com/design/cGb0XG88njyCGuYhnCV5jJ/BibiBebe-MoodBoard?node-id=0-1&node-type=canvas&t=ZWNAVFL2o1xm2pV7-0">Ссылка на Figma</a>
 
 ## 📑 Оглавление
 - [Функциональность](#-функциональность)
