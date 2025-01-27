@@ -28,8 +28,13 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaView style={{flex:1}}>
-              <MainComponent />
-    </SafeAreaView>
+    <Providers>
+      <Stack>
+        {/* <Stack.Screen name="(protected)" options={{ headerShown: false }} /> */}
+        <Stack.Screen name="(public)" options={{ headerShown: false }} />
+        {/* <Stack.Screen name="+not-found" /> */}
+      </Stack>
+      <StatusBar />
+    </Providers>
   );
 }

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
-import DayInfo from './DayInfo';
-import TaskList from './TaskList';
-import Gigabar from './Gigabar';
+import DayInfo from '@/components/DayInfo';
+import TaskList from '@/components/TaskList';
+import Gigabar from '@/components/Gigabar';
 
 
 interface Task {
@@ -17,18 +17,18 @@ const MainComponent: React.FC = () => {
         { id: 2, text: 'Вырастить мандрагору', completed: true },
     ];
     const tasks2: Task[] = [
-        {id:1, text:'Кувырок',completed: true},
-        {id:2, text:'Поворот',completed: false},
+        { id: 1, text: 'Кувырок', completed: true },
+        { id: 2, text: 'Поворот', completed: false },
     ]
 
     return (
         <View style={styles.container}>
             <DayInfo date="2025-01-27" dayOfWeek="Понедельник" />
-            <Gigabar/>
+            <Gigabar />
             <TaskList tasks={tasks} />
-            <Gigabar/>
+            <Gigabar />
             <DayInfo date="2025-01-27" dayOfWeek="Понедельник" />
-            <TaskList tasks={tasks2}/>
+            <TaskList tasks={tasks2} />
         </View>
     );
 };
@@ -36,7 +36,7 @@ const MainComponent: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         padding: 12,
-        backgroundColor: '#002137',
+        backgroundColor: 'black',
     },
 });
 
