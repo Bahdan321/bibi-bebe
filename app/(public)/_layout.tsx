@@ -12,7 +12,7 @@ export default function ProtectedLayout() {
                     }}
                 >
                     <Stack.Screen
-                        name="Index"
+                        name="index"
                     />
                 </Stack>
             </View>
