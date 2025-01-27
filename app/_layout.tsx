@@ -6,6 +6,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { Providers } from '@/providers/Providers';
+import React from 'react';
+import MainComponent from '@/components/MainComponent';
+import { SafeAreaView } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,13 +28,8 @@ export default function RootLayout() {
   }
 
   return (
-    <Providers>
-      <Stack>
-        {/* <Stack.Screen name="(protected)" options={{ headerShown: false }} /> */}
-        <Stack.Screen name="(public)" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="+not-found" /> */}
-      </Stack>
-      <StatusBar />
-    </Providers>
+    <SafeAreaView style={{flex:1}}>
+              <MainComponent />
+    </SafeAreaView>
   );
 }
