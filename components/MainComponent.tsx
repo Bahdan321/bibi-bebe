@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet, FlatList, Text } from 'react-native';
 import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
 import Gigabar from '@/components/Gigabar';
+import DayBlock from './DayBlock';
 
 
 interface Task {
@@ -12,23 +13,21 @@ interface Task {
 }
 
 const MainComponent: React.FC = () => {
-    const tasks: Task[] = [
-        { id: 1, text: 'Сделать сальто', completed: false },
-        { id: 2, text: 'Вырастить мандрагору', completed: true },
+    const days = [
+        { date: '21-01-25', dayOfWeek: 'Понедельник' },
+        { date: '21-01-26', dayOfWeek: 'Вторник' },
+        { date: '21-01-27', dayOfWeek: 'Среда' },
+        { date: '21-01-28', dayOfWeek: 'Четверг' },
+        { date: '21-01-29', dayOfWeek: 'Пятница' },
+        { date: '21-01-30', dayOfWeek: 'Суббота' },
+        { date: '21-01-31', dayOfWeek: 'Воскресенье' },
     ];
-    const tasks2: Task[] = [
-        { id: 1, text: 'Кувырок', completed: true },
-        { id: 2, text: 'Поворот', completed: false },
-    ]
 
     return (
         <View style={styles.container}>
-            <DayInfo date="2025-01-27" dayOfWeek="Понедельник" />
-            <Gigabar />
-            <TaskList tasks={tasks} />
-            <Gigabar />
-            <DayInfo date="2025-01-27" dayOfWeek="Понедельник" />
-            <TaskList tasks={tasks2} />
+            {days.map((day, index) => (
+                <DayBlock key={index} date={day.date} dayOfWeek={day.dayOfWeek} />
+            ))}
         </View>
     );
 };
