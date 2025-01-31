@@ -7,8 +7,8 @@ import { ru } from 'date-fns/locale';
 
 
 const ShowCurrentDate = () => {
-    const currentDate = new Date();
-    return format(currentDate, 'LLLL yyyy', { locale: ru })
+    const formatedData = format(new Date(), 'LLLL yyyy', { locale: ru });
+    return `${formatedData[0].toUpperCase()}${formatedData.slice(1,)}`
 }
 
 export default function NavigatePanel() {
