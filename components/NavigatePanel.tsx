@@ -2,12 +2,20 @@ import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 import RoundButton from '@/components/RoundButton';
 import CustomText from '@/components/CustomText';
+import { format } from 'date-fns'
+import { ru } from 'date-fns/locale';
+
+
+const ShowCurrentDate = () => {
+    const currentDate = new Date();
+    return format(currentDate, 'LLLL yyyy', { locale: ru })
+}
 
 export default function NavigatePanel() {
     return (
         <View style={styles.panel}>
             <View style={styles.leftContainer}>
-                <CustomText content='Январь 2025' size={25} color='white' weight='700' />
+                <CustomText content={ShowCurrentDate()} size={21} color='white' weight='700' />
             </View>
             <View style={styles.rightContainer}>
                 <RoundButton

@@ -1,8 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, Text } from 'react-native';
-import DayInfo from '@/components/DayInfo';
-import TaskList from '@/components/TaskList';
-import Gigabar from '@/components/Gigabar';
+import { View, StyleSheet } from 'react-native';
 import DayBlock from './DayBlock';
 
 
