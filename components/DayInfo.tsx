@@ -22,11 +22,11 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     dateText: {
-        fontSize: 16,
+        fontSize: 21,
         color: 'white',
     },
     dayText: {
-        fontSize: 16,
+        fontSize: 21,
         color: 'white',
     },
 });

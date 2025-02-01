@@ -1,16 +1,13 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-const Gigabar: React.FC = () => {
-    return <View style={styles.line} />;
-};
+type GigabarProps = {
+    color: string;
+    size: number;
+}
 
-const styles = StyleSheet.create({
-    line: {
-        height: 3,
-        backgroundColor: 'gray',
-        marginBottom: 8,
-    },
-});
+const Gigabar: React.FC<GigabarProps> = ({ color, size }) => {
+    return <View style={{ backgroundColor: color, height: size, marginBottom: 12, }} />;
+};
 
 export default Gigabar;

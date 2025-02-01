@@ -17,14 +17,16 @@ interface Task {
 
 const tasks: Task[] = [
     { id: 1, text: 'Кувырок', completed: true },
-    { id: 2, text: 'Поворот', completed: false },
+    // { id: 2, text: 'Поворот', completed: false },
+    // { id: 2, text: 'Пенис', completed: false },
+
 ]
 
 const DayBlock: React.FC<DayBlockProps> = ({ date, dayOfWeek }) => {
     return (
         <View>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
-            <Gigabar />
+            <Gigabar color="white" size={2} />
             <TaskList tasks={tasks} />
         </View>
     )
