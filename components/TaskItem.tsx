@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import Gigabar from './Gigabar';
 
 interface Task {
@@ -10,13 +10,38 @@ interface Task {
 
 interface TaskItemProps {
     task: Task;
+    isEditing?: boolean;
+    onSubmit?: (text: string) => void;
+    onPress: () => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, isEditing, onSubmit, onPress, }) => {
+    const [inputValue, setInputValue] = useState<string>('');
+
+    const handleSubmit = () => {
+        if (onSubmit && inputValue.trim() !== '') {
+            onSubmit(inputValue.trim());
+            setInputValue('');
+        }
+    };
+
     return (
         <View style={{ flexDirection: 'column' }}>
             <View style={styles.container}>
-                <Text style={styles.taskText}>{task.text}</Text>
+                {isEditing ? (
+                    <TextInput
+                        style={styles.taskText}
+                        value={inputValue}
+                        onChangeText={setInputValue}
+                        autoFocus={true}
+                        onSubmitEditing={handleSubmit}
+                        onBlur={handleSubmit}
+                    />
+                ) : (
+                    <TouchableOpacity onPress={onPress}>
+                        <Text style={styles.taskText}>{task.text}</Text>
+                    </TouchableOpacity>
+                )}
                 <TouchableOpacity style={[styles.statusButton, task.completed ? styles.completedStatus : styles.pendingStatus]} />
             </View>
             <View style={{ flexDirection: "row" }}>
@@ -52,7 +77,7 @@ const styles = StyleSheet.create({
     },
     pendingStatus: {
         backgroundColor: 'gray'
-    }
+    },
 });
 
 export default TaskItem;

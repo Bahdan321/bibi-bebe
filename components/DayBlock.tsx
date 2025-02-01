@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, Text } from 'react-native';
 import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
@@ -15,19 +15,23 @@ interface Task {
     completed: boolean;
 }
 
-const tasks: Task[] = [
-    { id: 1, text: 'Кувырок', completed: true },
-    // { id: 2, text: 'Поворот', completed: false },
-    // { id: 2, text: 'Пенис', completed: false },
-
-]
-
 const DayBlock: React.FC<DayBlockProps> = ({ date, dayOfWeek }) => {
+    const [tasks, setTasks] = useState<Task[]>([]);
+
+    const handleAddTask = (newTaskText: string) => {
+        const newTask: Task = {
+            id: Date.now(),
+            text: newTaskText,
+            completed: false,
+        };
+        setTasks((prevTasks) => [...prevTasks, newTask]);
+    };
+
     return (
         <View>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color="white" size={2} />
-            <TaskList tasks={tasks} />
+            <TaskList tasks={tasks} onAddTask={handleAddTask} />
         </View>
     )
 }

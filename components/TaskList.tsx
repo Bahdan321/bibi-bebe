@@ -1,6 +1,6 @@
-import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
-import TaskItem from './TaskItem';
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import TaskItem from '@/components/TaskItem';
 
 interface Task {
     id: number;
@@ -9,21 +9,40 @@ interface Task {
 }
 interface TaskListProps {
     tasks: Task[];
+    onAddTask: (newTaskText: string) => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
-    return (
-        // <FlatList
-        //     data={tasks}
-        //     keyExtractor={(item) => item.id.toString()}
-        //     renderItem={({ item }) => <TaskItem task={item} />}
-        //     style={styles.container}
-        // />
-        <View>
-            {tasks.map((task) => (
-                <TaskItem key={task.id} task={task} />
-            ))}
+const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
+    const [emptyTaskId, setEmptyTaskId] = useState<number>(Date.now());
+    const [isEditingEmptyTask, setIsEditingEmptyTask] = useState<boolean>(false);
 
+    const handleEmptyTaskPress = () => {
+        setIsEditingEmptyTask(true);
+    };
+
+    const handleTaskSubmit = (newTaskText: string) => {
+        if (newTaskText.trim() !== '') {
+            onAddTask(newTaskText.trim());
+            setIsEditingEmptyTask(false);
+            setEmptyTaskId(Date.now());
+        }
+    };
+
+    const tasksWithEmpty = isEditingEmptyTask
+        ? tasks
+        : [...tasks, { id: emptyTaskId, text: '', completed: false }];
+
+    return (
+        <View>
+            {tasksWithEmpty.map((task) => (
+                <TaskItem
+                    key={task.id}
+                    task={task}
+                    isEditing={isEditingEmptyTask && task.id === emptyTaskId}
+                    onSubmit={handleTaskSubmit}
+                    onPress={handleEmptyTaskPress}
+                />
+            ))}
         </View>
     );
 };
