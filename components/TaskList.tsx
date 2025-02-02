@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import TaskItem from '@/components/TaskItem';
+import NewTaskInput from '@/components/NewTaskInput';
 
 interface Task {
     id: number;
@@ -14,7 +15,6 @@ interface TaskListProps {
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
     const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-    const [showEmptyTask, setShowEmptyTask] = useState(true);
 
     const handleTaskPress = (taskId: number) => {
         setEditingTaskId(taskId);
@@ -24,24 +24,21 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
         if (newTaskText.trim() !== '') {
             onAddTask(newTaskText.trim());
             setEditingTaskId(null);
-            setShowEmptyTask(true);
         }
     };
 
-    const emptyTask = { id: -1, text: '', completed: false };
-    const tasksToShow = showEmptyTask ? [...tasks, emptyTask] : tasks;
-
     return (
         <View style={styles.container}>
-            {tasksToShow.map((task) => (
+            {tasks.map((task) => (
                 <TaskItem
                     key={task.id}
                     task={task}
                     isEditing={editingTaskId === task.id}
-                    onSubmit={handleTaskSubmit}
-                    onPress={() => handleTaskPress(task.id)}
+                    onSubmit={() => { }}
+                    onPress={() => { }}
                 />
             ))}
+            <NewTaskInput onAddTask={handleTaskSubmit} />
         </View>
     );
 };

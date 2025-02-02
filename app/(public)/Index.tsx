@@ -5,7 +5,7 @@ import MainComponent from '@/components/MainComponent';
 
 export default function Index() {
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, flexDirection: 'column' }}>
             <MainComponent />
             <NavigatePanel />
         </View>

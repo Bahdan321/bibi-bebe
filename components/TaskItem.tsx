@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import Gigabar from './Gigabar';
 
@@ -15,8 +15,14 @@ interface TaskItemProps {
     onPress: () => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, isEditing, onSubmit, onPress }) => {
+const TaskItem: React.FC<TaskItemProps> = React.memo(({ task, isEditing, onSubmit, onPress }) => {
     const [inputValue, setInputValue] = useState<string>('');
+
+    // useEffect(() => {
+    //     if (isEditing) {
+    //         setInputValue(task.text);
+    //     }
+    // }, [isEditing, task.text]);
 
     const handleSubmit = () => {
         if (onSubmit && inputValue.trim() !== '') {
@@ -28,31 +34,30 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, isEditing, onSubmit, onPress 
     return (
         <View style={{ flexDirection: 'column' }}>
             <View style={styles.container}>
-                {isEditing ? (
+                {/* {isEditing ? (
                     <TextInput
                         style={styles.taskText}
                         value={inputValue}
                         onChangeText={setInputValue}
                         onSubmitEditing={handleSubmit}
-                        onBlur={handleSubmit}
-                        placeholder="Enter task..."
+                        placeholder="Че делать будем?"
                         placeholderTextColor="gray"
                     />
-                ) : (
-                    <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
-                        <Text style={styles.taskText}>
-                            {task.text}
-                        </Text>
-                    </TouchableOpacity>
-                )}
+                ) : ( */}
+                <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
+                    <Text style={styles.taskText}>
+                        {task.text}
+                    </Text>
+                </TouchableOpacity>
+                {/* )} */}
                 <TouchableOpacity
                     style={[styles.statusButton, task.completed ? styles.completedStatus : styles.pendingStatus]}
                 />
             </View>
-            <Gigabar color='gray' size={1} />
+            <Gigabar color="gray" size={1} />
         </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {

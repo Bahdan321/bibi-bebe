@@ -25,8 +25,9 @@ const MainComponent: React.FC = () => {
             <ScrollView
                 style={styles.container}
                 contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={true}
+                showsVerticalScrollIndicator={false}
                 scrollEnabled={true}
+                nestedScrollEnabled={true}
             >
                 <View style={styles.content}>
                     {days.map((day, index) => (
