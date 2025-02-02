@@ -22,10 +22,10 @@ const MainComponent: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            {/* {days.map((day, index) => (
+            {days.map((day, index) => (
                 <DayBlock key={index} date={day.date} dayOfWeek={day.dayOfWeek} />
-            ))} */}
-            <DayBlock date={days[0].date} dayOfWeek={days[0].dayOfWeek} />
+            ))}
+            {/* <DayBlock date={days[0].date} dayOfWeek={days[0].dayOfWeek} /> */}
 
         </View>
     );

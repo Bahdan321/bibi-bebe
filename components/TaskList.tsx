@@ -13,34 +13,33 @@ interface TaskListProps {
 }
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
-    const [emptyTaskId, setEmptyTaskId] = useState<number>(Date.now());
-    const [isEditingEmptyTask, setIsEditingEmptyTask] = useState<boolean>(false);
+    const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+    const [showEmptyTask, setShowEmptyTask] = useState(true);
 
-    const handleEmptyTaskPress = () => {
-        setIsEditingEmptyTask(true);
+    const handleTaskPress = (taskId: number) => {
+        setEditingTaskId(taskId);
     };
 
     const handleTaskSubmit = (newTaskText: string) => {
         if (newTaskText.trim() !== '') {
             onAddTask(newTaskText.trim());
-            setIsEditingEmptyTask(false);
-            setEmptyTaskId(Date.now());
+            setEditingTaskId(null);
+            setShowEmptyTask(true);
         }
     };
 
-    const tasksWithEmpty = isEditingEmptyTask
-        ? tasks
-        : [...tasks, { id: emptyTaskId, text: '', completed: false }];
+    const emptyTask = { id: -1, text: '', completed: false };
+    const tasksToShow = showEmptyTask ? [...tasks, emptyTask] : tasks;
 
     return (
-        <View>
-            {tasksWithEmpty.map((task) => (
+        <View style={styles.container}>
+            {tasksToShow.map((task) => (
                 <TaskItem
                     key={task.id}
                     task={task}
-                    isEditing={isEditingEmptyTask && task.id === emptyTaskId}
+                    isEditing={editingTaskId === task.id}
                     onSubmit={handleTaskSubmit}
-                    onPress={handleEmptyTaskPress}
+                    onPress={() => handleTaskPress(task.id)}
                 />
             ))}
         </View>

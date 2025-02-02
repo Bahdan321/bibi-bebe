@@ -15,7 +15,7 @@ interface TaskItemProps {
     onPress: () => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, isEditing, onSubmit, onPress, }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, isEditing, onSubmit, onPress }) => {
     const [inputValue, setInputValue] = useState<string>('');
 
     const handleSubmit = () => {
@@ -33,19 +33,21 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, isEditing, onSubmit, onPress,
                         style={styles.taskText}
                         value={inputValue}
                         onChangeText={setInputValue}
-                        autoFocus={true}
                         onSubmitEditing={handleSubmit}
                         onBlur={handleSubmit}
+                        placeholder="Enter task..."
+                        placeholderTextColor="gray"
                     />
                 ) : (
-                    <TouchableOpacity onPress={onPress}>
-                        <Text style={styles.taskText}>{task.text}</Text>
+                    <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
+                        <Text style={styles.taskText}>
+                            {task.text}
+                        </Text>
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity style={[styles.statusButton, task.completed ? styles.completedStatus : styles.pendingStatus]} />
-            </View>
-            <View style={{ flexDirection: "row" }}>
-                <Text style={styles.taskText}>{task.text}</Text>
+                <TouchableOpacity
+                    style={[styles.statusButton, task.completed ? styles.completedStatus : styles.pendingStatus]}
+                />
             </View>
             <Gigabar color='gray' size={1} />
         </View>
