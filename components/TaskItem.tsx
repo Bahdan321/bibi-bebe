@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import Gigabar from './Gigabar';
+import RoundButton from './RoundButton';
 
 interface Task {
     id: number;
@@ -31,6 +32,14 @@ const TaskItem: React.FC<TaskItemProps> = React.memo(({ task, isEditing, onSubmi
         }
     };
 
+    const truncateTask = (text:string) => {
+        const maxLength = 27;
+        if (text.length > maxLength){
+            return text.slice(0, maxLength) + "..."
+        }
+        return text;
+    }
+
     return (
         <View style={{ flexDirection: 'column' }}>
             <View style={styles.container}>
@@ -46,7 +55,7 @@ const TaskItem: React.FC<TaskItemProps> = React.memo(({ task, isEditing, onSubmi
                 ) : ( */}
                 <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
                     <Text style={styles.taskText}>
-                        {task.text}
+                        {truncateTask(task.text)}
                     </Text>
                 </TouchableOpacity>
                 {/* )} */}
