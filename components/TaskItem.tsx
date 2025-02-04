@@ -34,7 +34,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
 
 
     return (
-        <View style={{ flexDirection: 'column' }}>
+        <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
             <View style={styles.container}>
                 <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
                     <CustomText
@@ -56,7 +56,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
                     hitSlop={10}
                 />
             </View>
-            <Gigabar color="gray" size={1} marginHorizontal={6} />
+            <Gigabar color="gray" size={1} />
         </View>
     );
 };
