@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import TaskItem from '@/components/TaskItem';
 import NewTaskInput from '@/components/NewTaskInput';
@@ -11,14 +11,11 @@ interface Task {
 interface TaskListProps {
     tasks: Task[];
     onAddTask: (newTaskText: string) => void;
+    onToggleTaskCompletion: () => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask, onToggleTaskCompletion }) => {
     const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-
-    const handleTaskPress = (taskId: number) => {
-        setEditingTaskId(taskId);
-    };
 
     const handleTaskSubmit = (newTaskText: string) => {
         if (newTaskText.trim() !== '') {
@@ -33,9 +30,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onAddTask }) => {
                 <TaskItem
                     key={task.id}
                     task={task}
-                    isEditing={editingTaskId === task.id}
-                    onSubmit={() => { }}
-                    onPress={() => { }}
+                    onToggleTaskCompletion={onToggleTaskCompletion}
                 />
             ))}
             <NewTaskInput onAddTask={handleTaskSubmit} />

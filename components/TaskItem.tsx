@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import React from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Gigabar from './Gigabar';
 import RoundButton from './RoundButton';
+import CustomText from './CustomText';
 
 interface Task {
     id: number;
@@ -11,69 +12,52 @@ interface Task {
 
 interface TaskItemProps {
     task: Task;
-    isEditing?: boolean;
-    onSubmit?: (text: string) => void;
-    onPress: () => void;
+    onToggleTaskCompletion: (taskId: number) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = React.memo(({ task, isEditing, onSubmit, onPress }) => {
-    const [inputValue, setInputValue] = useState<string>('');
-
-    // useEffect(() => {
-    //     if (isEditing) {
-    //         setInputValue(task.text);
-    //     }
-    // }, [isEditing, task.text]);
-
-    const handleSubmit = () => {
-        if (onSubmit && inputValue.trim() !== '') {
-            onSubmit(inputValue.trim());
-            setInputValue('');
-        }
-    };
-
-    const truncateTask = (text:string) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => {
+    const truncateTask = (text: string) => {
         const maxLength = 27;
-        if (text.length > maxLength){
+        if (text.length > maxLength) {
             return text.slice(0, maxLength) + "..."
         }
         return text;
     }
 
+    const handleTextPress = () => {
+        console.log("123")
+    };
+
+    const handleButtonPress = () => {
+        onToggleTaskCompletion(task.id);
+    };
+
+
     return (
         <View style={{ flexDirection: 'column' }}>
             <View style={styles.container}>
-                {/* {isEditing ? (
-                    <TextInput
-                        style={styles.taskText}
-                        value={inputValue}
-                        onChangeText={setInputValue}
-                        onSubmitEditing={handleSubmit}
-                        placeholder="Че делать будем?"
-                        placeholderTextColor="gray"
+                <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
+                    <CustomText
+                        content={truncateTask(task.text)} size={18}
+                        color={task.completed ? 'gray' : 'white'}
+                        weight='700'
+                        lineThrough={task.completed}
                     />
-                ) : ( */}
-                <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
-                    <Text style={styles.taskText}>
-                        {truncateTask(task.text)}
-                    </Text>
                 </TouchableOpacity>
-                {/* )} */}
                 <RoundButton
-                    iconName={task.completed ? "checkmark-outline" : "checkmark-outline"}
-                    iconColor="#fff"
-                    buttonColor={task.completed ? "gray" : "transparent"}
+                    iconName={"checkmark-outline"}
+                    iconColor={task.completed ? "gray" : "white"}
+                    buttonColor={task.completed ? "transparent" : "transparent"}
                     borderColor={task.completed ? "gray" : "white"}
                     borderWidth={1.5}
-                    onPress={onPress}
+                    onPress={handleButtonPress}
                     size={25}
-                    
                 />
             </View>
             <Gigabar color="gray" size={1} />
         </View>
     );
-});
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -84,11 +68,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'black',
         marginBottom: 15,
         borderRadius: 4,
-    },
-    taskText: {
-        fontWeight: '400',
-        fontSize: 18,
-        color: "white"
     },
     statusButton: {
         width: 20,

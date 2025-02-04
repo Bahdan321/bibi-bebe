@@ -32,7 +32,7 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
 
 const styles = StyleSheet.create({
     taskText: {
-        fontWeight: '400',
+        fontWeight: '700',
         fontSize: 18,
         color: "white"
     }

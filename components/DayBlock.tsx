@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, Text } from 'react-native';
+import { View } from 'react-native';
 import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
 import Gigabar from '@/components/Gigabar';
@@ -27,11 +27,19 @@ const DayBlock: React.FC<DayBlockProps> = ({ date, dayOfWeek }) => {
         setTasks((prevTasks) => [...prevTasks, newTask]);
     };
 
+    const handleToggleTaskCompletion = (taskId: number) => {
+        setTasks((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId ? { ...task, completed: !task.completed } : task
+            )
+        );
+    };
+
     return (
         <View>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color="white" size={2} />
-            <TaskList tasks={tasks} onAddTask={handleAddTask} />
+            <TaskList tasks={tasks} onAddTask={handleAddTask} onToggleTaskCompletion={handleToggleTaskCompletion} />
         </View>
     )
 }
