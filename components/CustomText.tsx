@@ -6,7 +6,7 @@ type CustomTextProps = {
     size: number;
     color: string;
     weight: 'normal' | 'bold' | '600' | '700' | '400';
-    lineThrough: boolean
+    lineThrough?: boolean
 
 }
 

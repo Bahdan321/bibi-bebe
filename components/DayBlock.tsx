@@ -36,7 +36,7 @@ const DayBlock: React.FC<DayBlockProps> = ({ date, dayOfWeek }) => {
     };
 
     return (
-        <View>
+        <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color="white" size={2} />
             <TaskList tasks={tasks} onAddTask={handleAddTask} onToggleTaskCompletion={handleToggleTaskCompletion} />

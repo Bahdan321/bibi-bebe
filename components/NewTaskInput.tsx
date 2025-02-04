@@ -25,7 +25,7 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
                 placeholderTextColor="gray"
                 underlineColorAndroid="transparent"
             />
-            <Gigabar color="gray" size={1} />
+            <Gigabar color="gray" size={1} marginHorizontal={6} />
         </View>
     );
 };

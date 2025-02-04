@@ -54,7 +54,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
                     size={25}
                 />
             </View>
-            <Gigabar color="gray" size={1} />
+            <Gigabar color="gray" size={1} marginHorizontal={6} />
         </View>
     );
 };
