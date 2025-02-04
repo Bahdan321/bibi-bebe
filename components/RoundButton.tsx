@@ -11,8 +11,6 @@ type RoundButtonProps = {
     borderWidth: number;
     onPress: (event: GestureResponderEvent) => void;
     size?: number;
-    
-
 };
 
 const RoundButton: React.FC<RoundButtonProps> = ({
