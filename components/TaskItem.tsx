@@ -42,6 +42,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
                         color={task.completed ? 'gray' : 'white'}
                         weight='700'
                         lineThrough={task.completed}
+                        opacity={task.completed ? 0.6 : 1}
                     />
                 </TouchableOpacity>
                 <RoundButton
