@@ -59,8 +59,15 @@ const TaskItem: React.FC<TaskItemProps> = React.memo(({ task, isEditing, onSubmi
                     </Text>
                 </TouchableOpacity>
                 {/* )} */}
-                <TouchableOpacity
-                    style={[styles.statusButton, task.completed ? styles.completedStatus : styles.pendingStatus]}
+                <RoundButton
+                    iconName={task.completed ? "checkmark-outline" : "checkmark-outline"}
+                    iconColor="#fff"
+                    buttonColor={task.completed ? "gray" : "transparent"}
+                    borderColor={task.completed ? "gray" : "white"}
+                    borderWidth={1.5}
+                    onPress={onPress}
+                    size={25}
+                    
                 />
             </View>
             <Gigabar color="gray" size={1} />

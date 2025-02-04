@@ -7,14 +7,20 @@ type RoundButtonProps = {
     iconName: keyof typeof Ionicons.glyphMap;
     iconColor: string;
     buttonColor: string;
+    borderColor?: string;
+    borderWidth: number;
     onPress: (event: GestureResponderEvent) => void;
     size?: number;
+    
+
 };
 
 const RoundButton: React.FC<RoundButtonProps> = ({
     iconName,
     iconColor,
     buttonColor,
+    borderColor,
+    borderWidth,
     onPress,
     size = 50,
 }) => {
@@ -27,6 +33,8 @@ const RoundButton: React.FC<RoundButtonProps> = ({
                     width: size,
                     height: size,
                     borderRadius: size / 2,
+                    borderColor: borderColor,
+                    borderWidth: borderWidth,
                 },
             ]}
             onPress={onPress}

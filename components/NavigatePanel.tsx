@@ -24,6 +24,7 @@ export default function NavigatePanel() {
                     buttonColor="white"
                     onPress={() => { }}
                     size={50}
+                    borderWidth={0}
                 />
                 <RoundButton
                     iconName="chevron-back-outline"
@@ -31,6 +32,7 @@ export default function NavigatePanel() {
                     buttonColor="white"
                     onPress={() => { }}
                     size={50}
+                    borderWidth={0}
                 />
                 <RoundButton
                     iconName="chevron-forward-outline"
@@ -38,6 +40,7 @@ export default function NavigatePanel() {
                     buttonColor="white"
                     onPress={() => { }}
                     size={50}
+                    borderWidth={0}
                 />
             </View>
         </View>
