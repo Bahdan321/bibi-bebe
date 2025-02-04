@@ -9,8 +9,9 @@ type RoundButtonProps = {
     buttonColor: string;
     borderColor?: string;
     borderWidth: number;
-    onPress: (event: GestureResponderEvent) => void;
     size?: number;
+    hitSlop?: number;
+    onPress: (event: GestureResponderEvent) => void;
 };
 
 const RoundButton: React.FC<RoundButtonProps> = ({
@@ -19,8 +20,9 @@ const RoundButton: React.FC<RoundButtonProps> = ({
     buttonColor,
     borderColor,
     borderWidth,
-    onPress,
     size = 50,
+    hitSlop = 0,
+    onPress,
 }) => {
     return (
         <TouchableOpacity
@@ -37,6 +39,7 @@ const RoundButton: React.FC<RoundButtonProps> = ({
             ]}
             onPress={onPress}
             activeOpacity={0.9}
+            hitSlop={{ top: hitSlop, bottom: hitSlop, left: hitSlop, right: hitSlop }}
         >
             <Ionicons name={iconName} size={size * 0.5} color={iconColor} />
         </TouchableOpacity>

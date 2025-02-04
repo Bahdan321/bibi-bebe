@@ -52,6 +52,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
                     borderWidth={1.5}
                     onPress={handleButtonPress}
                     size={25}
+                    hitSlop={10}
                 />
             </View>
             <Gigabar color="gray" size={1} marginHorizontal={6} />
