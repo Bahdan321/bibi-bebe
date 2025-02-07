@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import React from 'react'
 import RoundButton from '@/components/RoundButton';
 import CustomText from '@/components/CustomText';
@@ -15,7 +15,7 @@ export default function NavigatePanel() {
     return (
         <View style={styles.panel}>
             <View style={styles.leftContainer}>
-                <CustomText content={ShowCurrentDate()} size={hp("2.8%")} color='white' weight='700' />
+                <CustomText content={ShowCurrentDate()} size={Platform.OS == "ios" ? hp("2.1") : hp("2.8")} color='white' weight='700' />
             </View>
             <View style={styles.rightContainer}>
                 <RoundButton
@@ -50,8 +50,8 @@ export default function NavigatePanel() {
 const styles = StyleSheet.create({
     panel: {
         backgroundColor: 'black',
-        // position: 'absolute',
         bottom: 0,
+        // position: 'absolute',
         left: 0,
         right: 0,
         height: 80,

@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { TextInput, StyleSheet, View } from "react-native";
 import Gigabar from "./Gigabar";
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
     const [inputValue, setInputValue] = useState('');
@@ -33,7 +34,7 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
 const styles = StyleSheet.create({
     taskText: {
         fontWeight: '700',
-        fontSize: 18,
+        fontSize: hp("2.2"),
         color: "white"
     }
 });

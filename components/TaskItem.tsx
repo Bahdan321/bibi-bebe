@@ -39,7 +39,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
             <View style={styles.container}>
                 <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
                     <CustomText
-                        content={truncateTask(task.text)} size={hp("2.5")}
+                        content={truncateTask(task.text)} size={hp("2.2")}
                         color={task.completed ? 'gray' : 'white'}
                         weight='700'
                         lineThrough={task.completed}
