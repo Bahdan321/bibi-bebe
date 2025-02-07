@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 interface DayInfoProps {
     date: string;
@@ -7,14 +8,14 @@ interface DayInfoProps {
 }
 
 const truncateDayOfWeek = (dayOfWeek: string) => {
-    const dayMap: {[key:string]:string} = {
-        'Понедельник':"Пн",
-        'Вторник':"Вт",
-        'Среда':"Ср",
-        'Четверг':"Чт",
-        'Пятница':"Пт",
-        'Суббота':"Сб",
-        'Воскресенье':"Вс",
+    const dayMap: { [key: string]: string } = {
+        'Понедельник': "Пн",
+        'Вторник': "Вт",
+        'Среда': "Ср",
+        'Четверг': "Чт",
+        'Пятница': "Пт",
+        'Суббота': "Сб",
+        'Воскресенье': "Вс",
     }
     return dayMap[dayOfWeek] || dayOfWeek;
 }
@@ -26,7 +27,7 @@ const DayInfo: React.FC<DayInfoProps> = ({ date, dayOfWeek }) => {
             <Text style={styles.dayText}>{truncateDayOfWeek(dayOfWeek)}</Text>
         </View>
     );
-    
+
 };
 
 const styles = StyleSheet.create({
@@ -36,11 +37,11 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     dateText: {
-        fontSize: 21,
+        fontSize: hp("2.5"),
         color: 'white',
     },
     dayText: {
-        fontSize: 21,
+        fontSize: hp("2.5"),
         color: 'white',
     },
 });

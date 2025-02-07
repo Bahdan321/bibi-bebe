@@ -3,6 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Gigabar from './Gigabar';
 import RoundButton from './RoundButton';
 import CustomText from './CustomText';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 interface Task {
     id: number;
@@ -38,7 +39,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
             <View style={styles.container}>
                 <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
                     <CustomText
-                        content={truncateTask(task.text)} size={18}
+                        content={truncateTask(task.text)} size={hp("2.5")}
                         color={task.completed ? 'gray' : 'white'}
                         weight='700'
                         lineThrough={task.completed}
@@ -52,7 +53,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
                     borderColor={task.completed ? "gray" : "white"}
                     borderWidth={1.5}
                     onPress={handleButtonPress}
-                    size={25}
+                    size={hp("3.5")}
                     hitSlop={10}
                 />
             </View>

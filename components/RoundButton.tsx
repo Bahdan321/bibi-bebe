@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, GestureResponderEvent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { heightPercentageToDP as hpd } from 'react-native-responsive-screen';
 
 
 type RoundButtonProps = {
@@ -20,7 +21,7 @@ const RoundButton: React.FC<RoundButtonProps> = ({
     buttonColor,
     borderColor,
     borderWidth,
-    size = 50,
+    size = hpd("6"),
     hitSlop = 0,
     onPress,
 }) => {
@@ -60,3 +61,7 @@ const styles = StyleSheet.create({
 });
 
 export default RoundButton;
+function hp(arg0: string): number | undefined {
+    throw new Error('Function not implemented.');
+}
+
