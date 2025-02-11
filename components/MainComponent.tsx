@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import DayBlock from './DayBlock';
+import { useTheme } from '@/providers/ThemeProvider';
 
 
 interface Task {
@@ -20,8 +21,11 @@ const MainComponent: React.FC = () => {
         { date: '21-01-31', dayOfWeek: 'Воскресенье' },
     ];
 
+    const { theme } = useTheme();
+
+
     return (
-        <View style={styles.mainContainer}>
+        <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
             <ScrollView
                 style={styles.container}
                 contentContainerStyle={styles.scrollContent}
@@ -41,10 +45,6 @@ const MainComponent: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-        backgroundColor: 'black',
-    },
     container: {
         flex: 1,
         width: '100%',

@@ -5,6 +5,7 @@ import CustomText from '@/components/CustomText';
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { useTheme } from '@/providers/ThemeProvider';
 
 const ShowCurrentDate = () => {
     const formatedData = format(new Date(), 'LLLL yyyy', { locale: ru });
@@ -12,32 +13,34 @@ const ShowCurrentDate = () => {
 }
 
 export default function NavigatePanel() {
+    const { theme, toggleTheme } = useTheme();
+
     return (
-        <View style={styles.panel}>
+        <View style={[styles.panel, { backgroundColor: theme.colors.primary }]}>
             <View style={styles.leftContainer}>
-                <CustomText content={ShowCurrentDate()} size={Platform.OS == "ios" ? hp("2.1") : hp("2.8")} color='white' weight='700' />
+                <CustomText content={ShowCurrentDate()} size={Platform.OS == "ios" ? hp("2") : hp("2.8")} color={theme.colors.text} weight='700' />
             </View>
             <View style={styles.rightContainer}>
                 <RoundButton
                     iconName="person"
-                    iconColor="black"
-                    buttonColor="white"
-                    onPress={() => { }}
+                    iconColor={theme.colors.icon}
+                    buttonColor={theme.colors.button}
+                    onPress={() => { toggleTheme() }}
                     size={hp("6")}
                     borderWidth={0}
                 />
                 <RoundButton
                     iconName="chevron-back-outline"
-                    iconColor="black"
-                    buttonColor="white"
+                    iconColor={theme.colors.icon}
+                    buttonColor={theme.colors.button}
                     onPress={() => { }}
                     size={hp("6")}
                     borderWidth={0}
                 />
                 <RoundButton
                     iconName="chevron-forward-outline"
-                    iconColor="black"
-                    buttonColor="white"
+                    iconColor={theme.colors.icon}
+                    buttonColor={theme.colors.button}
                     onPress={() => { }}
                     size={hp("6")}
                     borderWidth={0}
@@ -49,7 +52,6 @@ export default function NavigatePanel() {
 
 const styles = StyleSheet.create({
     panel: {
-        backgroundColor: 'black',
         bottom: 0,
         // position: 'absolute',
         left: 0,

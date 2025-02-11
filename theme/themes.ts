@@ -2,11 +2,13 @@ import { Theme } from '@/theme/types';
 
 export const lightTheme: Theme = {
   colors: {
-    primary: '#007AFF',
-    secondary: '#5856D6',
+    primary: 'white',
+    secondary: 'pink',
     background: 'gray',
-    text: '#000000',
-    error: '#FF3B30',
+    text: 'black',
+    error: 'red',
+    icon: 'black',
+    button: 'yellow'
   },
   spacing: {
     xs: 4,
@@ -19,11 +21,13 @@ export const lightTheme: Theme = {
 
 export const darkTheme: Theme = {
   colors: {
-    primary: '#0A84FF',
-    secondary: '#5E5CE6',
-    background: '#000000',
-    text: '#FFFFFF',
-    error: '#FF453A',
+    primary: 'black',
+    secondary: 'white',
+    background: 'gray',
+    text: 'white',
+    error: 'red',
+    icon: 'black',
+    button: 'white'
   },
   spacing: {
     xs: 4,

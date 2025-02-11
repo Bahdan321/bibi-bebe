@@ -3,9 +3,11 @@ import { useState } from "react";
 import { TextInput, StyleSheet, View } from "react-native";
 import Gigabar from "./Gigabar";
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { useTheme } from '@/providers/ThemeProvider';
 
 const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
     const [inputValue, setInputValue] = useState('');
+    const { theme } = useTheme();
 
     const handleSubmit = () => {
         if (inputValue.trim() !== '') {
@@ -17,26 +19,21 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
     return (
         <View>
             <TextInput
-                style={styles.taskText}
+                style={{ fontWeight: '700', fontSize: hp("2.2"), color: theme.colors.text }}
                 value={inputValue}
                 onChangeText={setInputValue}
                 onSubmitEditing={handleSubmit}
                 // onBlur={handleSubmit}
                 // placeholder="Че делать будем?"
-                placeholderTextColor="gray"
+                placeholderTextColor={theme.colors.background}
                 underlineColorAndroid="transparent"
             />
-            <Gigabar color="gray" size={1} marginHorizontal={6} />
+            <Gigabar color={theme.colors.background} size={1} marginHorizontal={6} />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    taskText: {
-        fontWeight: '700',
-        fontSize: hp("2.2"),
-        color: "white"
-    }
 });
 
 export default NewTaskInput;

@@ -19,7 +19,6 @@ const CustomText: React.FC<CustomTextProps> = ({
     opacity = 1,
 }) => {
     const validatedOpacity = Math.min(Math.max(opacity, 0), 1);
-
     const textStyle: TextStyle = {
         fontSize: size,
         color: color,

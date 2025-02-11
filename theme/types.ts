@@ -5,6 +5,8 @@ export interface Theme {
     background: string;
     text: string;
     error: string;
+    icon: string;
+    button: string;
   };
   spacing: {
     xs: number;

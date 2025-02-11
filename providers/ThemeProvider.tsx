@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { lightTheme, darkTheme } from '../theme/themes';
-import { Theme } from '../theme/types';
+import { lightTheme, darkTheme } from '@/theme/themes';
+import { Theme } from '@/theme/types';
 
 interface ThemeContextType {
     theme: Theme;
@@ -11,7 +11,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isDark, setIsDark] = useState(false);
+    const [isDark, setIsDark] = useState(true);
 
     const toggleTheme = useCallback(() => {
         setIsDark(prev => !prev);
