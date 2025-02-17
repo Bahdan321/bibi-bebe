@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "bibi-bebe",
-    "slug": "bibi-bebe",
+    "name": "bibiBebe",
+    "slug": "bibiBebe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "bibibebe",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

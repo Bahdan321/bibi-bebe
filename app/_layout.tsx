@@ -27,8 +27,8 @@ export default function RootLayout() {
   return (
     <Providers>
       <Stack>
-        {/* <Stack.Screen name="(protected)" options={{ headerShown: false }} /> */}
         <Stack.Screen name="(public)" options={{ headerShown: false }} />
+        <Stack.Screen name="(private)" options={{ headerShown: false }} />
         {/* <Stack.Screen name="+not-found" /> */}
       </Stack>
       <StatusBar />

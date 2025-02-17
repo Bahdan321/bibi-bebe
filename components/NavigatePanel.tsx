@@ -1,4 +1,4 @@
-import { View, StyleSheet, Platform } from 'react-native'
+import { View, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native'
 import React from 'react'
 import RoundButton from '@/components/RoundButton';
 import CustomText from '@/components/CustomText';
@@ -16,37 +16,42 @@ export default function NavigatePanel() {
     const { theme, toggleTheme } = useTheme();
 
     return (
-        <View style={[styles.panel, { backgroundColor: theme.colors.primary }]}>
-            <View style={styles.leftContainer}>
-                <CustomText content={ShowCurrentDate()} size={Platform.OS == "ios" ? hp("2") : hp("2.8")} color={theme.colors.text} weight='700' />
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "position" : "position"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        >
+            <View style={[styles.panel, { backgroundColor: theme.colors.primary }]}>
+                <View style={styles.leftContainer}>
+                    <CustomText content={ShowCurrentDate()} size={Platform.OS == "ios" ? hp("2") : hp("2.8")} color={theme.colors.text} weight='700' />
+                </View>
+                <View style={styles.rightContainer}>
+                    <RoundButton
+                        iconName="person"
+                        iconColor={theme.colors.icon}
+                        buttonColor={theme.colors.button}
+                        onPress={() => { toggleTheme() }}
+                        size={hp("6")}
+                        borderWidth={0}
+                    />
+                    <RoundButton
+                        iconName="chevron-back-outline"
+                        iconColor={theme.colors.icon}
+                        buttonColor={theme.colors.button}
+                        onPress={() => { }}
+                        size={hp("6")}
+                        borderWidth={0}
+                    />
+                    <RoundButton
+                        iconName="chevron-forward-outline"
+                        iconColor={theme.colors.icon}
+                        buttonColor={theme.colors.button}
+                        onPress={() => { }}
+                        size={hp("6")}
+                        borderWidth={0}
+                    />
+                </View>
             </View>
-            <View style={styles.rightContainer}>
-                <RoundButton
-                    iconName="person"
-                    iconColor={theme.colors.icon}
-                    buttonColor={theme.colors.button}
-                    onPress={() => { toggleTheme() }}
-                    size={hp("6")}
-                    borderWidth={0}
-                />
-                <RoundButton
-                    iconName="chevron-back-outline"
-                    iconColor={theme.colors.icon}
-                    buttonColor={theme.colors.button}
-                    onPress={() => { }}
-                    size={hp("6")}
-                    borderWidth={0}
-                />
-                <RoundButton
-                    iconName="chevron-forward-outline"
-                    iconColor={theme.colors.icon}
-                    buttonColor={theme.colors.button}
-                    onPress={() => { }}
-                    size={hp("6")}
-                    borderWidth={0}
-                />
-            </View>
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

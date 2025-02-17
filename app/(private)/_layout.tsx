@@ -3,7 +3,7 @@ import { Slot, Stack } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 
-export default function PublicLayout() {
+export default function PrivateLayout() {
     return (
         <ScreenLayout>
             <View style={{ flex: 1 }}>
@@ -13,10 +13,7 @@ export default function PublicLayout() {
                     }}
                 >
                     <Stack.Screen
-                        name="signIn"
-                    />
-                    <Stack.Screen
-                        name="signUp"
+                        name="home"
                     />
                 </Stack>
             </View>
