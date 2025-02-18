@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
-import ReverseButton from '@/components/ReverseButton'
-import TextInputField from '@/components/TextInputField'
-import Button from '@/components/Button'
-import { Redirect, router, useRouter } from 'expo-router'
+import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import ReverseButton from '@/components/ReverseButton';
+import TextInputField from '@/components/TextInputField';
+import Button from '@/components/Button';
+import { useRouter } from 'expo-router';
 
 export default function SignUp() {
     const [name, setName] = useState('');
@@ -12,39 +12,43 @@ export default function SignUp() {
     const router = useRouter();
 
     const handleSignUp = () => {
-        router.push('/(private)/home')
-    }
+        router.push('/(private)/home');
+    };
 
     return (
-        <View style={{ flex: 1, flexDirection: 'column' }}>
+        <View style={styles.container}>
             <Text style={styles.title}>Регистрация</Text>
             <TextInputField
                 label="Имя"
                 value={name}
                 onChangeText={setName}
+                style={styles.inputField} 
             />
-            <View style={styles.passwordContainer}/>
+            <View style={styles.passwordContainer}>
                 <TextInputField
-                    label = "Пароль"
+                    label="Пароль"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!isPasswordVisible}
+                    style={styles.passwordInput}
                 />
                 <ReverseButton
                     isVisible={isPasswordVisible}
                     onPress={() => setIsPasswordVisible(prev => !prev)}
+                    style={styles.reverseButton}
                 />
-                <View  style={styles.button}>
-                { <Button
-                    title="Зарегестрироваться"
-                    titleColor='black'
-                    buttonColor='white'
-                    onPress={handleSignUp}
-                />}
-                </View>
+            </View>
+            <Button
+                title="Зарегистрироваться"
+                titleColor='black'
+                buttonColor='white'
+                onPress={handleSignUp}
+                style={styles.button}
+            />
         </View>
-    )
+    );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -56,15 +60,25 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
     },
+    inputField: {
+        marginBottom: 15, 
+    },
     passwordContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        marginBottom: 15,
+    },
+    passwordInput: {
+        flex: 1,
+    },
+    reverseButton: {
+        marginLeft: 8,
     },
     button: {
-        flex: 1,
-        justifyContent: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
         alignItems: 'center',
-    }
+        justifyContent: 'center',
+    },
 });
-

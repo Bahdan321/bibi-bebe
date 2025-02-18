@@ -1,16 +1,17 @@
 import React from "react";
-import { TextInput, StyleSheet, View, Text } from 'react-native';
+import { TextInput, StyleSheet, View, Text, ViewStyle } from 'react-native';
 
 type TextInputFieldProps = {
     label: string;
     value: string;
-    onChangeText: (text:string) => void;
+    onChangeText: (text: string) => void;
     secureTextEntry?: boolean;
+    style?: ViewStyle;
 }
 
-const TextInputField: React.FC<TextInputFieldProps> = ({ label, value, onChangeText, secureTextEntry = false }) => {
+const TextInputField: React.FC<TextInputFieldProps> = ({ label, value, onChangeText, secureTextEntry = false, style }) => {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, style]}>
             <Text style={styles.label}>{label}</Text>
             <TextInput
                 style={styles.input}
@@ -33,10 +34,11 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 40,
-        borderColor: '#ccc',
+        borderColor: 'black',
         borderWidth: 1,
         paddingHorizontal: 10,
         borderRadius: 5,
     },
 });
+
 export default TextInputField;
