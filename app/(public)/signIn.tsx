@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import ReverseButton from '@/components/ReverseButton';
 import TextInputField from '@/components/TextInputField';
+import ClickableText from '@/components/СlickableText';
 import Button from '@/components/Button';
 import { useRouter } from 'expo-router';
 
@@ -13,6 +14,9 @@ export default function SignIn() {
 
     const handleSignUp = () => {
         router.push('/(private)/home');
+    };
+    const routeToSignUp = () => {
+        router.push('/(public)/signUp');
     };
 
     return (
@@ -45,6 +49,14 @@ export default function SignIn() {
                 onPress={handleSignUp}
                 style={styles.button}
             />
+            <View style={styles.clickableText}>
+            <ClickableText
+                title="Нет аккаунта?"
+                titleColor="#1faee9"
+                onPress={routeToSignUp}
+                style={styles.clickableText}
+            />
+            </View>
         </View>
     );
 }
@@ -81,4 +93,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    clickableText: {
+        marginTop: 20,
+        alignSelf: 'flex-start'
+    }
 });
