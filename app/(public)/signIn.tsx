@@ -5,13 +5,14 @@ import TextInputField from '@/components/TextInputField';
 import ClickableText from '@/components/СlickableText';
 import Button from '@/components/Button';
 import { useRouter } from 'expo-router';
+import {useTheme} from '@/providers/ThemeProvider';
 
 export default function SignIn() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const router = useRouter();
-
+    const {theme} = useTheme();
     const handleSignUp = () => {
         router.push('/(private)/home');
     };
@@ -20,21 +21,27 @@ export default function SignIn() {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Авторизация</Text>
+        <View style={[styles.container,{backgroundColor:theme.colors.primary}]}>
+            <Text style={[styles.title, { color: theme.colors.text }]}>Авторизация</Text>
             <TextInputField
                 label="Имя"
+                labelColor={theme.colors.text}
+                borderColor={theme.colors.text}
+                textColor={theme.colors.text}
                 value={name}
                 onChangeText={setName}
-                style={styles.inputField} 
+                style={[styles.inputField,{borderColor:theme.colors.primary}]}
             />
             <View style={styles.passwordContainer}>
                 <TextInputField
                     label="Пароль"
+                    labelColor={theme.colors.text}
+                    borderColor={theme.colors.text}
+                    textColor={theme.colors.text}
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!isPasswordVisible}
-                    style={styles.passwordInput}
+                    style={[styles.passwordInput,{borderColor:theme.colors.primary}]}
                 />
                 <ReverseButton
                     isVisible={isPasswordVisible}
@@ -44,15 +51,15 @@ export default function SignIn() {
             </View>
             <Button
                 title="Войти"
-                titleColor='black'
-                buttonColor='white'
+                titleColor={theme.colors.secondary}
+                buttonColor={theme.colors.primary}
                 onPress={handleSignUp}
                 style={styles.button}
             />
             <View style={styles.clickableText}>
             <ClickableText
                 title="Нет аккаунта?"
-                titleColor="#1faee9"
+                titleColor={theme.colors.secondary}
                 onPress={routeToSignUp}
                 style={styles.clickableText}
             />
