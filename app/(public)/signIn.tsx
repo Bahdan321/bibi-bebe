@@ -1,27 +1,50 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import React, { useState } from 'react';
 import ReverseButton from '@/components/ReverseButton';
 import TextInputField from '@/components/TextInputField';
 import ClickableText from '@/components/СlickableText';
 import Button from '@/components/Button';
 import { useRouter } from 'expo-router';
-import {useTheme} from '@/providers/ThemeProvider';
+import { useTheme } from '@/providers/ThemeProvider';
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function SignIn() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const {theme} = useTheme();
-    const handleSignUp = () => {
-        router.push('/(private)/home');
+    const { theme } = useTheme();
+    const { signIn } = useAuth();
+
+    const handleSignIn = async () => {
+        if (!name || !password) {
+            Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const result = await signIn(name, password);
+            if (result.success) {
+                router.push('/(private)/home');
+            } else {
+                Alert.alert('Ошибка входа', result.error || 'Неверное имя пользователя или пароль');
+            }
+        } catch (error) {
+            console.error('Error signing in:', error);
+            Alert.alert('Ошибка', 'Произошла ошибка при входе');
+        } finally {
+            setIsLoading(false);
+        }
     };
+
     const routeToSignUp = () => {
         router.push('/(public)/signUp');
     };
 
     return (
-        <View style={[styles.container,{backgroundColor:theme.colors.primary}]}>
+        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
             <Text style={[styles.title, { color: theme.colors.text }]}>Авторизация</Text>
             <TextInputField
                 label="Имя"
@@ -30,7 +53,7 @@ export default function SignIn() {
                 textColor={theme.colors.text}
                 value={name}
                 onChangeText={setName}
-                style={[styles.inputField,{borderColor:theme.colors.primary}]}
+                style={[styles.inputField, { borderColor: theme.colors.primary }]}
             />
             <View style={styles.passwordContainer}>
                 <TextInputField
@@ -41,7 +64,7 @@ export default function SignIn() {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!isPasswordVisible}
-                    style={[styles.passwordInput,{borderColor:theme.colors.primary}]}
+                    style={[styles.passwordInput, { borderColor: theme.colors.primary }]}
                 />
                 <ReverseButton
                     isVisible={isPasswordVisible}
@@ -49,20 +72,24 @@ export default function SignIn() {
                     style={styles.reverseButton}
                 />
             </View>
-            <Button
-                title="Войти"
-                titleColor={theme.colors.secondary}
-                buttonColor={theme.colors.primary}
-                onPress={handleSignUp}
-                style={styles.button}
-            />
+            {isLoading ? (
+                <ActivityIndicator size="large" color={theme.colors.secondary} style={styles.loader} />
+            ) : (
+                <Button
+                    title="Войти"
+                    titleColor={theme.colors.secondary}
+                    buttonColor={theme.colors.primary}
+                    onPress={handleSignIn}
+                    style={styles.button}
+                />
+            )}
             <View style={styles.clickableText}>
-            <ClickableText
-                title="Нет аккаунта?"
-                titleColor={theme.colors.secondary}
-                onPress={routeToSignUp}
-                style={styles.clickableText}
-            />
+                <ClickableText
+                    title="Нет аккаунта?"
+                    titleColor={theme.colors.secondary}
+                    onPress={routeToSignUp}
+                    style={styles.clickableText}
+                />
             </View>
         </View>
     );
@@ -80,7 +107,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     inputField: {
-        marginBottom: 15, 
+        marginBottom: 15,
     },
     passwordContainer: {
         flexDirection: 'row',
@@ -103,5 +130,8 @@ const styles = StyleSheet.create({
     clickableText: {
         marginTop: 20,
         alignSelf: 'flex-start'
+    },
+    loader: {
+        marginVertical: 10
     }
 });
