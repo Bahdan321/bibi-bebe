@@ -46,12 +46,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsLoading(true);
             // Замените URL на ваш API endpoint
             const apiUrl = "https://localhost:8000";
+
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+
             const response = await fetch(`${apiUrl}/jwt/login/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: formData,
             });
 
             const data = await response.json();
