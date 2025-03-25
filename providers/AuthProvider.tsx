@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { saveAccessToken, saveRefreshToken, getAccessToken, refreshAccessToken } from '@/storages/tokenStorage';
+import { saveAccessToken, saveRefreshToken, getAccessToken, refreshAccessToken, getRefreshToken } from '@/storages/tokenStorage';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 
@@ -30,9 +30,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const checkAuth = async () => {
             try {
                 console.log("Проверка авторизации")
-                const token = await getAccessToken();
-                setIsAuthenticated(!!token);
-                if (token){
+                const accessToken = await getAccessToken();
+                const refreshToken = await getRefreshToken();
+                let newAccessToken = ""
+                if (!accessToken) {
+                    console.log("[fetchWithAuth] No token found, trying to refresh");
+                    newAccessToken = await refreshAccessToken();
+                }
+                setIsAuthenticated(!!accessToken);
+                if (accessToken || newAccessToken && refreshToken){
                     router.push('/(private)/home');
                     console.log("Пользователь перенаправлен")
                 }
@@ -45,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } finally {
                 setIsLoading(false);
             }
-        };
+        }
 
         checkAuth();
     }, []);
