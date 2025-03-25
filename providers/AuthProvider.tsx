@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { saveAccessToken, saveRefreshToken, getAccessToken, refreshAccessToken } from '@/storages/tokenStorage';
 import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -28,8 +29,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         const checkAuth = async () => {
             try {
+                console.log("Проверка авторизации")
                 const token = await getAccessToken();
                 setIsAuthenticated(!!token);
+                if (token){
+                    router.push('/(private)/home');
+                    console.log("Пользователь перенаправлен")
+                }
+                else{
+                    router.push('/(public)/signUp');
+                }
+                console.log("Пользователь авторизован")
             } catch (error) {
                 console.error('Error checking authentication:', error);
             } finally {
@@ -45,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             setIsLoading(true);
             // Замените URL на ваш API endpoint
-            const apiUrl = "https://localhost:8000";
+            const apiUrl = "http://192.168.3.3:8000";
 
             const formData = new FormData();
             formData.append('username', username);
