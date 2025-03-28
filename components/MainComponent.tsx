@@ -13,12 +13,12 @@ interface Task {
 const MainComponent: React.FC = () => {
     const days = [
         { date: '21-01-25', dayOfWeek: 'Понедельник' },
-        { date: '21-01-26', dayOfWeek: 'Вторник' },
-        { date: '21-01-27', dayOfWeek: 'Среда' },
-        { date: '21-01-28', dayOfWeek: 'Четверг' },
-        { date: '21-01-29', dayOfWeek: 'Пятница' },
-        { date: '21-01-30', dayOfWeek: 'Суббота' },
-        { date: '21-01-31', dayOfWeek: 'Воскресенье' },
+        // { date: '21-01-26', dayOfWeek: 'Вторник' },
+        // { date: '21-01-27', dayOfWeek: 'Среда' },
+        // { date: '21-01-28', dayOfWeek: 'Четверг' },
+        // { date: '21-01-29', dayOfWeek: 'Пятница' },
+        // { date: '21-01-30', dayOfWeek: 'Суббота' },
+        // { date: '21-01-31', dayOfWeek: 'Воскресенье' },
     ];
 
     const { theme } = useTheme();

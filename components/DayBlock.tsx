@@ -4,6 +4,7 @@ import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
+import { todos$,toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
 
 type DayBlockProps = {
     date: string;
@@ -17,9 +18,9 @@ interface Task {
 }
 
 const DayBlock: React.FC<DayBlockProps> = ({ date, dayOfWeek }) => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const todos = todos$.get();
     const { theme } = useTheme();
-
+    const [tasks, setTasks] = useState<Task[]>([]); // Инициализация tasks
 
     const handleAddTask = (newTaskText: string) => {
         const newTask: Task = {
@@ -42,9 +43,9 @@ const DayBlock: React.FC<DayBlockProps> = ({ date, dayOfWeek }) => {
         <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color={theme.colors.secondary} size={2} />
-            <TaskList tasks={tasks} onAddTask={handleAddTask} onToggleTaskCompletion={handleToggleTaskCompletion} />
+            <TaskList tasks={todos} onAddTask={handleAddTask} onToggleTaskCompletion={toggleTaskCompletion} />
         </View>
-    )
+    );
 }
 
 export default DayBlock;
