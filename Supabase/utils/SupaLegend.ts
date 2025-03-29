@@ -53,19 +53,14 @@ export const todos$ = observable(
 );
 
 
-export const addTask = async (text: string) => {
-  console.log('Добавляем задачу:', text);
-  const newTask = { text, done: false };
-  const { error } = await supabase.from('todos').insert(newTask);
-  if (error) console.error('Ошибка добавления:', error);
-
+export const addTask = (text: string) => {
+  const newId = uuidv4();
+  todos$.set((prev) => ({
+    ...prev,
+    [newId]: { id: newId, text, done: false }
+  }));
 };
 
-export const toggleTaskCompletion = async (taskId: string) => {
-  const { data: task } = await supabase.from('todos').select('done').eq('id', taskId).single();
-  const { error } = await supabase
-    .from('todos')
-    .update({ done: !task.done })
-    .eq('id', taskId);
-  if (error) throw error;
+export const toggleTaskCompletion = (taskId: string) => {
+  todos$[taskId].done.set((prev) => !prev);
 };
