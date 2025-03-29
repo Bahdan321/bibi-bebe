@@ -6,21 +6,14 @@ import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { todos$, toggleTaskCompletion, addTask } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
-
-type DayBlockProps = {
-    date: string;
-    dayOfWeek: string;
-}
+import { DayBlockProps } from '@/types/types';
 
 const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = todos$.get();
     console.log(todos);
     const { theme } = useTheme();
 
-const tasksForDay = Object.values(todos || {}).filter((task) => task.date === date);
-
-    // todos = Object.values(todos);
-
+    const tasksForDay = Object.values(todos || {}).filter((task) => task.date === date);
     return (
         <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />

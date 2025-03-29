@@ -1,13 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import CustomText from '@/components/CustomText';
 import { useTheme } from '@/providers/ThemeProvider';
-
-interface DayInfoProps {
-    date: string;
-    dayOfWeek: string;
-}
+import { DayInfoProps } from '@/types/types';
+import { getFormatedDate } from '@/utils/DateUtils';
 
 const truncateDayOfWeek = (dayOfWeek: string) => {
     const dayMap: { [key: string]: string } = {
@@ -18,17 +15,24 @@ const truncateDayOfWeek = (dayOfWeek: string) => {
         'Пятница': "Пт",
         'Суббота': "Сб",
         'Воскресенье': "Вс",
+        'понедельник': "Пн",
+        'вторник': "Вт",
+        'среда': "Ср",
+        'четверг': "Чт",
+        'пятница': "Пт",
+        'суббота': "Сб",
+        'воскресенье': "Вс",
     }
     return dayMap[dayOfWeek] || dayOfWeek;
 }
 
 const DayInfo: React.FC<DayInfoProps> = ({ date, dayOfWeek }) => {
     const { theme } = useTheme();
-
+    const dateObj = new Date(date);
     return (
         <View style={styles.container}>
-            <CustomText content={date} size={hp("2.5")} color={theme.colors.secondary} weight='normal' />
-            <CustomText content={truncateDayOfWeek(dayOfWeek)} size={hp("2.5")} color={theme.colors.secondary} weight='normal' />
+            <CustomText content={getFormatedDate(date)} size={hp("2.5")} color={theme.colors.secondary} weight='bold' />
+            <CustomText content={truncateDayOfWeek(dayOfWeek)} size={hp("2.5")} color={theme.colors.secondary} weight='bold' />
         </View>
     );
 

@@ -3,14 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { observer } from '@legendapp/state/react';
 import TaskItem from '@/components/TaskItem';
 import NewTaskInput from '@/components/NewTaskInput';
-import { Task } from '@/types/types';
-
-interface TaskListProps {
-  tasks: Task[];
-  onAddTask: (text: string, date: string) => void;
-  onToggleTaskCompletion: (taskId: string) => void;
-  date: string;
-}
+import { TaskListProps } from '@/types/types';
 
 const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: TaskListProps) => {
   // const handleAddTask = (newTaskText: string) => {
@@ -30,7 +23,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
           onToggleTaskCompletion={() => onToggleTaskCompletion(task.id)}
         />
       ))}
-      <NewTaskInput onAddTask={(text) => onAddTask(text,date)}/>
+      <NewTaskInput onAddTask={(text) => onAddTask(text, date)} />
     </View>
   );
 });

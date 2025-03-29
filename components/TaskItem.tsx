@@ -4,13 +4,8 @@ import Gigabar from './Gigabar';
 import RoundButton from './RoundButton';
 import CustomText from './CustomText';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { Task } from '@/types/types';
+import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
-
-interface TaskItemProps {
-  task: Task;
-  onToggleTaskCompletion: (taskId: string) => void; // Изменено с number на string
-}
 
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompletion }) => {
   const truncateTask = (text: string) => {

@@ -2,20 +2,13 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import DayBlock from './DayBlock';
 import { useTheme } from '@/providers/ThemeProvider';
+import { getWeekDays } from '@/utils/DateUtils';
+import { MainComponentProps } from '@/types/types';
 
-const MainComponent: React.FC = () => {
-    const days = [
-        { date: '21-01-25', dayOfWeek: 'Понедельник' },
-        { date: '21-01-26', dayOfWeek: 'Вторник' },
-        { date: '21-01-27', dayOfWeek: 'Среда' },
-        { date: '21-01-28', dayOfWeek: 'Четверг' },
-        { date: '21-01-29', dayOfWeek: 'Пятница' },
-        { date: '21-01-30', dayOfWeek: 'Суббота' },
-        { date: '21-01-31', dayOfWeek: 'Воскресенье' },
-    ];
+const MainComponent: React.FC<MainComponentProps> = ({ currentDate }) => {
+    const days = getWeekDays(currentDate);
 
     const { theme } = useTheme();
-
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
