@@ -7,11 +7,12 @@ import { Task } from '@/types/types';
 
 interface TaskListProps {
   tasks: Task[];
-  onAddTask: (text: string) => void;
+  onAddTask: (text: string, date: string) => void;
   onToggleTaskCompletion: (taskId: string) => void;
+  date: string;
 }
 
-const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion }: TaskListProps) => {
+const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: TaskListProps) => {
   // const handleAddTask = (newTaskText: string) => {
   //   if (newTaskText.trim() !== '') {
   //     onAddTask(newTaskText.trim());
@@ -29,7 +30,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion }: TaskLis
           onToggleTaskCompletion={() => onToggleTaskCompletion(task.id)}
         />
       ))}
-      <NewTaskInput onAddTask={onAddTask} />
+      <NewTaskInput onAddTask={(text) => onAddTask(text,date)}/>
     </View>
   );
 });

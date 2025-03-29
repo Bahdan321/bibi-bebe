@@ -17,13 +17,15 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     console.log(todos);
     const { theme } = useTheme();
 
+const tasksForDay = Object.values(todos || {}).filter((task) => task.date === date);
+
     // todos = Object.values(todos);
 
     return (
         <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color={theme.colors.secondary} size={2} />
-            <TaskList tasks={Object.values(todos || {})} onAddTask={addTask} onToggleTaskCompletion={toggleTaskCompletion} />
+            <TaskList tasks={tasksForDay} onAddTask={(text) => addTask(text, date)} onToggleTaskCompletion={toggleTaskCompletion} date={date} />
         </View>
     );
 });
