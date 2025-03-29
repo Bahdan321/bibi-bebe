@@ -6,8 +6,9 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { useTheme } from '@/providers/ThemeProvider';
 import { NavigatePanelProps } from '@/types/types';
 import { ShowCurrentMonth } from '@/utils/DateUtils';
+import { observer } from '@legendapp/state/react';
 
-const NavigatePanel: React.FC<NavigatePanelProps> = ({ currentDate, goToNextWeek, goToPreviousWeek }) => {
+const NavigatePanel: React.FC<NavigatePanelProps> = observer(({ currentDate, goToNextWeek, goToPreviousWeek }) => {
     const { theme, toggleTheme } = useTheme();
 
     return (
@@ -48,7 +49,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = ({ currentDate, goToNextWeek
             </View>
         </KeyboardAvoidingView>
     )
-}
+});
 
 const styles = StyleSheet.create({
     panel: {

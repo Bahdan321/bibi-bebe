@@ -4,8 +4,9 @@ import DayBlock from './DayBlock';
 import { useTheme } from '@/providers/ThemeProvider';
 import { getWeekDays } from '@/utils/DateUtils';
 import { MainComponentProps } from '@/types/types';
+import { observer } from '@legendapp/state/react';
 
-const MainComponent: React.FC<MainComponentProps> = ({ currentDate }) => {
+const MainComponent: React.FC<MainComponentProps> = observer(({ currentDate }) => {
     const days = getWeekDays(currentDate);
 
     const { theme } = useTheme();
@@ -28,7 +29,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ currentDate }) => {
             </ScrollView>
         </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {

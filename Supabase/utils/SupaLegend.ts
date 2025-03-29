@@ -38,7 +38,7 @@ export const todos$ = observable(
     supabase,
     collection: 'todos',
     select: (from) =>
-      from.select('id,counter,text,done,created_at,updated_at,deleted'),
+      from.select('id,counter,text,done,created_at,updated_at,deleted,date'),
     actions: ['read', 'create', 'update', 'delete'],
     realtime: true,
     // Persist data and pending changes locally

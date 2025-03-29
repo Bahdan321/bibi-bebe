@@ -2,8 +2,9 @@ import { View, Text, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import NavigatePanel from '@/components/NavigatePanel';
 import MainComponent from '@/components/MainComponent';
+import { observer } from '@legendapp/state/react';
 
-export default function Home() {
+const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
 
     const goToPreviousWeek = () => {
@@ -28,4 +29,6 @@ export default function Home() {
             <NavigatePanel currentDate={currentDate} goToPreviousWeek={goToPreviousWeek} goToNextWeek={goToNextWeek} />
         </View>
     )
-} 
+});
+
+export default Home;
