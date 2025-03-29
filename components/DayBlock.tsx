@@ -23,7 +23,7 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
         <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color={theme.colors.secondary} size={2} />
-            <TaskList tasks={todos.Object.value(todos)} onAddTask={addTask} onToggleTaskCompletion={toggleTaskCompletion} />
+            <TaskList tasks={Object.values(todos || {})} onAddTask={addTask} onToggleTaskCompletion={toggleTaskCompletion} />
         </View>
     );
 });
