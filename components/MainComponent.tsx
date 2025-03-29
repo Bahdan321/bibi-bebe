@@ -3,13 +3,6 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import DayBlock from './DayBlock';
 import { useTheme } from '@/providers/ThemeProvider';
 
-
-interface Task {
-    id: number;
-    text: string;
-    completed: boolean;
-}
-
 const MainComponent: React.FC = () => {
     const days = [
         { date: '21-01-25', dayOfWeek: 'Понедельник' },

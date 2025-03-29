@@ -3,37 +3,33 @@ import { StyleSheet, View } from 'react-native';
 import { observer } from '@legendapp/state/react';
 import TaskItem from '@/components/TaskItem';
 import NewTaskInput from '@/components/NewTaskInput';
+import { Task } from '@/types/types';
 
+interface TaskListProps {
+  tasks: Task[];
+  onAddTask: (text: string) => void;
+  onToggleTaskCompletion: (taskId: string) => void;
+}
 
-interface Task {
-    id: string; // Изменено на string
-    text: string;
-    done: boolean; // Заменено completed на done
-    counter?: number; // Опционально, если нужно
-    created_at?: string; // Опционально
-    updated_at?: string; // Опционально
-    deleted?: boolean; // Опционально
-  }
+const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion }: TaskListProps) => {
+  // const handleAddTask = (newTaskText: string) => {
+  //   if (newTaskText.trim() !== '') {
+  //     onAddTask(newTaskText.trim());
+  //   }
+  // };
 
-const TaskList = observer<Task>(() => {
-  
-  const todosArray = Object.values(todos);
-  const handleAddTask = (newTaskText: string) => {
-    if (newTaskText.trim() !== '') {
-      addTask(newTaskText.trim()); // Функция для добавления задачи в БД
-    }
-  };
+  // tasks = Object.values(tasks);
 
   return (
     <View style={styles.container}>
-      {todosArray.map((task) => (
-  <TaskItem
-    key={task.id}
-    task={{ id: task.id, text: task.text, completed: task.done }} // Маппим данные
-    onToggleTaskCompletion={() => toggleTaskCompletion(task.id)}
-  />
-))}
-      <NewTaskInput onAddTask={handleAddTask} />
+      {tasks.map((task) => (
+        <TaskItem
+          key={task.id}
+          task={task}
+          onToggleTaskCompletion={() => onToggleTaskCompletion(task.id)}
+        />
+      ))}
+      <NewTaskInput onAddTask={onAddTask} />
     </View>
   );
 });

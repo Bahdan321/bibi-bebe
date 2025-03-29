@@ -5,11 +5,13 @@ import Gigabar from "./Gigabar";
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useTheme } from '@/providers/ThemeProvider';
 
+// const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
 const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
     const [inputValue, setInputValue] = useState('');
     const { theme } = useTheme();
 
     const handleSubmit = () => {
+        // console.log('Добавляем задачу:', inputValue);
         if (inputValue.trim() !== '') {
             onAddTask(inputValue.trim());
             setInputValue('');

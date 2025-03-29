@@ -28,29 +28,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Проверка аутентификации при загрузке приложения
     useEffect(() => {
         const checkAuth = async () => {
-            try {
-                console.log("Проверка авторизации")
-                const accessToken = await getAccessToken();
-                const refreshToken = await getRefreshToken();
-                let newAccessToken = ""
-                if (!accessToken) {
-                    console.log("[fetchWithAuth] No token found, trying to refresh");
-                    newAccessToken = await refreshAccessToken();
-                }
-                setIsAuthenticated(!!accessToken);
-                if (accessToken || newAccessToken && refreshToken){
-                    router.push('/(private)/home');
-                    console.log("Пользователь перенаправлен")
-                }
-                else{
-                    router.push('/(public)/signUp');
-                }
-                console.log("Пользователь авторизован")
-            } catch (error) {
-                console.error('Error checking authentication:', error);
-            } finally {
-                setIsLoading(false);
-            }
+            // try {
+            //     console.log("Проверка авторизации")
+            //     const accessToken = await getAccessToken();
+            //     const refreshToken = await getRefreshToken();
+            //     let newAccessToken = ""
+            //     if (!accessToken) {
+            //         console.log("[fetchWithAuth] No token found, trying to refresh");
+            //         newAccessToken = await refreshAccessToken();
+            //     }
+            //     setIsAuthenticated(!!accessToken);
+            //     if (accessToken || newAccessToken && refreshToken){
+            //         router.push('/(private)/home');
+            //         console.log("Пользователь перенаправлен")
+            //     }
+            //     else{
+            //         router.push('/(public)/signUp');
+            //     }
+            //     console.log("Пользователь авторизован")
+            // } catch (error) {
+            //     console.error('Error checking authentication:', error);
+            // } finally {
+            //     setIsLoading(false);
+            // }
+            router.push('/(private)/home');
         }
 
         checkAuth();

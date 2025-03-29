@@ -4,19 +4,15 @@ import Gigabar from './Gigabar';
 import RoundButton from './RoundButton';
 import CustomText from './CustomText';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
-interface Task {
-  id: number;
-  text: string;
-  completed: boolean;
-}
+import { Task } from '@/types/types';
+import { observer } from '@legendapp/state/react';
 
 interface TaskItemProps {
   task: Task;
-  onToggleTaskCompletion: (taskId: number) => void;
+  onToggleTaskCompletion: (taskId: string) => void; // Изменено с number на string
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => {
+const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompletion }) => {
   const truncateTask = (text: string) => {
     const maxLength = 27;
     if (text.length > maxLength) {
@@ -29,10 +25,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
     console.log('123');
   };
 
-  const handleButtonPress = () => {
-    onToggleTaskCompletion(task.id);
-  };
-
   return (
     <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
       <View style={styles.container}>
@@ -40,19 +32,19 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
           <CustomText
             content={truncateTask(task.text)}
             size={hp('2.2')}
-            color={task.completed ? 'gray' : 'white'}
+            color={task.done ? 'gray' : 'white'} // Изменено с completed на done
             weight="700"
-            lineThrough={task.completed}
-            opacity={task.completed ? 0.6 : 1}
+            lineThrough={task.done} // Изменено с completed на done
+            opacity={task.done ? 0.6 : 1} // Изменено с completed на done
           />
         </TouchableOpacity>
         <RoundButton
           iconName={'checkmark-outline'}
-          iconColor={task.completed ? 'gray' : 'white'}
-          buttonColor={task.completed ? 'transparent' : 'transparent'}
-          borderColor={task.completed ? 'gray' : 'white'}
+          iconColor={task.done ? 'gray' : 'white'} // Изменено с completed на done
+          buttonColor={task.done ? 'transparent' : 'transparent'} // Изменено с completed на done
+          borderColor={task.done ? 'gray' : 'white'} // Изменено с completed на done
           borderWidth={1.5}
-          onPress={handleButtonPress}
+          onPress={() => { onToggleTaskCompletion(task.id) }} // Изменено с number на string
           size={hp('3.5')}
           hitSlop={10}
         />
@@ -60,7 +52,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleTaskCompletion }) => 
       <Gigabar color="gray" size={1} />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

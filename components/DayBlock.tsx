@@ -4,48 +4,28 @@ import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
-import { todos$,toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
+import { todos$, toggleTaskCompletion, addTask } from '@/Supabase/utils/SupaLegend';
+import { observer } from '@legendapp/state/react';
 
 type DayBlockProps = {
     date: string;
     dayOfWeek: string;
 }
 
-interface Task {
-    id: number;
-    text: string;
-    completed: boolean;
-}
-
-const DayBlock: React.FC<DayBlockProps> = ({ date, dayOfWeek }) => {
+const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = todos$.get();
+    console.log(todos);
     const { theme } = useTheme();
-    const [tasks, setTasks] = useState<Task[]>([]); // Инициализация tasks
 
-    const handleAddTask = (newTaskText: string) => {
-        const newTask: Task = {
-            id: Date.now(),
-            text: newTaskText,
-            completed: false,
-        };
-        setTasks((prevTasks) => [...prevTasks, newTask]);
-    };
-
-    const handleToggleTaskCompletion = (taskId: number) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId ? { ...task, completed: !task.completed } : task
-            )
-        );
-    };
+    // todos = Object.values(todos);
 
     return (
         <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color={theme.colors.secondary} size={2} />
-            <TaskList tasks={todos} onAddTask={handleAddTask} onToggleTaskCompletion={toggleTaskCompletion} />
+            <TaskList tasks={todos.Object.value(todos)} onAddTask={addTask} onToggleTaskCompletion={toggleTaskCompletion} />
         </View>
     );
-}
+});
 
 export default DayBlock;
