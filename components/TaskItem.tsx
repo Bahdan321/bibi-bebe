@@ -6,8 +6,11 @@ import CustomText from './CustomText';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
+import { useTheme } from '@/providers/ThemeProvider';
 
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompletion }) => {
+  const { theme } = useTheme();
+
   const truncateTask = (text: string) => {
     const maxLength = 27;
     if (text.length > maxLength) {
@@ -22,12 +25,12 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompleti
 
   return (
     <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
         <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
           <CustomText
             content={truncateTask(task.text)}
             size={hp('2.2')}
-            color={task.done ? 'gray' : 'white'} // Изменено с completed на done
+            color={task.done ? theme.colors.secondary : theme.colors.text} // Изменено с completed на done
             weight="700"
             lineThrough={task.done} // Изменено с completed на done
             opacity={task.done ? 0.6 : 1} // Изменено с completed на done
@@ -35,9 +38,9 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompleti
         </TouchableOpacity>
         <RoundButton
           iconName={'checkmark-outline'}
-          iconColor={task.done ? 'gray' : 'white'} // Изменено с completed на done
+          iconColor={task.done ? theme.colors.secondary : theme.colors.text} // Изменено с completed на done
           buttonColor={task.done ? 'transparent' : 'transparent'} // Изменено с completed на done
-          borderColor={task.done ? 'gray' : 'white'} // Изменено с completed на done
+          borderColor={task.done ? theme.colors.secondary : theme.colors.text} // Изменено с completed на done
           borderWidth={1.5}
           onPress={() => { onToggleTaskCompletion(task.id) }} // Изменено с number на string
           size={hp('3.5')}
@@ -55,7 +58,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 4,
-    backgroundColor: 'black',
     marginBottom: 15,
     borderRadius: 4,
   },

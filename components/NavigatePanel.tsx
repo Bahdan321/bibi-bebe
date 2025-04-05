@@ -13,7 +13,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(({ currentDate, goT
 
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "position" : "position"}
+            behavior={Platform.OS === "ios" ? "position" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
         >
             <View style={[styles.panel, { backgroundColor: theme.colors.primary }]}>
