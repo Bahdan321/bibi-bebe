@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { saveAccessToken, saveRefreshToken, getAccessToken, refreshAccessToken, getRefreshToken } from '@/storages/tokenStorage';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
+import { getCurrentUrl } from '@/hooks/useGetCurrentUrl';
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -51,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // } finally {
             //     setIsLoading(false);
             // }
+            getCurrentUrl()
             router.push('/(private)/home');
         }
 
