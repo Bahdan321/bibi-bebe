@@ -3,6 +3,7 @@ import { saveAccessToken, saveRefreshToken, getAccessToken, refreshAccessToken, 
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { getCurrentUrl } from '@/hooks/useGetCurrentUrl';
+import { getApiUrl } from '@/storages/apiUrlStorage';
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -25,6 +26,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const apiUrl = getApiUrl();
 
     // Проверка аутентификации при загрузке приложения
     useEffect(() => {
@@ -63,8 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signIn = async (username: string, password: string) => {
         try {
             setIsLoading(true);
-            // Замените URL на ваш API endpoint
-            const apiUrl = "http://192.168.3.3:8000";
 
             const formData = new FormData();
             formData.append('username', username);
@@ -100,8 +100,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signUp = async (username: string, email: string, password: string) => {
         try {
             setIsLoading(true);
-            // Замените URL на ваш API endpoint
-            const apiUrl = "https://localhost:8000";
             const response = await fetch(`${apiUrl}/jwt/register/`, {
                 method: 'POST',
                 headers: {

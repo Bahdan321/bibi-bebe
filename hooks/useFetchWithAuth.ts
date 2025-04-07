@@ -1,10 +1,10 @@
+import { getApiUrl } from "@/storages/apiUrlStorage";
 import { getAccessToken, refreshAccessToken } from "@/storages/tokenStorage";
 
 
 export const fetchWithAuth = async (url: string, options = {}) => {
     const token = await getAccessToken();
-    // const apiUrl = await getApiUrl();
-    const apiUrl = "https://localhost:8000";
+    const apiUrl = await getApiUrl();
     // console.log(`[fetchWithAuth] API URL: ${apiUrl}${url}`);
 
     if (!apiUrl) {
