@@ -26,39 +26,62 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const apiUrl = getApiUrl();
+    // const apiUrl = getApiUrl();
+    const apiUrl = "http://192.168.0.13:8000";
+    // console.log(apiUrl)
 
     // Проверка аутентификации при загрузке приложения
     useEffect(() => {
-        const checkAuth = async () => {
-            // try {
-            //     console.log("Проверка авторизации")
-            //     const accessToken = await getAccessToken();
-            //     const refreshToken = await getRefreshToken();
-            //     let newAccessToken = ""
-            //     if (!accessToken) {
-            //         console.log("[fetchWithAuth] No token found, trying to refresh");
-            //         newAccessToken = await refreshAccessToken();
-            //     }
-            //     setIsAuthenticated(!!accessToken);
-            //     if (accessToken || newAccessToken && refreshToken){
-            //         router.push('/(private)/home');
-            //         console.log("Пользователь перенаправлен")
-            //     }
-            //     else{
-            //         router.push('/(public)/signUp');
-            //     }
-            //     console.log("Пользователь авторизован")
-            // } catch (error) {
-            //     console.error('Error checking authentication:', error);
-            // } finally {
-            //     setIsLoading(false);
-            // }
-            getCurrentUrl()
-            router.push('/(private)/home');
-        }
+        // const checkAuth = async () => {
+        //     try {
+        //         console.log("Проверка авторизации");
+        //         const accessToken = await getAccessToken();
+        //         const refreshToken = await getRefreshToken();
 
-        checkAuth();
+        //         // Сначала пробуем использовать существующий accessToken
+        //         if (accessToken && refreshToken) {
+        //             console.log("Токены найдены");
+        //             setIsAuthenticated(true);
+        //             router.push('/(private)/home');
+        //             console.log("Пользователь перенаправлен на домашний экран");
+        //             return;
+        //         }
+
+        //         // Если нет accessToken, но есть refreshToken, пробуем обновить
+        //         if (!accessToken && refreshToken) {
+        //             console.log("Access token отсутствует, пробуем обновить");
+        //             try {
+        //                 const newAccessToken = await refreshAccessToken();
+        //                 if (newAccessToken) {
+        //                     setIsAuthenticated(true);
+        //                     router.push('/(private)/home');
+        //                     console.log("Токен обновлен, пользователь перенаправлен");
+        //                     return;
+        //                 }
+        //             } catch (refreshError) {
+        //                 console.error('Ошибка при обновлении токена:', refreshError);
+        //                 // Если обновление не удалось, удаляем refresh токен, так как он недействителен
+        //                 // await clearRefreshToken();
+        //             }
+        //         }
+
+        //         // Если ни один из сценариев выше не сработал, отправляем на экран регистрации
+        //         console.log("Токены отсутствуют или недействительны");
+        //         setIsAuthenticated(false);
+        //         router.push('/(public)/signUp');
+        //         console.log("Пользователь перенаправлен на экран регистрации");
+
+        //     } catch (error) {
+        //         console.error('Ошибка при проверке аутентификации:', error);
+        //         setIsAuthenticated(false);
+        //         router.push('/(public)/signUp');
+        //     } finally {
+        //         setIsLoading(false);
+        //     }
+        // };
+
+        // checkAuth();
+        router.push('/(private)/home');
     }, []);
 
     // Функция для входа в аккаунт

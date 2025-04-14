@@ -15,6 +15,9 @@ export default function PrivateLayout() {
                     <Stack.Screen
                         name="home"
                     />
+                    <Stack.Screen
+                        name="onboardingScreen"
+                    />
                 </Stack>
             </View>
         </ScreenLayout>
