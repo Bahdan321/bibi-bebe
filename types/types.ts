@@ -30,13 +30,25 @@ export interface TaskItemProps {
     task: Task;
     onToggleTaskCompletion: (taskId: string) => void;
 }
+
 export interface Task {
-    id: string;
-    text: string;
-    done: boolean;
-    counter?: number;
-    created_at?: string;
-    updated_at?: string;
-    deleted?: boolean;
-    date: string;
+    id: string; // Временный UUID или строковое представление task_id
+    space_id: string; // UUID пространства
+    user_id: string; // UUID пользователя
+    parent_task_id?: number | null; // ID родительской задачи или null
+    title: string; // Название задачи (заменяет старое поле text)
+    description?: string | null; // Описание задачи (опционально)
+    status: boolean; // Статус выполнения (заменяет старое поле done)
+    created_at?: string; // Дата создания в формате строки
+    updated_at?: string; // Дата обновления в формате строки
+    due_date?: string | null; // Срок выполнения (заменяет старое поле date)
+    completion_date?: string | null; // Дата завершения
+    is_repeating: boolean; // Повторяющаяся задача
+    repeat_interval?: string | null; // Интервал повторения
+    planning_period?: string | null; // Период планирования
+    is_urgent: boolean; // Срочная задача
+    is_important: boolean; // Важная задача
+    reward_id?: string | null; // UUID награды (опционально)
+    is_anime_task: boolean; // Аниме-задача
+    deleted?: boolean; // Флаг удаления (опционально, если используется soft delete)
 }

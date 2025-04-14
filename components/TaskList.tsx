@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { observer } from '@legendapp/state/react';
 import TaskItem from '@/components/TaskItem';
 import NewTaskInput from '@/components/NewTaskInput';
-import { TaskListProps } from '@/types/types';
+import { Task, TaskListProps } from '@/types/types';
 
 const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: TaskListProps) => {
   // const handleAddTask = (newTaskText: string) => {

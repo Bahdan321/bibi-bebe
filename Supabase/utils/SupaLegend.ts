@@ -7,18 +7,36 @@ import { v4 as uuidv4 } from 'uuid';
 import { configureSynced } from '@legendapp/state/sync';
 import { observablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
 
-const supabase = createClient<Database>(
+// Очищаем AsyncStorage при необходимости (раскомментируйте для отладки)
+// useEffect(() => {
+//   AsyncStorage.clear();
+//   // const newTask = {
+//   //   id: uuidv4(), // Уникальный идентификатор
+//   //   title: 'Тестовая задача',
+//   //   space_id: '54b479ff-ba77-49f0-93ce-8c6956041f2d',
+//   //   user_id: '5245f47d-35a0-44d2-8a33-15b15b33daff',
+//   //   status: false,
+//   //   due_date: '2023-10-01',
+//   // };
+//   // async function insertTask() {
+//   //   const { data, error } = await supabase.from('tasks').insert(newTask);
+//   //   console.log('Результат:', data, error);
+//   // }
+//   // insertTask();
+// }, []);
+
+const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
 );
 
-// Provide a function to generate ids locally
+// Функция для генерации временных идентификаторов
 const generateId = () => uuidv4();
 
-// Create a configured sync function
+// Создаем конфигурированную функцию синхронизации
 const customSynced = configureSynced(syncedSupabase, {
-  // Use React Native Async Storage
   persist: {
     plugin: observablePersistAsyncStorage({
       AsyncStorage,
@@ -29,55 +47,67 @@ const customSynced = configureSynced(syncedSupabase, {
   changesSince: 'last-sync',
   fieldCreatedAt: 'created_at',
   fieldUpdatedAt: 'updated_at',
-  // Optionally enable soft deletes
-  fieldDeleted: 'deleted',
+  fieldDeleted: 'deleted', // Убедитесь, что поле deleted есть в таблице, если используете soft deletes
+  onError: (error) => {
+    console.error('Ошибка синхронизации:', error);
+  },
 });
 
-export const todos$ = observable(
+// Observable для работы с таблицей tasks
+export const tasks$ = observable(
   customSynced({
     supabase,
-    collection: 'todos',
+    collection: 'tasks',
     select: (from) =>
-      from.select('id,counter,text,done,created_at,updated_at,deleted,date'),
+      from.select(
+        'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, reward_id, is_anime_task'
+      ),
     actions: ['read', 'create', 'update', 'delete'],
     realtime: true,
-    // Persist data and pending changes locally
     persist: {
-      name: 'todos',
-      retrySync: true, // Persist pending changes and retry
+      name: 'tasks',
+      retrySync: true,
     },
     retry: {
-      infinite: true, // Retry changes with exponential backoff
+      infinite: true,
     },
+    // idField: 'task_id', // Указываем, что первичный ключ — task_id
   })
 );
 
+// Функция для добавления новой задачи
+export const addTask = (title: string, space_id: string, user_id: string, due_date: string) => {
+  try {
+    const newId = uuidv4(); // Генерируем временный UUID
+    tasks$.set((prev) => ({
+      ...prev,
+      [newId]: {
+        id: newId, // Временный идентификатор, будет заменен на реальный task_id после синхронизации
+        space_id: space_id,
+        user_id: user_id,
+        title: title,
+        status: false,
+        due_date: due_date,
+        description: null, // Можно добавить по необходимости
+        parent_task_id: null,
+        // created_at: new Date(),
+        // updated_at: new Date().toISOString(),
+        // completion_date: null,
+        // is_repeating: false,
+        // repeat_interval: null,
+        // planning_period: null,
+        // is_urgent: false,
+        // is_important: false,
+        // reward_id: null,
+        // is_anime_task: false,
+      },
+    }));
+  } catch (error) {
+    console.error('Ошибка добавления задачи:', error);
+  };
+}
 
-// export const addTask = async (text: string) => {
-//   console.log('Добавляем задачу:', text);
-//   const newTask = { text, done: false };
-//   const { error } = await supabase.from('todos').insert(newTask);
-//   if (error) console.error('Ошибка добавления:', error);
-
-// };
-
-// export const toggleTaskCompletion = async (taskId: string) => {
-//   const { data: task } = await supabase.from('todos').select('done').eq('id', taskId).single();
-//   const { error } = await supabase
-//     .from('todos')
-//     .update({ done: !task.done })
-//     .eq('id', taskId);
-//   if (error) throw error;
-// };
-
-export const addTask = (text: string, date: string) => {
-  const newId = uuidv4();
-  todos$.set((prev) => ({
-    ...prev,
-    [newId]: { id: newId, text, done: false, date }
-  }));
-};
-
+// Функция для переключения статуса задачи
 export const toggleTaskCompletion = (taskId: string) => {
-  todos$[taskId].done.set((prev) => !prev);
+  tasks$[taskId].status.set((prev) => !prev);
 };
