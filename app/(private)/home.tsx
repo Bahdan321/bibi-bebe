@@ -9,7 +9,7 @@ import { useAuth } from '@/providers/AuthProvider';
 
 const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const { getUserInfo } = useAuth();
+    // const { getUserInfo } = useAuth();
 
     // getUserInfo();
 

@@ -6,6 +6,7 @@ import { getCurrentUrl } from '@/hooks/useGetCurrentUrl';
 import { getApiUrl } from '@/storages/apiUrlStorage';
 import { fetchWithAuth } from '@/hooks/useFetchWithAuth';
 import { AuthContextType } from '@/types/types';
+import { saveSpace } from '@/storages/spaceStorage';
 
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,59 +29,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Проверка аутентификации при загрузке приложения
     useEffect(() => {
-        // const checkAuth = async () => {
-        //     try {
-        //         console.log("Проверка авторизации");
-        //         const accessToken = await getAccessToken();
-        //         const refreshToken = await getRefreshToken();
+        const checkAuth = async () => {
+            try {
+                console.log("Проверка авторизации");
+                const accessToken = await getAccessToken();
+                const refreshToken = await getRefreshToken();
 
-        //         // Сначала пробуем использовать существующий accessToken
-        //         if (accessToken && refreshToken) {
-        //             console.log("Токены найдены");
-        //             setIsAuthenticated(true);
-        //             router.push('/(private)/home');
-        //             console.log("Пользователь перенаправлен на домашний экран");
-        //             return;
-        //         }
+                // Сначала пробуем использовать существующий accessToken
+                if (accessToken && refreshToken) {
+                    console.log("Токены найдены");
+                    setIsAuthenticated(true);
+                    router.push('/(private)/home');
+                    console.log("Пользователь перенаправлен на домашний экран");
+                    return;
+                }
 
-        //         // Если нет accessToken, но есть refreshToken, пробуем обновить
-        //         if (!accessToken && refreshToken) {
-        //             console.log("Access token отсутствует, пробуем обновить");
-        //             try {
-        //                 const newAccessToken = await refreshAccessToken();
-        //                 if (newAccessToken) {
-        //                     setIsAuthenticated(true);
-        //                     router.push('/(private)/home');
-        //                     console.log("Токен обновлен, пользователь перенаправлен");
-        //                     return;
-        //                 }
-        //             } catch (refreshError) {
-        //                 console.error('Ошибка при обновлении токена:', refreshError);
-        //                 // Если обновление не удалось, удаляем refresh токен, так как он недействителен
-        //                 // await clearRefreshToken();
-        //             }
-        //         }
+                // Если нет accessToken, но есть refreshToken, пробуем обновить
+                if (!accessToken && refreshToken) {
+                    console.log("Access token отсутствует, пробуем обновить");
+                    try {
+                        const newAccessToken = await refreshAccessToken();
+                        if (newAccessToken) {
+                            setIsAuthenticated(true);
+                            router.push('/(private)/home');
+                            console.log("Токен обновлен, пользователь перенаправлен");
+                            return;
+                        }
+                    } catch (refreshError) {
+                        console.error('Ошибка при обновлении токена:', refreshError);
+                        // Если обновление не удалось, удаляем refresh токен, так как он недействителен
+                        // await clearRefreshToken();
+                    }
+                }
 
-        //         // Если ни один из сценариев выше не сработал, отправляем на экран регистрации
-        //         console.log("Токены отсутствуют или недействительны");
-        //         setIsAuthenticated(false);
-        //         router.push('/(public)/signUp');
-        //         console.log("Пользователь перенаправлен на экран регистрации");
+                // Если ни один из сценариев выше не сработал, отправляем на экран регистрации
+                console.log("Токены отсутствуют или недействительны");
+                setIsAuthenticated(false);
+                router.push('/(public)/signUp');
+                console.log("Пользователь перенаправлен на экран регистрации");
 
-        //     } catch (error) {
-        //         console.error('Ошибка при проверке аутентификации:', error);
-        //         setIsAuthenticated(false);
-        //         router.push('/(public)/signUp');
-        //     } finally {
-        //         setIsLoading(false);
-        //     }
-        // };
+            } catch (error) {
+                console.error('Ошибка при проверке аутентификации:', error);
+                setIsAuthenticated(false);
+                router.push('/(public)/signUp');
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-        // checkAuth();
+        checkAuth();
         // SecureStore.deleteItemAsync('access_token');
         // SecureStore.deleteItemAsync('refresh_token');
         // router.push('/(private)/home');
-        router.push('/(private)/onboardingScreen');
+        // router.push('/(private)/onboardingScreen');
     }, []);
 
     // Функция для входа в аккаунт
@@ -168,28 +169,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const getUserInfo = async () => {
+    // const getUserInfo = async () => {
+    //     try {
+    //         setIsLoading(true);
+    //         const response = await fetchWithAuth(`${apiUrl}/user/me/`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         });
+
+    //         const data = await response.json();
+
+    //         if (response.ok) {
+    //             console.log("Данные пользователя:", data);
+    //             setUser(data);
+    //             return { success: true };
+    //         } else {
+    //             return { success: false, error: data.detail || 'Ошибка при получении данных пользователей' };
+    //         }
+
+    //     } catch (error) {
+    //         console.error('Error during getting user info:', error);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // }
+
+    const createUserSpace = async (spaceName: string) => {
         try {
             setIsLoading(true);
-            const response = await fetchWithAuth(`${apiUrl}/user/me`, {
+
+            const response = await fetchWithAuth(`${apiUrl}/space/create/`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({ spaceName }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                console.log("Данные пользователя:", data);
-                setUser(data);
+                console.log("Данные:", data);
+                await saveSpace(data);
+
                 return { success: true };
             } else {
-                return { success: false, error: data.detail || 'Ошибка при получении данных пользователей' };
+                return { success: false, error: data.detail || 'Ошибка при получении данных пространства' };
             }
 
         } catch (error) {
-            console.error('Error during getting user info:', error);
+            console.error('Error during create new space:', error);
         } finally {
             setIsLoading(false);
         }
@@ -202,7 +233,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signIn,
         signUp,
         signOut,
-        getUserInfo,
+        // getUserInfo,
+        createUserSpace,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

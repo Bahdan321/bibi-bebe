@@ -4,6 +4,7 @@ import { useTheme } from '@/providers/ThemeProvider';
 import { useRouter } from 'expo-router';
 import Button from '@/components/Button';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { useAuth } from '@/providers/AuthProvider';
 
 const OnboardingScreen = () => {
     const { theme } = useTheme();
@@ -11,7 +12,8 @@ const OnboardingScreen = () => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const menuFadeAnim = useRef(new Animated.Value(0)).current;
     const [showMenu, setShowMenu] = useState(false);
-    const [foodPreference, setFoodPreference] = useState('');
+    const [spaceName, setSpaceName] = useState('');
+    const { createUserSpace } = useAuth();
 
     useEffect(() => {
         // Fade in animation
@@ -42,11 +44,13 @@ const OnboardingScreen = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    const handleSubmit = () => {
-        console.log('Food preference submitted:', foodPreference);
-        // Placeholder for submission logic
-        // You could save this to user preferences or context
-        router.replace('/(private)/home');
+    const handleSubmit = async () => {
+        console.log('Food preference submitted:', spaceName);
+        const result = await createUserSpace(spaceName)
+
+        if (result.success) {
+            router.replace('/(private)/home');
+        }
     };
 
     return (
@@ -88,8 +92,8 @@ const OnboardingScreen = () => {
                                 color: theme.colors.text,
                                 borderColor: theme.colors.background
                             }]}
-                            value={foodPreference}
-                            onChangeText={setFoodPreference}
+                            value={spaceName}
+                            onChangeText={setSpaceName}
                             placeholder="Введите вашу любимую еду"
                             placeholderTextColor={theme.colors.background}
                         />
