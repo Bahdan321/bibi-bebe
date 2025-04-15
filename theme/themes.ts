@@ -4,6 +4,7 @@ export const lightTheme: Theme = {
   colors: {
     primary: 'white',
     secondary: 'pink',
+    third: "#FAEBD7",
     background: 'gray',
     text: 'black',
     error: 'red',
@@ -23,6 +24,7 @@ export const darkTheme: Theme = {
   colors: {
     primary: 'black',
     secondary: 'white',
+    third: "#1C1C1C",
     background: 'gray',
     text: 'white',
     error: 'red',
