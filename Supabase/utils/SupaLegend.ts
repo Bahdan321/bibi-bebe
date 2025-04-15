@@ -8,10 +8,11 @@ import { configureSynced } from '@legendapp/state/sync';
 import { observablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
+import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
 
 // Очищаем AsyncStorage при необходимости (раскомментируйте для отладки)
 // useEffect(() => {
-//   AsyncStorage.clear();
+// AsyncStorage.clear();
   // const newTask = {
   //   id: uuidv4(), // Уникальный идентификатор
   //   title: 'Тестовая задача',
@@ -55,6 +56,7 @@ const customSynced = configureSynced(syncedSupabase, {
 
 // Observable для работы с таблицей tasks
 export const tasks$ = observable(
+
   customSynced({
     supabase,
     collection: 'tasks',
@@ -62,6 +64,7 @@ export const tasks$ = observable(
       from.select(
         'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, reward_id, is_anime_task'
       ),
+    filter: (select) => select.eq('space_id', "37366bcc-a1d5-4025-aa34-66efcb1e632a"),
     actions: ['read', 'create', 'update', 'delete'],
     realtime: true,
     persist: {

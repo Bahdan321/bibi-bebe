@@ -13,3 +13,10 @@ export async function getSpace() {
     return null;
 }
 
+export async function getCurrentSpaceId() {
+    const spaceString = await SecureStore.getItemAsync('current_space');
+    if (!spaceString) return null;
+    const space = JSON.parse(spaceString);
+    return space.space_id;
+    }
+

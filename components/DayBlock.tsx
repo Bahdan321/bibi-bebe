@@ -10,7 +10,7 @@ import { DayBlockProps } from '@/types/types';
 
 const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = tasks$.get();
-    // console.log(todos);
+    console.log(todos);
     const { theme } = useTheme();
     // console.log("date: ", date)
 
@@ -19,7 +19,7 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
         <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
             <Gigabar color={theme.colors.secondary} size={2} />
-            <TaskList tasks={tasksForDay} onAddTask={(text) => addTask(text, "54b479ff-ba77-49f0-93ce-8c6956041f2d", "5245f47d-35a0-44d2-8a33-15b15b33daff", date,)} onToggleTaskCompletion={toggleTaskCompletion} date={date} />
+            <TaskList tasks={tasksForDay} onAddTask={(text) => addTask(text, "d11fb04b-5d47-40ba-8cd7-472b2a0c7285", "3730b6d4-5b27-40ca-90de-74b3824e98bf", date,)} onToggleTaskCompletion={toggleTaskCompletion} date={date} />
         </View>
     );
 });
