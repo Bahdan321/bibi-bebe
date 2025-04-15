@@ -4,14 +4,9 @@ import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { getCurrentUrl } from '@/hooks/useGetCurrentUrl';
 import { getApiUrl } from '@/storages/apiUrlStorage';
+import { fetchWithAuth } from '@/hooks/useFetchWithAuth';
+import { AuthContextType } from '@/types/types';
 
-interface AuthContextType {
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    signIn: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
-    signUp: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-    signOut: () => Promise<void>;
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -26,62 +21,63 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState();
     // const apiUrl = getApiUrl();
     const apiUrl = "http://192.168.0.13:8000";
     // console.log(apiUrl)
 
     // Проверка аутентификации при загрузке приложения
     useEffect(() => {
-        // const checkAuth = async () => {
-        //     try {
-        //         console.log("Проверка авторизации");
-        //         const accessToken = await getAccessToken();
-        //         const refreshToken = await getRefreshToken();
+        const checkAuth = async () => {
+            try {
+                console.log("Проверка авторизации");
+                const accessToken = await getAccessToken();
+                const refreshToken = await getRefreshToken();
 
-        //         // Сначала пробуем использовать существующий accessToken
-        //         if (accessToken && refreshToken) {
-        //             console.log("Токены найдены");
-        //             setIsAuthenticated(true);
-        //             router.push('/(private)/home');
-        //             console.log("Пользователь перенаправлен на домашний экран");
-        //             return;
-        //         }
+                // Сначала пробуем использовать существующий accessToken
+                if (accessToken && refreshToken) {
+                    console.log("Токены найдены");
+                    setIsAuthenticated(true);
+                    router.push('/(private)/home');
+                    console.log("Пользователь перенаправлен на домашний экран");
+                    return;
+                }
 
-        //         // Если нет accessToken, но есть refreshToken, пробуем обновить
-        //         if (!accessToken && refreshToken) {
-        //             console.log("Access token отсутствует, пробуем обновить");
-        //             try {
-        //                 const newAccessToken = await refreshAccessToken();
-        //                 if (newAccessToken) {
-        //                     setIsAuthenticated(true);
-        //                     router.push('/(private)/home');
-        //                     console.log("Токен обновлен, пользователь перенаправлен");
-        //                     return;
-        //                 }
-        //             } catch (refreshError) {
-        //                 console.error('Ошибка при обновлении токена:', refreshError);
-        //                 // Если обновление не удалось, удаляем refresh токен, так как он недействителен
-        //                 // await clearRefreshToken();
-        //             }
-        //         }
+                // Если нет accessToken, но есть refreshToken, пробуем обновить
+                if (!accessToken && refreshToken) {
+                    console.log("Access token отсутствует, пробуем обновить");
+                    try {
+                        const newAccessToken = await refreshAccessToken();
+                        if (newAccessToken) {
+                            setIsAuthenticated(true);
+                            router.push('/(private)/home');
+                            console.log("Токен обновлен, пользователь перенаправлен");
+                            return;
+                        }
+                    } catch (refreshError) {
+                        console.error('Ошибка при обновлении токена:', refreshError);
+                        // Если обновление не удалось, удаляем refresh токен, так как он недействителен
+                        // await clearRefreshToken();
+                    }
+                }
 
-        //         // Если ни один из сценариев выше не сработал, отправляем на экран регистрации
-        //         console.log("Токены отсутствуют или недействительны");
-        //         setIsAuthenticated(false);
-        //         router.push('/(public)/signUp');
-        //         console.log("Пользователь перенаправлен на экран регистрации");
+                // Если ни один из сценариев выше не сработал, отправляем на экран регистрации
+                console.log("Токены отсутствуют или недействительны");
+                setIsAuthenticated(false);
+                router.push('/(public)/signUp');
+                console.log("Пользователь перенаправлен на экран регистрации");
 
-        //     } catch (error) {
-        //         console.error('Ошибка при проверке аутентификации:', error);
-        //         setIsAuthenticated(false);
-        //         router.push('/(public)/signUp');
-        //     } finally {
-        //         setIsLoading(false);
-        //     }
-        // };
+            } catch (error) {
+                console.error('Ошибка при проверке аутентификации:', error);
+                setIsAuthenticated(false);
+                router.push('/(public)/signUp');
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-        // checkAuth();
-        router.push('/(private)/home');
+        checkAuth();
+        // router.push('/(private)/home');
     }, []);
 
     // Функция для входа в аккаунт
@@ -93,10 +89,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             formData.append('username', username);
             formData.append('password', password);
 
-            const response = await fetch(`${apiUrl}/jwt/login/`, {
+            const response = await fetch(`${apiUrl}/auth/login/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: formData,
             });
@@ -123,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signUp = async (username: string, email: string, password: string) => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${apiUrl}/jwt/register/`, {
+            const response = await fetch(`${apiUrl}/auth/register/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,12 +163,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const getUserInfo = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetchWithAuth(`${apiUrl}/user/me`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log("Данные пользователя:", data);
+                setUser(data);
+                return { success: true };
+            } else {
+                return { success: false, error: data.detail || 'Ошибка при получении данных пользователей' };
+            }
+
+        } catch (error) {
+            console.error('Error during getting user info:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const value = {
         isAuthenticated,
         isLoading,
+        user,
         signIn,
         signUp,
         signOut,
+        getUserInfo,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

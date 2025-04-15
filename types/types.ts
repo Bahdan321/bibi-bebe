@@ -52,3 +52,21 @@ export interface Task {
     is_anime_task: boolean; // Аниме-задача
     deleted?: boolean; // Флаг удаления (опционально, если используется soft delete)
 }
+
+export interface User {
+    user_id: string
+    username: string
+    email: string
+    avatar_url: string
+    displayed_title_id: string
+}
+
+export interface AuthContextType {
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    user: User;
+    signIn: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    signUp: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    signOut: () => Promise<void>;
+    getUserInfo: () => Promise<void>;
+}

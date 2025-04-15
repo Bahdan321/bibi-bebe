@@ -5,9 +5,13 @@ import MainComponent from '@/components/MainComponent';
 import { observer } from '@legendapp/state/react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import TaskMenu from '@/components/TaskMenu';
+import { useAuth } from '@/providers/AuthProvider';
 
 const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const { getUserInfo } = useAuth();
+
+    getUserInfo();
 
     const goToPreviousWeek = () => {
         setCurrentDate(prevDate => {

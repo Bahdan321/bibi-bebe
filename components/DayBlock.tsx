@@ -10,7 +10,7 @@ import { DayBlockProps } from '@/types/types';
 
 const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = tasks$.get();
-    console.log(todos);
+    // console.log(todos);
     const { theme } = useTheme();
     // console.log("date: ", date)
 

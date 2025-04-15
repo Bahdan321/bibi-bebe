@@ -29,7 +29,7 @@ export default function SignIn() {
             if (result.success) {
                 router.push('/(private)/home');
             } else {
-                Alert.alert('Ошибка входа', result.error || 'Неверное имя пользователя или пароль');
+                Alert.alert('Ошибка входа', result.error || 'Неверное почта или пароль');
             }
         } catch (error) {
             console.error('Error signing in:', error);
@@ -47,7 +47,7 @@ export default function SignIn() {
         <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
             <Text style={[styles.title, { color: theme.colors.text }]}>Авторизация</Text>
             <TextInputField
-                label="Имя"
+                label="Никнейм"
                 labelColor={theme.colors.text}
                 borderColor={theme.colors.text}
                 textColor={theme.colors.text}
