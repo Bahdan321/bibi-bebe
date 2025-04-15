@@ -70,5 +70,13 @@ export interface AuthContextType {
     signIn: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
     signUp: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     signOut: () => Promise<void>;
-    getUserInfo: () => Promise<void>;
+    // getUserInfo: () => Promise<void>;
+    createUserSpace(spaceName: string): () => Promise<void>;
+}
+
+export interface Space {
+    space_id: string
+    space_name: string
+    created_by: string
+    created_at: string
 }

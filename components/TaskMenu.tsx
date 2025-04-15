@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     StyleSheet,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useTheme } from '@/providers/ThemeProvider';
 // import DateTimePicker from '@react-native-community/datetimepicker';
 
