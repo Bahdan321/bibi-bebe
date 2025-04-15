@@ -12,19 +12,19 @@ import { useEffect } from 'react';
 // Очищаем AsyncStorage при необходимости (раскомментируйте для отладки)
 // useEffect(() => {
 //   AsyncStorage.clear();
-//   // const newTask = {
-//   //   id: uuidv4(), // Уникальный идентификатор
-//   //   title: 'Тестовая задача',
-//   //   space_id: '54b479ff-ba77-49f0-93ce-8c6956041f2d',
-//   //   user_id: '5245f47d-35a0-44d2-8a33-15b15b33daff',
-//   //   status: false,
-//   //   due_date: '2023-10-01',
-//   // };
-//   // async function insertTask() {
-//   //   const { data, error } = await supabase.from('tasks').insert(newTask);
-//   //   console.log('Результат:', data, error);
-//   // }
-//   // insertTask();
+  // const newTask = {
+  //   id: uuidv4(), // Уникальный идентификатор
+  //   title: 'Тестовая задача',
+  //   space_id: '54b479ff-ba77-49f0-93ce-8c6956041f2d',
+  //   user_id: '5245f47d-35a0-44d2-8a33-15b15b33daff',
+  //   status: false,
+  //   due_date: '2023-10-01',
+  // };
+  // async function insertTask() {
+  //   const { data, error } = await supabase.from('tasks').insert(newTask);
+  //   console.log('Результат:', data, error);
+  // }
+  // insertTask();
 // }, []);
 
 const supabase = createClient(

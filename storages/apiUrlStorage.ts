@@ -13,7 +13,7 @@ export const saveApiUrl = async (url: string) => {
 export const getApiUrl = async (): Promise<string | null> => {
     try {
         // const url = await AsyncStorage.getItem(API_URL_KEY);
-        let url = "http://192.168.0.13:8000";
+        let url = "http://192.168.3.3:8000";
         return url;
     } catch (error) {
         console.error('Error getting API URL:', error);

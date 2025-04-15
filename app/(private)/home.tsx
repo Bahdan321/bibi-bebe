@@ -11,7 +11,7 @@ const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const { getUserInfo } = useAuth();
 
-    getUserInfo();
+    // getUserInfo();
 
     const goToPreviousWeek = () => {
         setCurrentDate(prevDate => {

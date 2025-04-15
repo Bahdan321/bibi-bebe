@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState();
     // const apiUrl = getApiUrl();
-    const apiUrl = "http://192.168.0.13:8000";
+    const apiUrl = "http://192.168.3.3:8000";
     // console.log(apiUrl)
 
     // Проверка аутентификации при загрузке приложения
@@ -77,6 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         checkAuth();
+        // SecureStore.deleteItemAsync('access_token');
+        // SecureStore.deleteItemAsync('refresh_token');
         // router.push('/(private)/home');
     }, []);
 
@@ -98,10 +100,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
 
             const data = await response.json();
-
+            console.log(data)
             if (response.ok) {
                 await saveAccessToken(data.access_token);
                 await saveRefreshToken(data.refresh_token);
+                setUser(data.user)
                 setIsAuthenticated(true);
                 return { success: true };
             } else {
@@ -134,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (data.access_token && data.refresh_token) {
                     await saveAccessToken(data.access_token);
                     await saveRefreshToken(data.refresh_token);
+                    setUser(data.user)
                     setIsAuthenticated(true);
                 }
                 return { success: true };
