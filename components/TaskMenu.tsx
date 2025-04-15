@@ -36,6 +36,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const [date, setDate] = useState(task.date);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
+    // Сохранение изменений
+    const handleSave = () => {
+        onUpdate({ id: task.id, title, description });
+        onClose();
+    };
+
     // Обработка изменения даты
     const handleDateChange = (event: any, selectedDate?: Date) => {
         setShowDatePicker(false);

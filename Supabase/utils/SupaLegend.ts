@@ -111,3 +111,21 @@ export const addTask = (title: string, space_id: string, user_id: string, due_da
 export const toggleTaskCompletion = (taskId: string) => {
   tasks$[taskId].status.set((prev) => !prev);
 };
+
+// Функция для обновления задачи
+export const updateTask = (updatedTask: {
+  id: string;
+  title: string;
+  description: string;
+}) => {
+  try {
+    const { id, title, description } = updatedTask;
+    tasks$[id].set({
+      title,
+      description: description || null,
+      updated_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Ошибка обновления задачи:', error);
+  }
+};

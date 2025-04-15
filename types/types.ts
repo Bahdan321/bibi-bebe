@@ -18,6 +18,7 @@ export interface TaskListProps {
     tasks: Task[];
     onAddTask: (text: string, date: string) => void;
     onToggleTaskCompletion: (taskId: string) => void;
+    onUpdateTask: (updatedTask: { id: string; title: string; description: string }) => void;
     date: string;
 }
 
@@ -29,6 +30,7 @@ export interface DayInfoProps {
 export interface TaskItemProps {
     task: Task;
     onToggleTaskCompletion: (taskId: string) => void;
+    onUpdateTask: (updatedTask: { id: string; title: string; description: string }) => void;
 }
 
 export interface Task {
