@@ -4,27 +4,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import CustomText from '@/components/CustomText';
 import { useTheme } from '@/providers/ThemeProvider';
 import { DayInfoProps } from '@/types/types';
-import { getFormatedDate } from '@/utils/DateUtils';
-
-const truncateDayOfWeek = (dayOfWeek: string) => {
-    const dayMap: { [key: string]: string } = {
-        'Понедельник': "Пн",
-        'Вторник': "Вт",
-        'Среда': "Ср",
-        'Четверг': "Чт",
-        'Пятница': "Пт",
-        'Суббота': "Сб",
-        'Воскресенье': "Вс",
-        'понедельник': "Пн",
-        'вторник': "Вт",
-        'среда': "Ср",
-        'четверг': "Чт",
-        'пятница': "Пт",
-        'суббота': "Сб",
-        'воскресенье': "Вс",
-    }
-    return dayMap[dayOfWeek] || dayOfWeek;
-}
+import { getFormatedDate, truncateDayOfWeek } from '@/utils/DateUtils';
 
 const DayInfo: React.FC<DayInfoProps> = ({ date, dayOfWeek }) => {
     const { theme } = useTheme();

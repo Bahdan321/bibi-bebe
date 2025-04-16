@@ -10,12 +10,14 @@ import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { TaskMenuProps } from '@/types/types';
 import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
+import { getFormatedDateOfYear } from '@/utils/DateUtils';
 // import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
     visible,
+    date,
     onDuplicate,
     onDelete,
     onClose,
@@ -23,7 +25,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const { theme } = useTheme();
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
-    const [date, setDate] = useState(task.date);
+    const [currentDate, setCurrentDate] = useState(task.date);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     const handleTaskRename = () => {
@@ -92,7 +94,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     //     month: 'short',
     //     year: 'numeric',
     // });
-    const formattedDate = date;
+    const formattedDate = getFormatedDateOfYear(date);
+    console.log('Formatted date:', formattedDate);
 
     if (!visible) return null;
 
