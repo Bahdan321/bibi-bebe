@@ -131,6 +131,11 @@ export const toggleTaskRenameDescription = (taskId: string, newDescription: stri
   tasks$[taskId].description.set((prev) => newDescription);
 };
 
+// Функция для изменения даты
+export const toggleTaskChangeDate = (taskId: string, newDate: string) => {
+  tasks$[taskId].due_date.set((prev) => newDate);
+};
+
 // Функция для удаления задачи
 export const toggleTaskRemove = (taskId: string) => {
   tasks$[taskId].delete();

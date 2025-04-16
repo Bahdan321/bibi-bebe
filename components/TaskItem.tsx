@@ -35,52 +35,34 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
     bottomSheetRef.current?.close();
   };
 
-  const handleDuplicateTask = (newTask: any) => {
-    console.log('Duplicate task:', newTask);
-    // Здесь можно добавить логику дублирования задачи
-  };
-
-  const handleDeleteTask = (taskId: string) => {
-    console.log('Delete task:', taskId);
-    // Здесь можно добавить логику удаления задачи
-    handleCloseMenu();
-  };
-
   return (
-    <View>
-      <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
-        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-          <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
-            <CustomText
-              content={truncateTask(task.title)}
-              size={hp('2.2')}
-              color={task.status ? theme.colors.secondary : theme.colors.text}
-              weight="700"
-              lineThrough={task.status}
-              opacity={task.status ? 0.6 : 1}
-            />
-          </TouchableOpacity>
-          <RoundButton
-            iconName={'checkmark-outline'}
-            // iconColor={task.status ? theme.colors.third : theme.colors.primary}
-            // buttonColor={task.status ? theme.colors.third : theme.colors.secondary}
-            // borderColor={task.status ? theme.colors.third : theme.colors.secondary}
-            iconColor={task.status ? theme.colors.third : theme.colors.text}
-            buttonColor={theme.colors.primary}
-            borderColor={task.status ? theme.colors.third : theme.colors.text}
-            borderWidth={1.5}
-            onPress={() => { onToggleTaskCompletion(task.id) }}
-            size={hp('3.5')}
-            hitSlop={10}
+    <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
+      <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
+        <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
+          <CustomText
+            content={truncateTask(task.title)}
+            size={hp('2.2')}
+            color={task.status ? theme.colors.secondary : theme.colors.text}
+            weight="700"
+            lineThrough={task.status}
+            opacity={task.status ? 0.6 : 1}
           />
-        </View>
-        <Gigabar color="gray" size={1} />
+        </TouchableOpacity>
+        <RoundButton
+          iconName={'checkmark-outline'}
+          iconColor={task.status ? theme.colors.third : theme.colors.text}
+          buttonColor={theme.colors.primary}
+          borderColor={task.status ? theme.colors.third : theme.colors.text}
+          borderWidth={1.5}
+          onPress={() => { onToggleTaskCompletion(task.id) }}
+          size={hp('3.5')}
+          hitSlop={10}
+        />
       </View>
+      <Gigabar color="gray" size={1} />
       <TaskMenu
         task={task}
         visible={isMenuVisible}
-        onDuplicate={handleDuplicateTask}
-        onDelete={handleDeleteTask}
         onClose={handleCloseMenu}
         date={date}
       />

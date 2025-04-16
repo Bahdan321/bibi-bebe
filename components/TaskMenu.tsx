@@ -11,8 +11,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { TaskMenuProps } from '@/types/types';
 import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
-// import DateTimePicker from '@react-native-community/datetimepicker';
-
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
@@ -49,11 +47,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     }
 
     // Обработка изменения даты
-    const handleDateChange = (event: any, selectedDate?: Date) => {
-        setShowDatePicker(false);
-        if (selectedDate) {
-            setDate(selectedDate);
-        }
+    const handleDateChange = () => {
     };
 
     // Дублирование задачи
@@ -87,23 +81,15 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         toggleTaskRemove(task.id);
     };
 
-    // Форматирование даты на русском
-    // const formattedDate = date.toLocaleDateString('ru-RU', {
-    //     weekday: 'short',
-    //     day: 'numeric',
-    //     month: 'short',
-    //     year: 'numeric',
-    // });
     const formattedDate = getFormatedDateOfYear(date);
-    console.log('Formatted date:', formattedDate);
 
     if (!visible) return null;
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
+        <View className='' style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
             {/* Заголовок с датой и кнопкой закрытия */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                <TouchableOpacity onPress={() => handleDateChange}>
                     <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleTaskMenuClose}>
@@ -141,14 +127,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 multiline
                 maxLength={150}
             />
-            {/* {showDatePicker && (
-                <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={handleDateChange}
-                />
-            )} */}
 
             {/* Кнопки действий */}
             <View style={styles.actions}>

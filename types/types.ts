@@ -84,7 +84,5 @@ export interface TaskMenuProps {
     task: Task;
     visible: boolean;
     date: string;
-    onDuplicate: (newTask: any) => void;
-    onDelete: (taskId: string) => void;
     onClose: () => void;
 }
