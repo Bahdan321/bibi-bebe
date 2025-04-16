@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState();
     // const apiUrl = getApiUrl();
-    const apiUrl = "http://192.168.3.3:8000";
+    const apiUrl = "http://192.168.41.151:8000";
     // console.log(apiUrl)
 
     // Проверка аутентификации при загрузке приложения
