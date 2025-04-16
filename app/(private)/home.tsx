@@ -6,10 +6,22 @@ import { observer } from '@legendapp/state/react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import TaskMenu from '@/components/TaskMenu';
 import { useAuth } from '@/providers/AuthProvider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const [isMenuVisible, setIsMenuVisible] = useState(false);
     // const { getUserInfo } = useAuth();
+
+    useEffect(() => {
+        bottomSheetRef.current?.expand();
+
+    }, [bottomSheetRef])
+
+    const handleCloseMenu = () => {
+        console.log('BottomSheet closed');
+    };
 
     // getUserInfo();
 
@@ -19,6 +31,16 @@ const Home = observer(() => {
             newDate.setDate(prevDate.getDate() - 7);
             return newDate;
         });
+    };
+
+    const handleDuplicateTask = (task: any) => {
+        console.log('Duplicate task:', task);
+        // Add logic to duplicate the task here
+    };
+
+    const handleDeleteTask = (task: any) => {
+        console.log('Delete task:', task);
+        // Add logic to delete the task here
     };
 
     const goToNextWeek = () => {
@@ -32,20 +54,9 @@ const Home = observer(() => {
     return (
         <View style={{ flex: 1, flexDirection: 'column' }}>
             <MainComponent currentDate={currentDate} />
-            {/* <TaskMenu
-                task={{
-                    id: "123213",
-                    title: 'Sample Task',
-                    description: 'This is a sample task description.',
-                    date: new Date(),
-                }}
-                visible={true}
-                onDuplicate={(newTask) => console.log('Duplicate:', newTask)}
-                onDelete={(taskId) => console.log('Delete:', taskId)}
-                onClose={() => console.log('Close')}
-            /> */}
             <NavigatePanel currentDate={currentDate} goToPreviousWeek={goToPreviousWeek} goToNextWeek={goToNextWeek} />
         </View>
+
     )
 });
 

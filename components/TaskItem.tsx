@@ -9,8 +9,9 @@ import { observer } from '@legendapp/state/react';
 import { useTheme } from '@/providers/ThemeProvider';
 import TaskMenu from './TaskMenu';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompletion }) => {
+const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCompletion }) => {
   const { theme } = useTheme();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -24,6 +25,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompleti
   };
 
   const handleTextPress = () => {
+    console.log('Task text pressed:', task);
     setIsMenuVisible(true);
     bottomSheetRef.current?.expand();
   };
@@ -52,17 +54,20 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompleti
             <CustomText
               content={truncateTask(task.title)}
               size={hp('2.2')}
-              color={task.done ? theme.colors.secondary : theme.colors.text}
+              color={task.status ? theme.colors.secondary : theme.colors.text}
               weight="700"
-              lineThrough={task.done}
-              opacity={task.done ? 0.6 : 1}
+              lineThrough={task.status}
+              opacity={task.status ? 0.6 : 1}
             />
           </TouchableOpacity>
           <RoundButton
             iconName={'checkmark-outline'}
-            iconColor={task.done ? theme.colors.secondary : theme.colors.text}
-            buttonColor={task.done ? 'transparent' : 'transparent'}
-            borderColor={task.done ? theme.colors.secondary : theme.colors.text}
+            // iconColor={task.status ? theme.colors.third : theme.colors.primary}
+            // buttonColor={task.status ? theme.colors.third : theme.colors.secondary}
+            // borderColor={task.status ? theme.colors.third : theme.colors.secondary}
+            iconColor={task.status ? theme.colors.third : theme.colors.text}
+            buttonColor={theme.colors.primary}
+            borderColor={task.status ? theme.colors.third : theme.colors.text}
             borderWidth={1.5}
             onPress={() => { onToggleTaskCompletion(task.id) }}
             size={hp('3.5')}
@@ -71,29 +76,14 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, onToggleTaskCompleti
         </View>
         <Gigabar color="gray" size={1} />
       </View>
-
-      {/* BottomSheet для меню задачи */}
-      {/* <BottomSheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={['70%']}
-        enablePanDownToClose={true}
+      <TaskMenu
+        task={task}
+        visible={isMenuVisible}
+        onDuplicate={handleDuplicateTask}
+        onDelete={handleDeleteTask}
         onClose={handleCloseMenu}
-        backgroundStyle={{ backgroundColor: theme.colors.primary }}
-      >
-        <TaskMenu
-          task={{
-            id: task.id,
-            title: task.text,
-            description: task.description || '',
-            date: new Date(task.date || Date.now())
-          }}
-          visible={isMenuVisible}
-          onDuplicate={handleDuplicateTask}
-          onDelete={handleDeleteTask}
-          onClose={handleCloseMenu}
-        />
-      </BottomSheet> */}
+        date={date}
+      />
     </View>
   );
 });

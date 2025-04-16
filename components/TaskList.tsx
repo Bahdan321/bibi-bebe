@@ -21,6 +21,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
           key={task.id}
           task={task}
           onToggleTaskCompletion={() => onToggleTaskCompletion(task.id)}
+          date={date}
         />
       ))}
       <NewTaskInput onAddTask={(text) => onAddTask(text, date)} />

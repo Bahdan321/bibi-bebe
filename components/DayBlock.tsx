@@ -4,13 +4,13 @@ import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
-import { tasks$, toggleTaskCompletion, addTask } from '@/Supabase/utils/SupaLegend';
+import { tasks$, toggleTaskCompletion, addTask, toggleTaskRename } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
 import { DayBlockProps } from '@/types/types';
 
 const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = tasks$.get();
-    console.log(todos);
+    // console.log(todos);
     const { theme } = useTheme();
     // console.log("date: ", date)
 

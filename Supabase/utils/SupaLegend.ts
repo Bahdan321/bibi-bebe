@@ -12,20 +12,7 @@ import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
 
 // Очищаем AsyncStorage при необходимости (раскомментируйте для отладки)
 // useEffect(() => {
-// AsyncStorage.clear();
-  // const newTask = {
-  //   id: uuidv4(), // Уникальный идентификатор
-  //   title: 'Тестовая задача',
-  //   space_id: '54b479ff-ba77-49f0-93ce-8c6956041f2d',
-  //   user_id: '5245f47d-35a0-44d2-8a33-15b15b33daff',
-  //   status: false,
-  //   due_date: '2023-10-01',
-  // };
-  // async function insertTask() {
-  //   const { data, error } = await supabase.from('tasks').insert(newTask);
-  //   console.log('Результат:', data, error);
-  // }
-  // insertTask();
+//   AsyncStorage.clear();
 // }, []);
 
 const supabase = createClient(
@@ -48,7 +35,7 @@ const customSynced = configureSynced(syncedSupabase, {
   changesSince: 'last-sync',
   fieldCreatedAt: 'created_at',
   fieldUpdatedAt: 'updated_at',
-  fieldDeleted: 'deleted', // Убедитесь, что поле deleted есть в таблице, если используете soft deletes
+  // fieldDeleted: 'deleted', // Убедитесь, что поле deleted есть в таблице, если используете soft deletes
   onError: (error) => {
     console.error('Ошибка синхронизации:', error);
   },
@@ -79,30 +66,49 @@ export const tasks$ = observable(
 );
 
 // Функция для добавления новой задачи
-export const addTask = (title: string, space_id: string, user_id: string, due_date: string) => {
+export const addTask = (
+  title: string,
+  space_id: string,
+  user_id: string,
+  due_date: string,
+  status?: boolean,
+  description?: string,
+  parent_task_id?: string,
+  created_at?: string,
+  updated_at?: string,
+  completion_date?: string,
+  is_repeating?: boolean,
+  repeat_interval?: string,
+  planning_period?: string,
+  is_urgent?: boolean,
+  is_important?: boolean,
+  reward_id?: string,
+  is_anime_task?: boolean
+) => {
+  const now = new Date();
+  const dateString = now.toISOString().replace("T", " ").split("Z")[0] + "123";
+  console.log('dateString', dateString);
   try {
     const newId = uuidv4(); // Генерируем временный UUID
     tasks$.set((prev) => ({
       ...prev,
       [newId]: {
-        id: newId, // Временный идентификатор, будет заменен на реальный task_id после синхронизации
+        id: newId,
         space_id: space_id,
         user_id: user_id,
         title: title,
-        status: false,
+        status: status || false,
         due_date: due_date,
-        description: null, // Можно добавить по необходимости
-        parent_task_id: null,
-        // created_at: new Date(),
-        // updated_at: new Date().toISOString(),
-        // completion_date: null,
-        // is_repeating: false,
-        // repeat_interval: null,
-        // planning_period: null,
-        // is_urgent: false,
-        // is_important: false,
-        // reward_id: null,
-        // is_anime_task: false,
+        description: description || null,
+        parent_task_id: parent_task_id || null,
+        completion_date: completion_date || null,
+        is_repeating: is_repeating || false,
+        repeat_interval: repeat_interval || null,
+        planning_period: planning_period || null,
+        is_urgent: is_urgent || false,
+        is_important: is_important || false,
+        reward_id: reward_id || null,
+        is_anime_task: is_anime_task || false,
       },
     }));
   } catch (error) {
@@ -114,3 +120,65 @@ export const addTask = (title: string, space_id: string, user_id: string, due_da
 export const toggleTaskCompletion = (taskId: string) => {
   tasks$[taskId].status.set((prev) => !prev);
 };
+
+// Функция для изменения названия задачи
+export const toggleTaskRename = (taskId: string, newTitle: string) => {
+  tasks$[taskId].title.set((prev) => newTitle);
+};
+
+// Функция для изменения описания задачи
+export const toggleTaskRenameDescription = (taskId: string, newDescription: string) => {
+  tasks$[taskId].description.set((prev) => newDescription);
+};
+
+// Функция для удаления задачи
+export const toggleTaskRemove = (taskId: string) => {
+  tasks$[taskId].delete();
+};
+
+export const toggleDublicateTask = (
+  title: string,
+  space_id: string,
+  user_id: string,
+  due_date: string,
+  status?: boolean,
+  description?: string,
+  parent_task_id?: string,
+  created_at?: string,
+  updated_at?: string,
+  completion_date?: string,
+  is_repeating?: boolean,
+  repeat_interval?: string,
+  planning_period?: string,
+  is_urgent?: boolean,
+  is_important?: boolean,
+  reward_id?: string,
+  is_anime_task?: boolean
+) => {
+  try {
+    const newId = uuidv4(); // Генерируем временный UUID
+    tasks$.set((prev) => ({
+      ...prev,
+      [newId]: {
+        id: newId,
+        space_id: space_id,
+        user_id: user_id,
+        title: title,
+        status: status || false,
+        due_date: due_date,
+        description: description || null,
+        parent_task_id: parent_task_id || null,
+        completion_date: completion_date || null,
+        is_repeating: is_repeating || false,
+        repeat_interval: repeat_interval || null,
+        planning_period: planning_period || null,
+        is_urgent: is_urgent || false,
+        is_important: is_important || false,
+        reward_id: reward_id || null,
+        is_anime_task: is_anime_task || false,
+      },
+    }));
+  } catch (error) {
+    console.error('Ошибка дублирования задачи:', error);
+  };
+}

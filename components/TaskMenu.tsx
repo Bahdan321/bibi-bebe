@@ -6,22 +6,12 @@ import {
     TouchableOpacity,
     StyleSheet,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { useTheme } from '@/providers/ThemeProvider';
+import { Ionicons } from '@expo/vector-icons';
+import { TaskMenuProps } from '@/types/types';
+import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
 // import DateTimePicker from '@react-native-community/datetimepicker';
 
-interface TaskMenuProps {
-    task: {
-        id: string;
-        title: string;
-        description: string;
-        date: Date;
-    };
-    visible: boolean;
-    onDuplicate: (newTask: any) => void;
-    onDelete: (taskId: string) => void;
-    onClose: () => void;
-}
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
@@ -36,6 +26,26 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const [date, setDate] = useState(task.date);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
+    const handleTaskRename = () => {
+        console.log('Renaming task:', title);
+        toggleTaskRename(task.id, title);
+    }
+
+    const handleTaskChangeDescription = () => {
+        console.log('Changing:', description);
+        toggleTaskRenameDescription(task.id, description);
+    }
+
+    const handleTaskMenuClose = () => {
+        if (task.title != title) {
+            handleTaskRename();
+        }
+        if (task.description != description) {
+            handleTaskChangeDescription();
+        }
+        onClose();
+    }
+
     // Обработка изменения даты
     const handleDateChange = (event: any, selectedDate?: Date) => {
         setShowDatePicker(false);
@@ -46,34 +56,55 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     // Дублирование задачи
     const handleDuplicate = () => {
-        const newTask = { ...task, id: Date.now().toString(), title, description, date };
-        onDuplicate(newTask);
+        console.log('Duplicating task:', task);
+        toggleDublicateTask(
+            task.title,
+            task.space_id,
+            task.user_id,
+            task.due_date,
+            task.status,
+            task.description,
+            task.parent_task_id,
+            task.created_at,
+            task.updated_at,
+            task.completion_date,
+            task.is_repeating,
+            task.repeat_interval,
+            task.planning_period,
+            task.is_urgent,
+            task.is_important,
+            task.reward_id,
+            task.is_anime_task,
+        );
+        onClose();
     };
 
     // Удаление задачи
     const handleDelete = () => {
-        onDelete(task.id);
+        console.log('Deleting task:', task.id);
+        toggleTaskRemove(task.id);
     };
 
     // Форматирование даты на русском
-    const formattedDate = date.toLocaleDateString('ru-RU', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
+    // const formattedDate = date.toLocaleDateString('ru-RU', {
+    //     weekday: 'short',
+    //     day: 'numeric',
+    //     month: 'short',
+    //     year: 'numeric',
+    // });
+    const formattedDate = date;
 
     if (!visible) return null;
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
+        <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
             {/* Заголовок с датой и кнопкой закрытия */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                     <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={onClose}>
-                    <Icon name="x" size={24} color={theme.colors.text} />
+                <TouchableOpacity onPress={handleTaskMenuClose}>
+                    <Ionicons name="close" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
             </View>
 
@@ -83,25 +114,30 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     style={[styles.titleInput, { color: theme.colors.text }]}
                     value={title}
                     onChangeText={setTitle}
+                    onSubmitEditing={handleTaskRename}
+                    onPressOut={handleTaskChangeDescription}
                     placeholder="Название задачи"
                     placeholderTextColor={theme.colors.secondary}
                 />
                 <TouchableOpacity onPress={() => {/* Можно добавить сохранение */ }}>
-                    <Icon name="check" size={24} color={theme.colors.text} />
+                    <Ionicons name="pencil" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
             </View>
 
             {/* Поле для описания задачи */}
             <TextInput
-                style={[styles.descriptionInput, { color: theme.colors.text }]}
+                style={[
+                    styles.descriptionInput,
+                    { color: theme.colors.text },
+                    { lineHeight: 20 }, // Устанавливаем высоту строки
+                ]}
                 value={description}
                 onChangeText={setDescription}
-                placeholder="Добавьте несколько дополнительных заметок здесь..."
+                placeholder="Добавьте описание"
                 placeholderTextColor={theme.colors.secondary}
                 multiline
+                maxLength={150}
             />
-
-            {/* Выбор даты */}
             {/* {showDatePicker && (
                 <DateTimePicker
                     value={date}
@@ -114,11 +150,11 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             {/* Кнопки действий */}
             <View style={styles.actions}>
                 <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
-                    <Icon name="refresh-ccw" size={24} color={theme.colors.text} />
+                    <Ionicons name="duplicate" size={24} color={theme.colors.text} />
                     <Text style={[styles.actionText, { color: theme.colors.text }]}>Дублировать</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                    <Icon name="trash-2" size={24} color={theme.colors.text} />
+                    <Ionicons name="trash-bin" size={24} color={theme.colors.text} />
                     <Text style={[styles.actionText, { color: theme.colors.text }]}>Удалить</Text>
                 </TouchableOpacity>
             </View>

@@ -28,6 +28,7 @@ export interface DayInfoProps {
 
 export interface TaskItemProps {
     task: Task;
+    date: string;
     onToggleTaskCompletion: (taskId: string) => void;
 }
 
@@ -77,4 +78,13 @@ export interface Space {
     space_name: string
     created_by: string
     created_at: string
+}
+
+export interface TaskMenuProps {
+    task: Task;
+    visible: boolean;
+    date: string;
+    onDuplicate: (newTask: any) => void;
+    onDelete: (taskId: string) => void;
+    onClose: () => void;
 }
