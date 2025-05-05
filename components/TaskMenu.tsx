@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     View,
     Text,
@@ -9,13 +9,15 @@ import {
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 import { TaskMenuProps } from '@/types/types';
 import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import RoundButton from './RoundButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { th } from 'date-fns/locale';
-
+import DropdownMenu from './DropdownMenu'; // Импортируем новый компонент
+import TimePicker from './TimePicker';
 
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
@@ -31,6 +33,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const { theme } = useTheme();
     const [tastStausCopy, setTastStausCopy] = useState(task.status);
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
     const handleDateChange = () => {
     };
@@ -73,6 +76,38 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
     }
 
+    const handleEllipsisPress = () => {
+        setIsDropdownVisible(!isDropdownVisible); // Toggle visibility directly
+    };
+
+    const closeDropdown = () => {
+        setIsDropdownVisible(false);
+    };
+
+    // Определяем элементы меню
+    const menuItems = [
+        {
+            icon: 'pencil' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            text: 'На завтра',
+            onPress: () => console.log('Edit pressed'), // Пример действия
+        },
+        {
+            icon: 'pencil' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            text: 'На неделю',
+            onPress: () => console.log('Edit pressed'), // Пример действия
+        }, {
+            icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            text: 'Дублировать',
+            onPress: handleDuplicate, // Пример действия
+        },
+        {
+            icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            text: 'Удалить',
+            onPress: handleDelete, // Пример действия
+        },
+        // Добавьте другие элементы меню здесь
+    ];
+
     const formattedDate = getFormatedDateOfYear(date);
 
     if (!visible) return null;
@@ -91,13 +126,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             {/* Поле для редактирования названия задачи */}
             <View style={styles.titleSection}>
                 <TextInput
-                    style={
-                        [styles.titleInput,
+                    style={[
+                        styles.titleInput,
                         {
                             color: tastStausCopy ? theme.colors.secondary : theme.colors.text,
                             opacity: tastStausCopy ? 0.6 : 1,
                             textDecorationLine: tastStausCopy ? 'line-through' : 'none',
-                        }]}
+                        },
+                    ]}
                     value={title}
                     onChangeText={setTitle}
                     placeholder="Название задачи"
@@ -119,18 +155,38 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 maxLength={150}
             />
 
+            <TimePicker />
+
+
             {/* Кнопки действий */}
             <View style={styles.actions}>
-                <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
-                    <Ionicons name="duplicate" size={24} color={theme.colors.text} />
-                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Дублировать</Text>
+                <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
+                    <Ionicons name="calendar-outline" size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
+                    <Feather name="circle" size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+                {/* <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
+                    <Ionicons name="duplicate-outline" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                    <Ionicons name="trash-bin" size={24} color={theme.colors.text} />
-                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Удалить</Text>
-                </TouchableOpacity>
+                    <Ionicons name="trash-bin-outline" size={24} color={theme.colors.text} />
+                </TouchableOpacity> */}
+
+                <View style={styles.ellipsisContainer}>
+                    <TouchableOpacity onPress={handleEllipsisPress} style={styles.actionButton}>
+                        <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
+                    </TouchableOpacity>
+
+                    <DropdownMenu
+                        items={menuItems}
+                        visible={isDropdownVisible}
+                        onClose={closeDropdown}
+                        containerStyle={styles.dropdownMenu}
+                    />
+                </View>
             </View>
-        </View>
+        </View >
     );
 };
 
@@ -166,8 +222,16 @@ const styles = StyleSheet.create({
         minHeight: 100,
     },
     actions: {
+        position: 'absolute',
+        bottom: 20,
+        left: 0,
+        right: 0,
         flexDirection: 'row',
         justifyContent: 'space-around',
+        padding: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderRadius: 10,
+        marginHorizontal: 20,
     },
     actionButton: {
         alignItems: 'center',
@@ -175,6 +239,16 @@ const styles = StyleSheet.create({
     },
     actionText: {
         marginTop: 5,
+    },
+    ellipsisContainer: {
+        position: 'relative',
+    },
+    dropdownMenu: {
+        position: 'absolute',
+        bottom: '100%', // Position above the button
+        right: 0, // Align to the right of the button container
+        marginBottom: 5, // Optional margin between button and menu
+        zIndex: 1000, // Ensure menu is above other elements
     },
 });
 

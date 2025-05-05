@@ -1,12 +1,17 @@
-import { View, Text } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useCallback, useState } from 'react'
 import TaskMenu from '@/components/TaskMenu'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Task } from '@/types/types';
 import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/providers/ThemeProvider';
+import DropdownMenu from '@/components/DropdownMenu';
 
 
 const taskMenu = () => {
+    const { theme } = useTheme();
+
     const { task, date } = useLocalSearchParams();
     const parsedTask: Task | null = task && typeof task === 'string' ? JSON.parse(task) : null;
 
@@ -44,7 +49,7 @@ const taskMenu = () => {
     );
 
     return (
-        <View style={{ flex: 1, }}>
+        <View style={{ flex: 1, flexDirection: 'column' }}>
             <TaskMenu
                 task={parsedTask}
                 visible={true}
@@ -58,5 +63,7 @@ const taskMenu = () => {
         </View>
     );
 };
+
+
 
 export default taskMenu;
