@@ -26,8 +26,13 @@ const taskMenu = () => {
                 toggleTaskRenameDescription(parsedTask.id, description);
             }
         }
-        router.dismissTo('/(private)/home');
+        
     }, [parsedTask, title, description]);
+
+    const handleClose = ()=>{
+        handleSaveChanges()
+        router.dismissTo('/(private)/home');
+    }
 
     // Используем useFocusEffect для сохранения при закрытии страницы
     useFocusEffect(
@@ -43,7 +48,7 @@ const taskMenu = () => {
             <TaskMenu
                 task={parsedTask}
                 visible={true}
-                onClose={handleSaveChanges} // Вызываем сохранение при закрытии через крестик
+                onClose={handleClose} // Вызываем сохранение при закрытии через крестик
                 date={date}
                 title={title}
                 setTitle={setTitle}
