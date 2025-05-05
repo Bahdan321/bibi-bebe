@@ -29,6 +29,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     setDescription,
 }) => {
     const { theme } = useTheme();
+    const [tastStausCopy, setTastStausCopy] = useState(task.status);
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
 
     const handleDateChange = () => {
@@ -68,6 +69,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     const handleTaskToggle = (taskId) => {
         toggleTaskCompletion(taskId);
+        setTastStausCopy((prevStatus) => !prevStatus);
         setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
     }
 
@@ -92,27 +94,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     style={
                         [styles.titleInput,
                         {
-                            color: task.status ? theme.colors.secondary : theme.colors.text,
-                            opacity: task.status ? 0.6 : 1,
-                            textDecorationLine: task.status ? 'line-through' : 'none',
+                            color: tastStausCopy ? theme.colors.secondary : theme.colors.text,
+                            opacity: tastStausCopy ? 0.6 : 1,
+                            textDecorationLine: tastStausCopy ? 'line-through' : 'none',
                         }]}
                     value={title}
                     onChangeText={setTitle}
                     placeholder="Название задачи"
                     placeholderTextColor={theme.colors.secondary}
                 />
-                {/* <RoundButton
-                    iconName={'checkmark-outline'}
-                    iconColor={taskStatusColor}
-                    buttonColor={theme.colors.primary}
-                    borderColor={taskStatusColor}
-                    borderWidth={1.5}
-                    onPress={() => { handleTaskToggle(task.id) }}
-                    size={hp('3.5')}
-                    hitSlop={10}
-                /> */}
                 <TouchableOpacity onPress={() => { handleTaskToggle(task.id) }}>
-                    <Ionicons name="checkmark-outline" size={24} color={taskStatusColor} />
+                    <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
                 </TouchableOpacity>
             </View>
 

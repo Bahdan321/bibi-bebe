@@ -18,7 +18,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const truncateTask = (text: string) => {
-    const maxLength = 27;
+    const maxLength = 25;
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + '...';
     }
