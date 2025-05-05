@@ -26,7 +26,7 @@ const taskMenu = () => {
                 toggleTaskRenameDescription(parsedTask.id, description);
             }
         }
-        // router.back();
+        router.dismissTo('/(private)/home');
     }, [parsedTask, title, description]);
 
     // Используем useFocusEffect для сохранения при закрытии страницы
@@ -39,7 +39,7 @@ const taskMenu = () => {
     );
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+        <View style={{ flex: 1, }}>
             <TaskMenu
                 task={parsedTask}
                 visible={true}

@@ -8,9 +8,10 @@ import {
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
-import { Task, TaskMenuProps } from '@/types/types';
-import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
+import { TaskMenuProps } from '@/types/types';
+import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
+import RoundButton from './RoundButton';
 
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
@@ -25,9 +26,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 }) => {
     const { theme } = useTheme();
 
-    // Обработка изменения даты (пока оставим пустой)
     const handleDateChange = () => {
-        // Логика изменения даты, если нужна
     };
 
     // Дублирование задачи
@@ -66,6 +65,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     if (!visible) return null;
 
+    function hp(arg0: string): number | undefined {
+        throw new Error('Function not implemented.');
+    }
+
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
             {/* Заголовок с датой и кнопкой закрытия */}
@@ -87,9 +90,19 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     placeholder="Название задачи"
                     placeholderTextColor={theme.colors.secondary}
                 />
-                <TouchableOpacity onPress={() => { }}>
+                {/* <RoundButton
+                    iconName={'checkmark-outline'}
+                    iconColor={task.status ? theme.colors.third : theme.colors.text}
+                    buttonColor={theme.colors.primary}
+                    borderColor={task.status ? theme.colors.third : theme.colors.text}
+                    borderWidth={1.5}
+                    onPress={() => { toggleTaskCompletion(task.id) }}
+                    size={hp('3.5')}
+                    hitSlop={10}
+                /> */}
+                {/* <TouchableOpacity onPress={() => { }}>
                     <Ionicons name="pencil" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
 
             {/* Поле для описания задачи */}
@@ -152,8 +165,6 @@ const styles = StyleSheet.create({
     actions: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 'auto',
-        paddingVertical: 20,
     },
     actionButton: {
         alignItems: 'center',

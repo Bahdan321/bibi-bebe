@@ -1,9 +1,12 @@
 import { ScreenLayout } from '@/providers/ScreenLayout';
 import { Slot, Stack } from 'expo-router';
 import React from 'react';
+import { useTheme } from '@/providers/ThemeProvider';
 import { View } from 'react-native';
 
 export default function PrivateLayout() {
+    const { theme } = useTheme();
+
     return (
         <ScreenLayout>
             <View style={{ flex: 1 }}>
@@ -32,7 +35,7 @@ export default function PrivateLayout() {
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
                             contentStyle: {
-                                backgroundColor: 'transparent',
+                                backgroundColor: theme.colors.primary,
                             },
                         }}
                     />
