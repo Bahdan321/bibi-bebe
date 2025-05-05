@@ -5,6 +5,7 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
+    Task,
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +13,9 @@ import { TaskMenuProps } from '@/types/types';
 import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import RoundButton from './RoundButton';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { th } from 'date-fns/locale';
+
 
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
@@ -25,6 +29,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     setDescription,
 }) => {
     const { theme } = useTheme();
+    const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
 
     const handleDateChange = () => {
     };
@@ -61,13 +66,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         onClose();
     };
 
+    const handleTaskToggle = (taskId) => {
+        toggleTaskCompletion(taskId);
+        setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
+    }
+
     const formattedDate = getFormatedDateOfYear(date);
 
     if (!visible) return null;
-
-    function hp(arg0: string): number | undefined {
-        throw new Error('Function not implemented.');
-    }
 
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
@@ -80,11 +86,16 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     <Ionicons name="close" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
             </View>
-
             {/* Поле для редактирования названия задачи */}
             <View style={styles.titleSection}>
                 <TextInput
-                    style={[styles.titleInput, { color: theme.colors.text }]}
+                    style={
+                        [styles.titleInput,
+                        {
+                            color: task.status ? theme.colors.secondary : theme.colors.text,
+                            opacity: task.status ? 0.6 : 1,
+                            textDecorationLine: task.status ? 'line-through' : 'none',
+                        }]}
                     value={title}
                     onChangeText={setTitle}
                     placeholder="Название задачи"
@@ -92,17 +103,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 />
                 {/* <RoundButton
                     iconName={'checkmark-outline'}
-                    iconColor={task.status ? theme.colors.third : theme.colors.text}
+                    iconColor={taskStatusColor}
                     buttonColor={theme.colors.primary}
-                    borderColor={task.status ? theme.colors.third : theme.colors.text}
+                    borderColor={taskStatusColor}
                     borderWidth={1.5}
-                    onPress={() => { toggleTaskCompletion(task.id) }}
+                    onPress={() => { handleTaskToggle(task.id) }}
                     size={hp('3.5')}
                     hitSlop={10}
                 /> */}
-                {/* <TouchableOpacity onPress={() => { }}>
-                    <Ionicons name="pencil" size={24} color={theme.colors.text} />
-                </TouchableOpacity> */}
+                <TouchableOpacity onPress={() => { handleTaskToggle(task.id) }}>
+                    <Ionicons name="checkmark-outline" size={24} color={taskStatusColor} />
+                </TouchableOpacity>
             </View>
 
             {/* Поле для описания задачи */}

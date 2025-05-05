@@ -26,10 +26,10 @@ const taskMenu = () => {
                 toggleTaskRenameDescription(parsedTask.id, description);
             }
         }
-        
+
     }, [parsedTask, title, description]);
 
-    const handleClose = ()=>{
+    const handleClose = () => {
         handleSaveChanges()
         router.dismissTo('/(private)/home');
     }
