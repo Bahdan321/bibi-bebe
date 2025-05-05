@@ -31,6 +31,9 @@ export default function PrivateLayout() {
                             sheetCornerRadius: 20,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
+                            contentStyle: {
+                                backgroundColor: 'transparent',
+                            },
                         }}
                     />
                 </Stack>

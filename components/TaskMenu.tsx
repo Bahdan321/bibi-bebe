@@ -8,46 +8,26 @@ import {
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
-import { TaskMenuProps } from '@/types/types';
+import { Task, TaskMenuProps } from '@/types/types';
 import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
+
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
     visible,
     date,
-    onDuplicate,
-    onDelete,
     onClose,
+    title,
+    setTitle,
+    description,
+    setDescription,
 }) => {
     const { theme } = useTheme();
-    const [title, setTitle] = useState(task.title);
-    const [description, setDescription] = useState(task.description);
-    const [currentDate, setCurrentDate] = useState(task.date);
-    const [showDatePicker, setShowDatePicker] = useState(false);
 
-    const handleTaskRename = () => {
-        console.log('Renaming task:', title);
-        toggleTaskRename(task.id, title);
-    }
-
-    const handleTaskChangeDescription = () => {
-        console.log('Changing:', description);
-        toggleTaskRenameDescription(task.id, description);
-    }
-
-    const handleTaskMenuClose = () => {
-        if (task.title != title) {
-            handleTaskRename();
-        }
-        if (task.description != description) {
-            handleTaskChangeDescription();
-        }
-        onClose();
-    }
-
-    // Обработка изменения даты
+    // Обработка изменения даты (пока оставим пустой)
     const handleDateChange = () => {
+        // Логика изменения даты, если нужна
     };
 
     // Дублирование задачи
@@ -70,7 +50,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             task.is_urgent,
             task.is_important,
             task.reward_id,
-            task.is_anime_task,
+            task.is_anime_task
         );
         onClose();
     };
@@ -79,6 +59,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const handleDelete = () => {
         console.log('Deleting task:', task.id);
         toggleTaskRemove(task.id);
+        onClose();
     };
 
     const formattedDate = getFormatedDateOfYear(date);
@@ -86,13 +67,13 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     if (!visible) return null;
 
     return (
-        <View className='' style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
+        <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
             {/* Заголовок с датой и кнопкой закрытия */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => handleDateChange}>
+                <TouchableOpacity onPress={handleDateChange}>
                     <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleTaskMenuClose}>
+                <TouchableOpacity onPress={onClose}>
                     <Ionicons name="close" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
             </View>
@@ -103,23 +84,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     style={[styles.titleInput, { color: theme.colors.text }]}
                     value={title}
                     onChangeText={setTitle}
-                    onSubmitEditing={handleTaskRename}
-                    onPressOut={handleTaskChangeDescription}
                     placeholder="Название задачи"
                     placeholderTextColor={theme.colors.secondary}
                 />
-                <TouchableOpacity onPress={() => {/* Можно добавить сохранение */ }}>
+                <TouchableOpacity onPress={() => { }}>
                     <Ionicons name="pencil" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
             </View>
 
             {/* Поле для описания задачи */}
             <TextInput
-                style={[
-                    styles.descriptionInput,
-                    { color: theme.colors.text },
-                    { lineHeight: 20 }, // Устанавливаем высоту строки
-                ]}
+                style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Добавьте описание"
@@ -143,7 +118,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     );
 };
 
-// Стили
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -187,7 +161,7 @@ const styles = StyleSheet.create({
     },
     actionText: {
         marginTop: 5,
-    }
+    },
 });
 
 export default TaskMenu;

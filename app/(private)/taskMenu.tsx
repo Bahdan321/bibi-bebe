@@ -1,12 +1,57 @@
 import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
+import TaskMenu from '@/components/TaskMenu'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { Task } from '@/types/types';
+import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
+
 
 const taskMenu = () => {
-    return (
-        <View>
-            <Text>taskMenu</Text>
-        </View>
-    )
-}
+    const { task, date } = useLocalSearchParams();
+    const parsedTask: Task | null = task && typeof task === 'string' ? JSON.parse(task) : null;
 
-export default taskMenu
+    // Состояние для редактируемых полей
+    const [title, setTitle] = useState(parsedTask?.title || '');
+    const [description, setDescription] = useState(parsedTask?.description || '');
+
+    // Функция сохранения изменений
+    const handleSaveChanges = useCallback(() => {
+        if (parsedTask) {
+            if (parsedTask.title !== title) {
+                console.log('Renaming task:', title);
+                toggleTaskRename(parsedTask.id, title);
+            }
+            if (parsedTask.description !== description) {
+                console.log('Changing description:', description);
+                toggleTaskRenameDescription(parsedTask.id, description);
+            }
+        }
+        // router.back();
+    }, [parsedTask, title, description]);
+
+    // Используем useFocusEffect для сохранения при закрытии страницы
+    useFocusEffect(
+        useCallback(() => {
+            return () => {
+                handleSaveChanges();
+            };
+        }, [handleSaveChanges])
+    );
+
+    return (
+        <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+            <TaskMenu
+                task={parsedTask}
+                visible={true}
+                onClose={handleSaveChanges} // Вызываем сохранение при закрытии через крестик
+                date={date}
+                title={title}
+                setTitle={setTitle}
+                description={description}
+                setDescription={setDescription}
+            />
+        </View>
+    );
+};
+
+export default taskMenu;

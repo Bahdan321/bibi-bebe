@@ -10,6 +10,7 @@ import { useTheme } from '@/providers/ThemeProvider';
 import TaskMenu from './TaskMenu';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { router } from 'expo-router';
 
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCompletion }) => {
   const { theme } = useTheme();
@@ -26,13 +27,20 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
 
   const handleTextPress = () => {
     console.log('Task text pressed:', task);
-    setIsMenuVisible(true);
-    bottomSheetRef.current?.expand();
+    router.push({
+      pathname: '/(private)/taskMenu',
+      params: {
+        task: JSON.stringify(task),
+        date: date,
+      },
+    });
+    // setIsMenuVisible(true);
+    // bottomSheetRef.current?.expand();
   };
 
   const handleCloseMenu = () => {
     setIsMenuVisible(false);
-    bottomSheetRef.current?.close();
+    // bottomSheetRef.current?.close();
   };
 
   return (

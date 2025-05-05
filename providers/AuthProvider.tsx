@@ -77,10 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         };
 
-        checkAuth();
+        // checkAuth();
         // SecureStore.deleteItemAsync('access_token');
         // SecureStore.deleteItemAsync('refresh_token');
-        // router.push('/(private)/home');
+        router.push('/(private)/home');
         // router.push('/(private)/onboardingScreen');
     }, []);
 

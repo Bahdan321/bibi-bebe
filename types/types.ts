@@ -85,4 +85,8 @@ export interface TaskMenuProps {
     visible: boolean;
     date: string;
     onClose: () => void;
+    title: string;
+    setTitle: (title: string) => void;
+    description: string;
+    setDescription: (description: string) => void;
 }
