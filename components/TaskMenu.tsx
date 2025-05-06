@@ -1,24 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
     TextInput,
     TouchableOpacity,
     StyleSheet,
-    Task,
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
-import Feather from '@expo/vector-icons/Feather';
 import { TaskMenuProps } from '@/types/types';
 import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
+import TimePickerModal from './TimePickerModal';
 import RoundButton from './RoundButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { th } from 'date-fns/locale';
-import DropdownMenu from './DropdownMenu'; // Импортируем новый компонент
-import TimePicker from './TimePicker';
-
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
@@ -33,12 +28,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const { theme } = useTheme();
     const [tastStausCopy, setTastStausCopy] = useState(task.status);
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const [isTimePickerVisible, setIsTimePickerVisible] = useState(false); // Состояние для модального окна
 
     const handleDateChange = () => {
+        // Логика изменения даты, если нужно
     };
 
-    // Дублирование задачи
     const handleDuplicate = () => {
         console.log('Duplicating task:', task);
         toggleDublicateTask(
@@ -63,7 +58,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         onClose();
     };
 
-    // Удаление задачи
     const handleDelete = () => {
         console.log('Deleting task:', task.id);
         toggleTaskRemove(task.id);
@@ -74,39 +68,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         toggleTaskCompletion(taskId);
         setTastStausCopy((prevStatus) => !prevStatus);
         setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
-    }
-
-    const handleEllipsisPress = () => {
-        setIsDropdownVisible(!isDropdownVisible); // Toggle visibility directly
     };
 
-    const closeDropdown = () => {
-        setIsDropdownVisible(false);
+    const handleTimeSelected = (time: { day: string; hours: number; minutes: number }) => {
+        console.log('Выбранное время:', time);
+        // Здесь можно обновить задачу с выбранным временем, например:
+        // task.due_date = new Date(...) или передать в setState
+        setIsTimePickerVisible(false); // Закрываем модальное окно
     };
-
-    // Определяем элементы меню
-    const menuItems = [
-        {
-            icon: 'pencil' as keyof typeof Ionicons.glyphMap, // Пример иконки
-            text: 'На завтра',
-            onPress: () => console.log('Edit pressed'), // Пример действия
-        },
-        {
-            icon: 'pencil' as keyof typeof Ionicons.glyphMap, // Пример иконки
-            text: 'На неделю',
-            onPress: () => console.log('Edit pressed'), // Пример действия
-        }, {
-            icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap, // Пример иконки
-            text: 'Дублировать',
-            onPress: handleDuplicate, // Пример действия
-        },
-        {
-            icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap, // Пример иконки
-            text: 'Удалить',
-            onPress: handleDelete, // Пример действия
-        },
-        // Добавьте другие элементы меню здесь
-    ];
 
     const formattedDate = getFormatedDateOfYear(date);
 
@@ -139,7 +108,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     placeholder="Название задачи"
                     placeholderTextColor={theme.colors.secondary}
                 />
-                <TouchableOpacity onPress={() => { handleTaskToggle(task.id) }}>
+                <TouchableOpacity onPress={() => handleTaskToggle(task.id)}>
                     <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
                 </TouchableOpacity>
             </View>
@@ -155,38 +124,32 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 maxLength={150}
             />
 
-            <TimePicker />
-
-
             {/* Кнопки действий */}
             <View style={styles.actions}>
-                <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
-                    <Ionicons name="calendar-outline" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
-                    <Feather name="circle" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-                {/* <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
-                    <Ionicons name="duplicate-outline" size={24} color={theme.colors.text} />
+                <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
+                    <Ionicons name="duplicate" size={24} color={theme.colors.text} />
+                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Дублировать</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                    <Ionicons name="trash-bin-outline" size={24} color={theme.colors.text} />
-                </TouchableOpacity> */}
-
-                <View style={styles.ellipsisContainer}>
-                    <TouchableOpacity onPress={handleEllipsisPress} style={styles.actionButton}>
-                        <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
-                    </TouchableOpacity>
-
-                    <DropdownMenu
-                        items={menuItems}
-                        visible={isDropdownVisible}
-                        onClose={closeDropdown}
-                        containerStyle={styles.dropdownMenu}
-                    />
-                </View>
+                    <Ionicons name="trash-bin" size={24} color={theme.colors.text} />
+                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Удалить</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => setIsTimePickerVisible(true)}
+                    style={styles.actionButton}
+                >
+                    <Ionicons name="time" size={24} color={theme.colors.text} />
+                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Выбрать время</Text>
+                </TouchableOpacity>
             </View>
-        </View >
+
+            {/* Модальное окно с TimePicker */}
+            <TimePickerModal
+                visible={isTimePickerVisible}
+                onClose={() => setIsTimePickerVisible(false)}
+                onTimeSelected={handleTimeSelected}
+            />
+        </View>
     );
 };
 
@@ -222,16 +185,8 @@ const styles = StyleSheet.create({
         minHeight: 100,
     },
     actions: {
-        position: 'absolute',
-        bottom: 20,
-        left: 0,
-        right: 0,
         flexDirection: 'row',
         justifyContent: 'space-around',
-        padding: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        borderRadius: 10,
-        marginHorizontal: 20,
     },
     actionButton: {
         alignItems: 'center',
@@ -239,16 +194,6 @@ const styles = StyleSheet.create({
     },
     actionText: {
         marginTop: 5,
-    },
-    ellipsisContainer: {
-        position: 'relative',
-    },
-    dropdownMenu: {
-        position: 'absolute',
-        bottom: '100%', // Position above the button
-        right: 0, // Align to the right of the button container
-        marginBottom: 5, // Optional margin between button and menu
-        zIndex: 1000, // Ensure menu is above other elements
     },
 });
 

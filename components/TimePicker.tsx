@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, ScrollView, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 
 // Интерфейс для пропсов
 interface TimePickerProps {
     onTimeSelected?: (time: { day: string; hours: number; minutes: number }) => void;
+    onConfirm?: () => void;
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
+const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) => {
     const { theme } = useTheme();
     const [selectedDay, setSelectedDay] = useState('00');
     const [hours, setHours] = useState('00');
@@ -22,29 +23,27 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
 
     const ITEM_HEIGHT = 50;
     const WHEEL_HEIGHT = ITEM_HEIGHT * 5;
+    const PADDING_VERTICAL = 2 * ITEM_HEIGHT;
 
     useEffect(() => {
-        if (onTimeSelected) {
-            onTimeSelected({ day: selectedDay, hours: parseInt(hours), minutes: parseInt(minutes) });
-        }
         // Установка начальных позиций
         const dayIndex = daysArray.indexOf(selectedDay);
         const hourIndex = hoursArray.indexOf(hours);
         const minuteIndex = minutesArray.indexOf(minutes);
         if (dayIndex !== -1 && daysRef.current) {
-            daysRef.current.scrollTo({ y: (dayIndex - 1) * ITEM_HEIGHT, animated: false });
+            daysRef.current.scrollTo({ y: dayIndex * ITEM_HEIGHT, animated: false });
         }
         if (hourIndex !== -1 && hoursRef.current) {
-            hoursRef.current.scrollTo({ y: (hourIndex - 1) * ITEM_HEIGHT, animated: false });
+            hoursRef.current.scrollTo({ y: hourIndex * ITEM_HEIGHT, animated: false });
         }
         if (minuteIndex !== -1 && minutesRef.current) {
-            minutesRef.current.scrollTo({ y: (minuteIndex - 1) * ITEM_HEIGHT, animated: false });
+            minutesRef.current.scrollTo({ y: minuteIndex * ITEM_HEIGHT, animated: false });
         }
     }, [selectedDay, hours, minutes]);
 
     const handleDaysScroll = (event) => {
         const offsetY = event.nativeEvent.contentOffset.y;
-        const selectedIndex = Math.round(offsetY / ITEM_HEIGHT) + 1; // +1 для учета padding
+        const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < daysArray.length) {
             setSelectedDay(daysArray[selectedIndex]);
         }
@@ -52,7 +51,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
 
     const handleHoursScroll = (event) => {
         const offsetY = event.nativeEvent.contentOffset.y;
-        const selectedIndex = Math.round(offsetY / ITEM_HEIGHT) + 1;
+        const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < hoursArray.length) {
             setHours(hoursArray[selectedIndex]);
         }
@@ -60,9 +59,18 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
 
     const handleMinutesScroll = (event) => {
         const offsetY = event.nativeEvent.contentOffset.y;
-        const selectedIndex = Math.round(offsetY / ITEM_HEIGHT) + 1;
+        const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < minutesArray.length) {
             setMinutes(minutesArray[selectedIndex]);
+        }
+    };
+
+    const handleConfirm = () => {
+        if (onTimeSelected) {
+            onTimeSelected({ day: selectedDay, hours: parseInt(hours), minutes: parseInt(minutes) });
+        }
+        if (onConfirm) {
+            onConfirm();
         }
     };
 
@@ -71,7 +79,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
     const selectedMinuteIndex = minutesArray.indexOf(minutes);
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
             <View style={styles.labelContainer}>
                 <Text style={[styles.label, { color: theme.colors.secondary }]}>Days</Text>
                 <Text style={styles.labelSpacer} />
@@ -87,7 +95,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                         decelerationRate="fast"
                         snapToInterval={ITEM_HEIGHT}
                         onMomentumScrollEnd={handleDaysScroll}
-                        contentContainerStyle={{ paddingVertical: ITEM_HEIGHT }}
+                        contentContainerStyle={{ paddingVertical: PADDING_VERTICAL }}
                     >
                         {daysArray.map((day, index) => {
                             const isSelected = index === selectedDayIndex;
@@ -101,8 +109,8 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                                             {
                                                 color: isSelected ? theme.colors.secondary : theme.colors.text,
                                                 fontSize,
-                                                fontWeight
-                                            }
+                                                fontWeight,
+                                            },
                                         ]}
                                     >
                                         {day}
@@ -112,7 +120,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                         })}
                     </ScrollView>
                 </View>
-                <Text style={styles.separator}>:</Text>
+                <Text style={[styles.separator, { color: theme.colors.text }]}>:</Text>
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>
                     <ScrollView
                         ref={hoursRef}
@@ -120,7 +128,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                         decelerationRate="fast"
                         snapToInterval={ITEM_HEIGHT}
                         onMomentumScrollEnd={handleHoursScroll}
-                        contentContainerStyle={{ paddingVertical: ITEM_HEIGHT }}
+                        contentContainerStyle={{ paddingVertical: PADDING_VERTICAL }}
                     >
                         {hoursArray.map((hour, index) => {
                             const isSelected = index === selectedHourIndex;
@@ -134,8 +142,8 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                                             {
                                                 color: isSelected ? theme.colors.secondary : theme.colors.text,
                                                 fontSize,
-                                                fontWeight
-                                            }
+                                                fontWeight,
+                                            },
                                         ]}
                                     >
                                         {hour}
@@ -145,7 +153,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                         })}
                     </ScrollView>
                 </View>
-                <Text style={styles.separator}>:</Text>
+                <Text style={[styles.separator, { color: theme.colors.text }]}>:</Text>
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>
                     <ScrollView
                         ref={minutesRef}
@@ -153,7 +161,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                         decelerationRate="fast"
                         snapToInterval={ITEM_HEIGHT}
                         onMomentumScrollEnd={handleMinutesScroll}
-                        contentContainerStyle={{ paddingVertical: ITEM_HEIGHT }}
+                        contentContainerStyle={{ paddingVertical: PADDING_VERTICAL }}
                     >
                         {minutesArray.map((minute, index) => {
                             const isSelected = index === selectedMinuteIndex;
@@ -167,8 +175,8 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
                                             {
                                                 color: isSelected ? theme.colors.secondary : theme.colors.text,
                                                 fontSize,
-                                                fontWeight
-                                            }
+                                                fontWeight,
+                                            },
                                         ]}
                                     >
                                         {minute}
@@ -182,6 +190,12 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected }) => {
             <Text style={[styles.selectedTime, { color: theme.colors.secondary }]}>
                 {selectedDay} at {hours}:{minutes}
             </Text>
+            <TouchableOpacity
+                style={[styles.confirmButton, { backgroundColor: theme.colors.secondary }]}
+                onPress={handleConfirm}
+            >
+                <Text style={[styles.confirmButtonText, { color: theme.colors.primary }]}>Подтвердить</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -208,7 +222,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#00ff00',
         width: 80,
         textAlign: 'center',
     },
@@ -219,7 +232,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#1a1a1a',
         borderRadius: 10,
         padding: 10,
     },
@@ -240,7 +252,6 @@ const styles = StyleSheet.create({
     },
     separator: {
         fontSize: 24,
-        color: '#fff',
         marginHorizontal: 10,
     },
     selectedTime: {
@@ -248,7 +259,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginTop: 10,
-        color: '#00ff00',
+    },
+    confirmButton: {
+        marginTop: 20,
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    confirmButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 
