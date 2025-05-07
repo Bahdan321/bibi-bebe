@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -14,6 +14,7 @@ import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
 import RoundButton from './RoundButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { tasks$ } from '@/Supabase/utils/SupaLegend';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
@@ -26,9 +27,50 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     setDescription,
 }) => {
     const { theme } = useTheme();
-    const [tastStausCopy, setTastStausCopy] = useState(task.status);
+    const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
-    const [isTimePickerVisible, setIsTimePickerVisible] = useState(false); // Состояние для модального окна
+    const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
+    const [timeLeft, setTimeLeft] = useState('');
+
+    const parsedDueDate = new Date(task.due_date);
+    const formattedDueDate = isNaN(parsedDueDate.getTime())
+        ? 'Некорректная дата'
+        : parsedDueDate.toLocaleString('ru-RU', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+          });
+
+    useEffect(() => {
+        const updateTimer = () => {
+            const now = new Date();
+            const due = new Date(task.due_date);
+            if (isNaN(due.getTime())) {
+                setTimeLeft('Некорректная дата');
+                console.error('Invalid due_date:', task.due_date);
+                return;
+            }
+
+            const diffMs = due.getTime() - now.getTime();
+            if (diffMs < 0) {
+                setTimeLeft('Срок истёк');
+                return;
+            }
+
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+            setTimeLeft(`Осталось ${diffDays} дн. ${diffHours} ч. ${diffMinutes} мин.`);
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 60000);
+
+        return () => clearInterval(interval);
+    }, [task.due_date]);
 
     const handleDateChange = () => {
         // Логика изменения даты, если нужно
@@ -41,6 +83,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             task.space_id,
             task.user_id,
             task.due_date,
+            task.display_date,
             task.status,
             task.description,
             task.parent_task_id,
@@ -66,15 +109,32 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     const handleTaskToggle = (taskId) => {
         toggleTaskCompletion(taskId);
-        setTastStausCopy((prevStatus) => !prevStatus);
+        setTaskStatusCopy((prevStatus) => !prevStatus);
         setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
     };
 
+    const calculateNewDueDate = (currentDueDate: string, time: { day: string; hours: number; minutes: number }) => {
+        const dueDate = new Date(currentDueDate);
+        if (isNaN(dueDate.getTime())) {
+            console.error('Invalid currentDueDate:', currentDueDate);
+            dueDate.setTime(new Date().getTime());
+        }
+
+        dueDate.setDate(dueDate.getDate() + parseInt(time.day));
+        dueDate.setHours(dueDate.getHours() + time.hours);
+        dueDate.setMinutes(dueDate.getMinutes() + time.minutes);
+        return dueDate.toISOString().split('T')[0];
+    };
+
     const handleTimeSelected = (time: { day: string; hours: number; minutes: number }) => {
-        console.log('Выбранное время:', time);
-        // Здесь можно обновить задачу с выбранным временем, например:
-        // task.due_date = new Date(...) или передать в setState
-        setIsTimePickerVisible(false); // Закрываем модальное окно
+        const newDueDate = calculateNewDueDate(task.due_date, time);
+        if (tasks$[task.id]) {
+            tasks$[task.id].due_date.set(newDueDate);
+            console.log('Updated due_date:', newDueDate, 'display_date:', task.display_date, 'created_at:', task.created_at);
+        } else {
+            console.error('Task not found in tasks$:', task.id);
+        }
+        setIsTimePickerVisible(false);
     };
 
     const formattedDate = getFormatedDateOfYear(date);
@@ -83,7 +143,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
-            {/* Заголовок с датой и кнопкой закрытия */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={handleDateChange}>
                     <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
@@ -92,15 +151,22 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     <Ionicons name="close" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
             </View>
-            {/* Поле для редактирования названия задачи */}
+            <View style={styles.dueDateContainer}>
+                <Text style={[styles.dueDateText, { color: theme.colors.text }]}>
+                    Срок выполнения: {formattedDueDate}
+                </Text>
+                <Text style={[styles.timeLeftText, { color: theme.colors.secondary }]}>
+                    {timeLeft}
+                </Text>
+            </View>
             <View style={styles.titleSection}>
                 <TextInput
                     style={[
                         styles.titleInput,
                         {
-                            color: tastStausCopy ? theme.colors.secondary : theme.colors.text,
-                            opacity: tastStausCopy ? 0.6 : 1,
-                            textDecorationLine: tastStausCopy ? 'line-through' : 'none',
+                            color: taskStatusCopy ? theme.colors.secondary : theme.colors.text,
+                            opacity: taskStatusCopy ? 0.6 : 1,
+                            textDecorationLine: taskStatusCopy ? 'line-through' : 'none',
                         },
                     ]}
                     value={title}
@@ -112,8 +178,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
                 </TouchableOpacity>
             </View>
-
-            {/* Поле для описания задачи */}
             <TextInput
                 style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
                 value={description}
@@ -123,8 +187,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 multiline
                 maxLength={150}
             />
-
-            {/* Кнопки действий */}
             <View style={styles.actions}>
                 <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
                     <Ionicons name="duplicate" size={24} color={theme.colors.text} />
@@ -142,8 +204,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     <Text style={[styles.actionText, { color: theme.colors.text }]}>Выбрать время</Text>
                 </TouchableOpacity>
             </View>
-
-            {/* Модальное окно с TimePicker */}
             <TimePickerModal
                 visible={isTimePickerVisible}
                 onClose={() => setIsTimePickerVisible(false)}
@@ -166,6 +226,17 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: 16,
+    },
+    dueDateContainer: {
+        marginBottom: 20,
+    },
+    dueDateText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    timeLeftText: {
+        fontSize: 14,
+        marginTop: 5,
     },
     titleSection: {
         flexDirection: 'row',
