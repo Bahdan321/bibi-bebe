@@ -81,11 +81,11 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
             <View style={styles.labelContainer}>
-                <Text style={[styles.label, { color: theme.colors.secondary }]}>Days</Text>
+                <Text style={[styles.label, { color: theme.colors.secondary }]}>Дни</Text>
                 <Text style={styles.labelSpacer} />
-                <Text style={[styles.label, { color: theme.colors.secondary }]}>Hours</Text>
+                <Text style={[styles.label, { color: theme.colors.secondary }]}>Часы</Text>
                 <Text style={styles.labelSpacer} />
-                <Text style={[styles.label, { color: theme.colors.secondary }]}>Min</Text>
+                <Text style={[styles.label, { color: theme.colors.secondary }]}>Минуты</Text>
             </View>
             <View style={styles.unifiedPicker}>
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>

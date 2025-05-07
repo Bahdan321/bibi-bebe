@@ -138,6 +138,10 @@ export const toggleTaskChangeDate = (taskId: string, newDate: string) => {
 
 // Функция для удаления задачи
 export const toggleTaskRemove = (taskId: string) => {
+  const task = tasks$[taskId].get();
+  if (task.description === null) {
+    tasks$[taskId].description.set('');
+  }
   tasks$[taskId].delete();
 };
 
