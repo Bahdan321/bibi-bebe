@@ -43,6 +43,7 @@ export interface Task {
     created_at?: string; // Дата создания в формате строки
     updated_at?: string; // Дата обновления в формате строки
     due_date?: string | null; // Срок выполнения (заменяет старое поле date)
+    display_date: string;
     completion_date?: string | null; // Дата завершения
     is_repeating: boolean; // Повторяющаяся задача
     repeat_interval?: string | null; // Интервал повторения

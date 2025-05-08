@@ -36,12 +36,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const formattedDueDate = isNaN(parsedDueDate.getTime())
         ? 'Некорректная дата'
         : parsedDueDate.toLocaleString('ru-RU', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-          });
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
 
     useEffect(() => {
         const updateTimer = () => {
@@ -123,7 +123,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         dueDate.setDate(dueDate.getDate() + parseInt(time.day));
         dueDate.setHours(dueDate.getHours() + time.hours);
         dueDate.setMinutes(dueDate.getMinutes() + time.minutes);
-        return dueDate.toISOString().split('T')[0];
+        return dueDate.toISOString(); // Возвращаем полное время
     };
 
     const handleTimeSelected = (time: { day: string; hours: number; minutes: number }) => {
@@ -153,7 +153,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             </View>
             <View style={styles.dueDateContainer}>
                 <Text style={[styles.dueDateText, { color: theme.colors.text }]}>
-                    Срок выполнения: {formattedDueDate}
+                    Срок выполнения до: {formattedDueDate}
                 </Text>
                 <Text style={[styles.timeLeftText, { color: theme.colors.secondary }]}>
                     {timeLeft}

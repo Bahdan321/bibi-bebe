@@ -79,19 +79,19 @@ export const addTask = (
     try {
         const newId = uuidv4();
         const now = new Date();
-        const dateString = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        const isoNow = now.toISOString();
         const taskData = {
             id: newId,
             space_id: space_id,
             user_id: user_id,
             title: title,
             status: status || false,
-            due_date: due_date, // YYYY-MM-DD
+            due_date: due_date || isoNow,
             display_date: display_date, // YYYY-MM-DD
             description: description || null,
             parent_task_id: parent_task_id || null,
-            created_at: created_at || dateString, // Фиксируем дату создания
-            updated_at: dateString,
+            created_at: created_at || isoNow, // Фиксируем дату создания
+            updated_at: isoNow,
             completion_date: completion_date || null,
             is_repeating: is_repeating || false,
             repeat_interval: repeat_interval || null,

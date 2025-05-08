@@ -17,7 +17,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
     const hoursRef = useRef(null);
     const minutesRef = useRef(null);
 
-    const daysArray = Array.from({ length: 18 }, (_, i) => (i).toString().padStart(2, '0')); // От "00" до "17"
+    const daysArray = Array.from({ length: 31 }, (_, i) => (i).toString().padStart(2, '0')); // От "00" до "17"
     const hoursArray = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')); // От "00" до "23"
     const minutesArray = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')); // От "00" до "55"
 
