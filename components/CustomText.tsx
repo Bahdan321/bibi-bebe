@@ -33,7 +33,8 @@ const CustomText: React.FC<CustomTextProps> = ({
         borderColor: borderColor,
         borderRadius: borderRadius,
         padding: borderWidth ? 5 : 2,
-        alignSelf: 'flex-start', // Make the View wrap the Text content
+        alignSelf: 'flex-start',
+        opacity: validatedOpacity,
     };
 
     return (
