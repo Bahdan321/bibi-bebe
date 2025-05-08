@@ -8,7 +8,7 @@ import {
     Task,
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import Feather from '@expo/vector-icons/Feather';
 import { TaskMenuProps } from '@/types/types';
 import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
@@ -33,7 +33,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const { theme } = useTheme();
     const [tastStausCopy, setTastStausCopy] = useState(task.status);
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
+    const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
 
     const handleDateChange = () => {
     };
@@ -70,42 +71,79 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         onClose();
     };
 
+    const handleChangeTaskColor = () => {
+        setIsEisenhowerMatrixDropdownVisible(!isEisenhowerMatrixDropdownVisible);
+        setIsMainDropdownVisible(false)
+    }
+
     const handleTaskToggle = (taskId) => {
         toggleTaskCompletion(taskId);
         setTastStausCopy((prevStatus) => !prevStatus);
         setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
     }
 
-    const handleEllipsisPress = () => {
-        setIsDropdownVisible(!isDropdownVisible); // Toggle visibility directly
+    const handleOpenMainMenu = () => {
+        setIsMainDropdownVisible(!isMainDropdownVisible); // Toggle visibility directly
+        setIsEisenhowerMatrixDropdownVisible(false)
     };
 
-    const closeDropdown = () => {
-        setIsDropdownVisible(false);
+    const closeMainDropdown = () => {
+        setIsMainDropdownVisible(false);
     };
 
-    // Определяем элементы меню
+    const closeEisenhowerMatrixDropdown = () => {
+        setIsEisenhowerMatrixDropdownVisible(false);
+    };
+
     const menuItems = [
         {
-            icon: 'pencil' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            icon: 'pencil' as keyof typeof Ionicons.glyphMap,
             text: 'На завтра',
-            onPress: () => console.log('Edit pressed'), // Пример действия
+            onPress: () => console.log('Edit pressed'),
         },
         {
-            icon: 'pencil' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            icon: 'pencil' as keyof typeof Ionicons.glyphMap,
             text: 'На неделю',
-            onPress: () => console.log('Edit pressed'), // Пример действия
+            onPress: () => console.log('Edit pressed'),
         }, {
-            icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap,
             text: 'Дублировать',
-            onPress: handleDuplicate, // Пример действия
+            onPress: handleDuplicate,
         },
         {
-            icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap, // Пример иконки
+            icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap,
             text: 'Удалить',
-            onPress: handleDelete, // Пример действия
+            onPress: handleDelete,
         },
-        // Добавьте другие элементы меню здесь
+    ];
+
+    // Определяем элементы для матрицы Эйзенхауэра
+    // TODO: Заменить console.log на реальные функции обновления is_urgent и is_important
+    const eisenhoweratrixitems = [
+        {
+            text: 'Срочно и Важно',
+            color: theme.eisenhowerMatrix.urgentImportant,
+            icon: 'alert-circle' as keyof typeof Ionicons.glyphMap,
+            onPress: () => console.log('Set Urgent & Important'),
+        },
+        {
+            text: 'Важно, не срочно',
+            color: theme.eisenhowerMatrix.notUrgentImportant,
+            icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap,
+            onPress: () => console.log('Set Important & Not Urgent'),
+        },
+        {
+            text: 'Срочно, не важно',
+            color: theme.eisenhowerMatrix.urgentNotImportant,
+            icon: 'time' as keyof typeof Ionicons.glyphMap,
+            onPress: () => console.log('Set Urgent & Not Important'),
+        },
+        {
+            text: 'Не срочно и не важно',
+            color: theme.eisenhowerMatrix.notUrgentNotImportant,
+            icon: 'alert-circle-outline' as keyof typeof Ionicons.glyphMap,
+            onPress: () => console.log('Set Not Urgent & Not Important'),
+        },
     ];
 
     const formattedDate = getFormatedDateOfYear(date);
@@ -155,7 +193,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 maxLength={150}
             />
 
-            <TimePicker />
+            {/* <TimePicker /> */}
 
 
             {/* Кнопки действий */}
@@ -163,25 +201,30 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
                     <Ionicons name="calendar-outline" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
-                    <Feather name="circle" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-                {/* <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
-                    <Ionicons name="duplicate-outline" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                    <Ionicons name="trash-bin-outline" size={24} color={theme.colors.text} />
-                </TouchableOpacity> */}
+                <View style={styles.ellipsisContainer}>
+                    <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
+                        <Feather name="circle" size={24} color={theme.colors.text} />
+                    </TouchableOpacity>
+
+                    <DropdownMenu
+                        items={eisenhoweratrixitems}
+                        visible={isEisenhowerMatrixDropdownVisible}
+                        onClose={closeEisenhowerMatrixDropdown}
+                        layout='vertical'
+                        containerStyle={styles.eisenhowerDropdownMenu}
+                    />
+                </View>
+
 
                 <View style={styles.ellipsisContainer}>
-                    <TouchableOpacity onPress={handleEllipsisPress} style={styles.actionButton}>
+                    <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
                         <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
                     </TouchableOpacity>
 
                     <DropdownMenu
                         items={menuItems}
-                        visible={isDropdownVisible}
-                        onClose={closeDropdown}
+                        visible={isMainDropdownVisible}
+                        onClose={closeMainDropdown}
                         containerStyle={styles.dropdownMenu}
                     />
                 </View>
@@ -245,11 +288,18 @@ const styles = StyleSheet.create({
     },
     dropdownMenu: {
         position: 'absolute',
-        bottom: '100%', // Position above the button
-        right: 0, // Align to the right of the button container
-        marginBottom: 5, // Optional margin between button and menu
-        zIndex: 1000, // Ensure menu is above other elements
+        bottom: '100%',
+        right: 0,
+        marginBottom: 5,
+        zIndex: 1000,
     },
+    eisenhowerDropdownMenu: {
+        position: 'absolute',
+        bottom: '100%',
+        right: -100,
+        marginBottom: 5,
+        zIndex: 1000,
+    }
 });
 
 export default TaskMenu;
