@@ -43,6 +43,18 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
     // bottomSheetRef.current?.close();
   };
 
+  const taskBorderColor = (isUrgent: boolean, isImportant: boolean) => {
+    if (isUrgent && isImportant) {
+      return theme.eisenhowerMatrix.urgentImportant
+    }
+    else if (!isUrgent && isImportant) {
+      return theme.eisenhowerMatrix.notUrgentImportant
+    }
+    else if (isUrgent && !isImportant) {
+      return theme.eisenhowerMatrix.urgentNotImportant
+    }
+  }
+
   return (
     <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
       <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
@@ -54,6 +66,11 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
             weight="700"
             lineThrough={task.status}
             opacity={task.status ? 0.6 : 1}
+            paddingHorizontal={2}
+            borderRadius={999}
+            borderWidth={task.is_important || task.is_urgent ? 0 : 0}
+            borderColor={taskBorderColor(task.is_urgent, task.is_important)}
+            backgroundColor={taskBorderColor(task.is_urgent, task.is_important)}
           />
         </TouchableOpacity>
         <RoundButton

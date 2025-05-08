@@ -90,3 +90,17 @@ export interface TaskMenuProps {
     description: string;
     setDescription: (description: string) => void;
 }
+
+export type CustomTextProps = {
+    content: string;
+    size: number;
+    color: string;
+    weight: 'normal' | 'bold' | '600' | '700' | '400';
+    lineThrough?: boolean;
+    opacity?: number;
+    borderRadius?: number;
+    borderColor?: string;
+    borderWidth?: number;
+    backgroundColor?: string;
+    paddingHorizontal?: number
+}
