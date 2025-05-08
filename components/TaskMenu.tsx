@@ -119,7 +119,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     // Определяем элементы для матрицы Эйзенхауэра
     // TODO: Заменить console.log на реальные функции обновления is_urgent и is_important
-    const eisenhoweratrixitems = [
+    const eisenhowermatrixitems = [
         {
             text: 'Срочно и Важно',
             color: theme.eisenhowerMatrix.urgentImportant,
@@ -141,10 +141,22 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         {
             text: 'Не срочно и не важно',
             color: theme.eisenhowerMatrix.notUrgentNotImportant,
-            icon: 'alert-circle-outline' as keyof typeof Ionicons.glyphMap,
+            icon: 'heart-circle' as keyof typeof Ionicons.glyphMap,
             onPress: () => changeEisenhowerMatrixStatus(task.id, false, false),
         },
     ];
+
+    const geteisenhowerMatrix = (isUrgent: boolean, isImportant: boolean) => {
+        if (isUrgent && isImportant) {
+            return ["Срочно и Важно", theme.eisenhowerMatrix.urgentImportant]
+        }
+        else if (!isUrgent && isImportant) {
+            return "Важно, не срочно"
+        }
+        else if (isUrgent && !isImportant) {
+            return "Срочно, не важно"
+        }
+    }
 
     const formattedDate = getFormatedDateOfYear(date);
 
@@ -157,6 +169,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 <TouchableOpacity onPress={handleDateChange}>
                     <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
                 </TouchableOpacity>
+                {/* <Text style={{
+                    color: geteisenhowerMatrix(task.is_urgent, task.is_important)[1],
+                    fontWeight: 'bold',
+                    fontSize: hp('2.2')
+                }}
+                >
+                    {geteisenhowerMatrix(task.is_urgent, task.is_important)[0]}
+                </Text> */}
                 <TouchableOpacity onPress={onClose}>
                     <Ionicons name="close" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
@@ -207,7 +227,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                     </TouchableOpacity>
 
                     <DropdownMenu
-                        items={eisenhoweratrixitems}
+                        items={eisenhowermatrixitems}
                         visible={isEisenhowerMatrixDropdownVisible}
                         onClose={closeEisenhowerMatrixDropdown}
                         layout='vertical'
