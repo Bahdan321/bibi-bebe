@@ -11,7 +11,7 @@ import { useTheme } from '@/providers/ThemeProvider';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import Feather from '@expo/vector-icons/Feather';
 import { TaskMenuProps } from '@/types/types';
-import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
+import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import RoundButton from './RoundButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -124,25 +124,25 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             text: 'Срочно и Важно',
             color: theme.eisenhowerMatrix.urgentImportant,
             icon: 'alert-circle' as keyof typeof Ionicons.glyphMap,
-            onPress: () => console.log('Set Urgent & Important'),
+            onPress: () => changeEisenhowerMatrixStatus(task.id, true, true),
         },
         {
             text: 'Важно, не срочно',
             color: theme.eisenhowerMatrix.notUrgentImportant,
             icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap,
-            onPress: () => console.log('Set Important & Not Urgent'),
+            onPress: () => changeEisenhowerMatrixStatus(task.id, false, true),
         },
         {
             text: 'Срочно, не важно',
             color: theme.eisenhowerMatrix.urgentNotImportant,
             icon: 'time' as keyof typeof Ionicons.glyphMap,
-            onPress: () => console.log('Set Urgent & Not Important'),
+            onPress: () => changeEisenhowerMatrixStatus(task.id, true, false),
         },
         {
             text: 'Не срочно и не важно',
             color: theme.eisenhowerMatrix.notUrgentNotImportant,
             icon: 'alert-circle-outline' as keyof typeof Ionicons.glyphMap,
-            onPress: () => console.log('Set Not Urgent & Not Important'),
+            onPress: () => changeEisenhowerMatrixStatus(task.id, false, false),
         },
     ];
 
