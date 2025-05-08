@@ -21,7 +21,7 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({ visible, onClose, onT
             onRequestClose={onClose}
         >
             <View style={[styles.modalContainer, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
-                <View style={[styles.modalContent, { backgroundColor: theme.colors.primary }]}>
+                <View style={[styles.modalContent, { backgroundColor: theme.colors.third }]}>
                     <TimePicker
                         onTimeSelected={onTimeSelected}
                         onConfirm={onClose}

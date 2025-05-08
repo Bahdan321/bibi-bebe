@@ -15,6 +15,7 @@ import TimePickerModal from './TimePickerModal';
 import RoundButton from './RoundButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { tasks$ } from '@/Supabase/utils/SupaLegend';
+import CalendarModal from './CalendarModal';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
@@ -30,6 +31,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
     const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
+    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const [timeLeft, setTimeLeft] = useState('');
 
     const parsedDueDate = new Date(task.due_date);
@@ -73,7 +75,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     }, [task.due_date]);
 
     const handleDateChange = () => {
-        // Логика изменения даты, если нужно
+        setIsCalendarVisible(true);
+    };
+
+    const handleCalendarApply = (selectedDate: Date) => {
+        if (tasks$[task.id]) {
+            tasks$[task.id].due_date.set(selectedDate.toISOString());
+            console.log('Updated due_date to:', selectedDate);
+        } else {
+            console.error('Task not found in tasks$:', task.id);
+        }
+        setIsCalendarVisible(false); // Закрываем календарь после выбора даты
     };
 
     const handleDuplicate = () => {
@@ -144,7 +156,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={handleDateChange}>
+                <TouchableOpacity onPress={handleDateChange} style={styles.dateContainer}>
+                    <Ionicons name="calendar-outline" size={24} color={theme.colors.text} style={styles.icon} />
                     <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={onClose}>
@@ -209,6 +222,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 onClose={() => setIsTimePickerVisible(false)}
                 onTimeSelected={handleTimeSelected}
             />
+            <CalendarModal
+                visible={isCalendarVisible}
+                onClose={() => setIsCalendarVisible(false)}
+                onApply={handleCalendarApply}
+                initialDate={new Date(task.display_date)}
+            />
         </View>
     );
 };
@@ -266,6 +285,13 @@ const styles = StyleSheet.create({
     actionText: {
         marginTop: 5,
     },
+    dateContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    icon: {
+        marginRight: 5,
+    }
 });
 
 export default TaskMenu;

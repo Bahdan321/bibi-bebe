@@ -79,7 +79,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
     const selectedMinuteIndex = minutesArray.indexOf(minutes);
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <View style={styles.labelContainer}>
                 <Text style={[styles.label, { color: theme.colors.secondary }]}>Дни</Text>
                 <Text style={styles.labelSpacer} />
