@@ -260,8 +260,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         },
     ];
 
-    // Определяем элементы для матрицы Эйзенхауэра
-    // TODO: Заменить console.log на реальные функции обновления is_urgent и is_important
     const eisenhowermatrixitems = [
         {
             text: 'Срочно и Важно',
@@ -301,6 +299,13 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         }
     }
 
+    const handleAddRepeat = () => {
+
+    }
+
+    const handleAddNotification = () => {
+
+    }
 
     if (!visible) return null;
 
@@ -354,8 +359,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
             {/* Кнопки действий */}
             <View style={styles.actions}>
-                <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
-                    <Ionicons name="calendar-outline" size={24} color={theme.colors.text} />
+                <TouchableOpacity onPress={() => { handleAddRepeat }} style={styles.actionButton}>
+                    <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
                 <View style={styles.ellipsisContainer}>
                     <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
@@ -370,7 +375,9 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                         containerStyle={styles.eisenhowerDropdownMenu}
                     />
                 </View>
-
+                <TouchableOpacity onPress={() => { handleAddNotification }} style={styles.actionButton}>
+                    <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
+                </TouchableOpacity>
 
                 <View style={styles.ellipsisContainer}>
                     <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
