@@ -37,7 +37,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const [timeLeft, setTimeLeft] = useState('');
     const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
     const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
-    
+
 
     const parsedDueDate = new Date(task.due_date);
     const formattedDueDate = isNaN(parsedDueDate.getTime())
@@ -78,7 +78,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
         return () => clearInterval(interval);
     }, [task.due_date]);
-    
+
 
     const handleDateChange = () => {
         setIsCalendarVisible(true);
@@ -154,7 +154,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         toggleTaskRemove(task.id);
         onClose();
     };
-    
+
 
     const handleTaskToggle = (taskId) => {
         toggleTaskCompletion(taskId);
@@ -441,7 +441,18 @@ const styles = StyleSheet.create({
     },
     icon: {
         marginRight: 5,
-    }
+    },
+    dueDateContainer: {
+        marginBottom: 20,
+    },
+    dueDateText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    timeLeftText: {
+        fontSize: 14,
+        marginTop: 5,
+    },
 });
 
 export default TaskMenu;
