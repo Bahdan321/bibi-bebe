@@ -33,6 +33,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const [timeLeft, setTimeLeft] = useState('');
+    
 
     const parsedDueDate = new Date(task.due_date);
     const formattedDueDate = isNaN(parsedDueDate.getTime())
@@ -73,19 +74,50 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
         return () => clearInterval(interval);
     }, [task.due_date]);
+    
 
     const handleDateChange = () => {
         setIsCalendarVisible(true);
     };
 
     const handleCalendarApply = (selectedDate: Date) => {
+        if (isNaN(selectedDate.getTime())) {
+            console.error('Invalid date selected:', selectedDate);
+            return;
+        }
+
         if (tasks$[task.id]) {
-            tasks$[task.id].due_date.set(selectedDate.toISOString());
-            console.log('Updated due_date to:', selectedDate);
+            // Создаем новую дату с локальной полночью (00:00:00)
+            const localDate = new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
+                selectedDate.getDate(),
+                0,
+                0,
+                0,
+                0
+            );
+
+            // Форматируем due_date в ISO формате (локальная полночь в UTC)
+            const isoDate = localDate.toISOString();
+            // Форматируем display_date как YYYY-MM-DD
+            const displayDate = `${localDate.getFullYear()}-${String(
+                localDate.getMonth() + 1
+            ).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
+
+            // Обновляем задачу
+            tasks$[task.id].due_date.set(isoDate);
+            tasks$[task.id].display_date.set(displayDate);
+
+            console.log('Updated task:', {
+                id: task.id,
+                due_date: isoDate,
+                display_date: displayDate,
+            });
         } else {
             console.error('Task not found in tasks$:', task.id);
         }
-        setIsCalendarVisible(false); // Закрываем календарь после выбора даты
+        setIsCalendarVisible(false);
     };
 
     const handleDuplicate = () => {
@@ -118,6 +150,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         toggleTaskRemove(task.id);
         onClose();
     };
+    
 
     const handleTaskToggle = (taskId) => {
         toggleTaskCompletion(taskId);
@@ -226,7 +259,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 visible={isCalendarVisible}
                 onClose={() => setIsCalendarVisible(false)}
                 onApply={handleCalendarApply}
-                initialDate={new Date(task.display_date)}
+                initialDate={new Date(task.display_date || task.due_date)}
             />
         </View>
     );
