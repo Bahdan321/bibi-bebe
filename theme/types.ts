@@ -16,4 +16,10 @@ export interface Theme {
     lg: number;
     xl: number;
   };
+  eisenhowerMatrix: {
+    urgentImportant: string;
+    urgentNotImportant: string;
+    notUrgentImportant: string;
+    notUrgentNotImportant: string;
+  };
 }

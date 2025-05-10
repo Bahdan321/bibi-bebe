@@ -18,6 +18,12 @@ export const lightTheme: Theme = {
     lg: 24,
     xl: 32,
   },
+  eisenhowerMatrix: {
+    urgentImportant: 'red',
+    urgentNotImportant: 'orange',
+    notUrgentImportant: 'yellow',
+    notUrgentNotImportant: 'green',
+  }
 };
 
 export const darkTheme: Theme = {
@@ -38,4 +44,10 @@ export const darkTheme: Theme = {
     lg: 24,
     xl: 32,
   },
+  eisenhowerMatrix: {
+    urgentImportant: 'red',
+    urgentNotImportant: 'orange',
+    notUrgentImportant: 'yellow',
+    notUrgentNotImportant: 'green',
+  }
 };
