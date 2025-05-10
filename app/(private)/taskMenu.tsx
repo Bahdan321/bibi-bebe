@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react'
 import TaskMenu from '@/components/TaskMenu'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Task } from '@/types/types';
-import { toggleTaskRename, toggleTaskRenameDescription, toggleTaskRemove, toggleDublicateTask } from '@/Supabase/utils/SupaLegend';
+import { toggleTaskRename, toggleTaskRenameDescription } from '@/Supabase/utils/SupaLegend';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/providers/ThemeProvider';
 import DropdownMenu from '@/components/DropdownMenu';

@@ -9,8 +9,8 @@ import {
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import Feather from '@expo/vector-icons/Feather';
-import { TaskMenuProps } from '@/types/types';
-import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus } from '@/Supabase/utils/SupaLegend';
+import { Task, TaskMenuProps } from '@/types/types';
+import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
 import RoundButton from './RoundButton';
@@ -208,16 +208,46 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         setIsEisenhowerMatrixDropdownVisible(false);
     };
 
+    const handleChangeDate = (task: Task, newDate?: Date) => {
+        // Если новая дата не передана, используем текущую дату задачи
+        let dateToUse = newDate;
+
+        if (!dateToUse) {
+            // По умолчанию перемещаем на завтра, если дата не указана
+            dateToUse = new Date(task.display_date);
+            if (isNaN(dateToUse.getTime())) {
+                console.error('Некорректная дата:', task.display_date);
+                return;
+            }
+            dateToUse.setDate(dateToUse.getDate() + 1);
+        }
+
+        const newDisplayDate = `${dateToUse.getFullYear()}-${String(
+            dateToUse.getMonth() + 1
+        ).padStart(2, '0')}-${String(dateToUse.getDate()).padStart(2, '0')}`;
+
+        toggleTaskChangeDisplayDate(task.id, newDisplayDate);
+
+        console.log('Дата задачи изменена на:', newDisplayDate);
+        router.dismissTo('/(private)/home')
+    }
+
     const menuItems = [
         {
             icon: 'pencil' as keyof typeof Ionicons.glyphMap,
             text: 'На завтра',
-            onPress: () => console.log('Edit pressed'),
+            onPress: () => handleChangeDate(task),
         },
         {
             icon: 'pencil' as keyof typeof Ionicons.glyphMap,
             text: 'На неделю',
-            onPress: () => console.log('Edit pressed'),
+            onPress: () => {
+                const nextWeekDate = new Date(task.display_date);
+                if (!isNaN(nextWeekDate.getTime())) {
+                    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+                    handleChangeDate(task, nextWeekDate);
+                }
+            },
         }, {
             icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap,
             text: 'Дублировать',
