@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
         right: -100,
         marginBottom: 5,
         zIndex: 1000,
-    }
+    },
     dateContainer: {
         flexDirection: 'row',
         alignItems: 'center',
