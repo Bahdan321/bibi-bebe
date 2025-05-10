@@ -188,21 +188,9 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     const formattedDate = getFormatedDateOfYear(date);
 
-    const handleDelete = () => {
-        console.log('Deleting task:', task.id);
-        toggleTaskRemove(task.id);
-        onClose();
-    };
-
     const handleChangeTaskColor = () => {
         setIsEisenhowerMatrixDropdownVisible(!isEisenhowerMatrixDropdownVisible);
         setIsMainDropdownVisible(false)
-    }
-
-    const handleTaskToggle = (taskId) => {
-        toggleTaskCompletion(taskId);
-        setTaskStatusCopy((prevStatus) => !prevStatus);
-        setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
     }
 
     const handleOpenMainMenu = () => {
