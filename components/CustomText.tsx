@@ -1,14 +1,6 @@
+import { CustomTextProps } from '@/types/types';
 import React from 'react';
-import { Text, TextStyle } from 'react-native';
-
-type CustomTextProps = {
-    content: string;
-    size: number;
-    color: string;
-    weight: 'normal' | 'bold' | '600' | '700' | '400';
-    lineThrough?: boolean;
-    opacity?: number;
-}
+import { Text, TextStyle, View, ViewStyle } from 'react-native';
 
 const CustomText: React.FC<CustomTextProps> = ({
     content,
@@ -17,6 +9,12 @@ const CustomText: React.FC<CustomTextProps> = ({
     weight,
     lineThrough = false,
     opacity = 1,
+    borderRadius = 1,
+    borderColor,
+    borderWidth,
+    backgroundColor,
+    paddingHorizontal = 0
+
 }) => {
     const validatedOpacity = Math.min(Math.max(opacity, 0), 1);
     const textStyle: TextStyle = {
@@ -25,9 +23,25 @@ const CustomText: React.FC<CustomTextProps> = ({
         fontWeight: weight,
         textDecorationLine: lineThrough ? 'line-through' : 'none',
         opacity: validatedOpacity,
+        borderRadius: borderRadius,
+        paddingHorizontal: paddingHorizontal,
     };
 
-    return <Text style={textStyle}>{content}</Text>;
+    const viewStyle: ViewStyle = {
+        backgroundColor: backgroundColor,
+        borderWidth: borderWidth,
+        borderColor: borderColor,
+        borderRadius: borderRadius,
+        padding: borderWidth ? 5 : 2,
+        alignSelf: 'flex-start',
+        opacity: validatedOpacity,
+    };
+
+    return (
+        <View style={viewStyle}>
+            <Text style={textStyle}>{content}</Text>
+        </View>
+    )
 };
 
 export default CustomText;

@@ -8,13 +8,15 @@ import {
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 import { TaskMenuProps } from '@/types/types';
-import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
+import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
 import RoundButton from './RoundButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { tasks$ } from '@/Supabase/utils/SupaLegend';
+import DropdownMenu from './DropdownMenu';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
@@ -31,6 +33,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
     const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
     const [timeLeft, setTimeLeft] = useState('');
+    const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
+    const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
 
     const parsedDueDate = new Date(task.due_date);
     const formattedDueDate = isNaN(parsedDueDate.getTime())
@@ -101,18 +105,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         onClose();
     };
 
-    const handleDelete = () => {
-        console.log('Deleting task:', task.id);
-        toggleTaskRemove(task.id);
-        onClose();
-    };
-
-    const handleTaskToggle = (taskId) => {
-        toggleTaskCompletion(taskId);
-        setTaskStatusCopy((prevStatus) => !prevStatus);
-        setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
-    };
-
     const calculateNewDueDate = (currentDueDate: string, time: { day: string; hours: number; minutes: number }) => {
         const dueDate = new Date(currentDueDate);
         if (isNaN(dueDate.getTime())) {
@@ -138,6 +130,100 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     };
 
     const formattedDate = getFormatedDateOfYear(date);
+
+    const handleDelete = () => {
+        console.log('Deleting task:', task.id);
+        toggleTaskRemove(task.id);
+        onClose();
+    };
+
+    const handleChangeTaskColor = () => {
+        setIsEisenhowerMatrixDropdownVisible(!isEisenhowerMatrixDropdownVisible);
+        setIsMainDropdownVisible(false)
+    }
+
+    const handleTaskToggle = (taskId) => {
+        toggleTaskCompletion(taskId);
+        setTaskStatusCopy((prevStatus) => !prevStatus);
+        setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
+    }
+
+    const handleOpenMainMenu = () => {
+        setIsMainDropdownVisible(!isMainDropdownVisible); // Toggle visibility directly
+        setIsEisenhowerMatrixDropdownVisible(false)
+    };
+
+    const closeMainDropdown = () => {
+        setIsMainDropdownVisible(false);
+    };
+
+    const closeEisenhowerMatrixDropdown = () => {
+        setIsEisenhowerMatrixDropdownVisible(false);
+    };
+
+    const menuItems = [
+        {
+            icon: 'pencil' as keyof typeof Ionicons.glyphMap,
+            text: 'На завтра',
+            onPress: () => console.log('Edit pressed'),
+        },
+        {
+            icon: 'pencil' as keyof typeof Ionicons.glyphMap,
+            text: 'На неделю',
+            onPress: () => console.log('Edit pressed'),
+        }, {
+            icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap,
+            text: 'Дублировать',
+            onPress: handleDuplicate,
+        },
+        {
+            icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap,
+            text: 'Удалить',
+            onPress: handleDelete,
+        },
+    ];
+
+    // Определяем элементы для матрицы Эйзенхауэра
+    // TODO: Заменить console.log на реальные функции обновления is_urgent и is_important
+    const eisenhowermatrixitems = [
+        {
+            text: 'Срочно и Важно',
+            color: theme.eisenhowerMatrix.urgentImportant,
+            icon: 'alert-circle' as keyof typeof Ionicons.glyphMap,
+            onPress: () => changeEisenhowerMatrixStatus(task.id, true, true),
+        },
+        {
+            text: 'Важно, не срочно',
+            color: theme.eisenhowerMatrix.notUrgentImportant,
+            icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap,
+            onPress: () => changeEisenhowerMatrixStatus(task.id, false, true),
+        },
+        {
+            text: 'Срочно, не важно',
+            color: theme.eisenhowerMatrix.urgentNotImportant,
+            icon: 'time' as keyof typeof Ionicons.glyphMap,
+            onPress: () => changeEisenhowerMatrixStatus(task.id, true, false),
+        },
+        {
+            text: 'Не срочно и не важно',
+            color: theme.eisenhowerMatrix.notUrgentNotImportant,
+            icon: 'heart-circle' as keyof typeof Ionicons.glyphMap,
+            onPress: () => changeEisenhowerMatrixStatus(task.id, false, false),
+        },
+    ];
+
+    const geteisenhowerMatrix = (isUrgent: boolean, isImportant: boolean) => {
+        if (isUrgent && isImportant) {
+            return ["Срочно и Важно", theme.eisenhowerMatrix.urgentImportant]
+        }
+        else if (!isUrgent && isImportant) {
+            return "Важно, не срочно"
+        }
+        else if (isUrgent && !isImportant) {
+            return "Срочно, не важно"
+        }
+    }
+
 
     if (!visible) return null;
 
@@ -187,22 +273,39 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
                 multiline
                 maxLength={150}
             />
+
+            {/* Кнопки действий */}
             <View style={styles.actions}>
-                <TouchableOpacity onPress={handleDuplicate} style={styles.actionButton}>
-                    <Ionicons name="duplicate" size={24} color={theme.colors.text} />
-                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Дублировать</Text>
+                <TouchableOpacity onPress={() => { }} style={styles.actionButton}>
+                    <Ionicons name="calendar-outline" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                    <Ionicons name="trash-bin" size={24} color={theme.colors.text} />
-                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Удалить</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => setIsTimePickerVisible(true)}
-                    style={styles.actionButton}
-                >
-                    <Ionicons name="time" size={24} color={theme.colors.text} />
-                    <Text style={[styles.actionText, { color: theme.colors.text }]}>Выбрать время</Text>
-                </TouchableOpacity>
+                <View style={styles.ellipsisContainer}>
+                    <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
+                        <Feather name="circle" size={24} color={theme.colors.text} />
+                    </TouchableOpacity>
+
+                    <DropdownMenu
+                        items={eisenhowermatrixitems}
+                        visible={isEisenhowerMatrixDropdownVisible}
+                        onClose={closeEisenhowerMatrixDropdown}
+                        layout='vertical'
+                        containerStyle={styles.eisenhowerDropdownMenu}
+                    />
+                </View>
+
+
+                <View style={styles.ellipsisContainer}>
+                    <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
+                        <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
+                    </TouchableOpacity>
+
+                    <DropdownMenu
+                        items={menuItems}
+                        visible={isMainDropdownVisible}
+                        onClose={closeMainDropdown}
+                        containerStyle={styles.dropdownMenu}
+                    />
+                </View>
             </View>
             <TimePickerModal
                 visible={isTimePickerVisible}
@@ -227,17 +330,6 @@ const styles = StyleSheet.create({
     dateText: {
         fontSize: 16,
     },
-    dueDateContainer: {
-        marginBottom: 20,
-    },
-    dueDateText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    timeLeftText: {
-        fontSize: 14,
-        marginTop: 5,
-    },
     titleSection: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -256,8 +348,16 @@ const styles = StyleSheet.create({
         minHeight: 100,
     },
     actions: {
+        position: 'absolute',
+        bottom: 20,
+        left: 0,
+        right: 0,
         flexDirection: 'row',
         justifyContent: 'space-around',
+        padding: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderRadius: 10,
+        marginHorizontal: 20,
     },
     actionButton: {
         alignItems: 'center',
@@ -266,6 +366,23 @@ const styles = StyleSheet.create({
     actionText: {
         marginTop: 5,
     },
+    ellipsisContainer: {
+        position: 'relative',
+    },
+    dropdownMenu: {
+        position: 'absolute',
+        bottom: '100%',
+        right: 0,
+        marginBottom: 5,
+        zIndex: 1000,
+    },
+    eisenhowerDropdownMenu: {
+        position: 'absolute',
+        bottom: '100%',
+        right: -100,
+        marginBottom: 5,
+        zIndex: 1000,
+    }
 });
 
 export default TaskMenu;
