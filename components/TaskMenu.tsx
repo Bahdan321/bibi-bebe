@@ -18,6 +18,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { tasks$ } from '@/Supabase/utils/SupaLegend';
 import DropdownMenu from './DropdownMenu';
 import CalendarModal from './CalendarModal';
+import { router } from 'expo-router';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
@@ -122,6 +123,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             console.error('Task not found in tasks$:', task.id);
         }
         setIsCalendarVisible(false);
+        router.dismissTo("/(private)/home")
     };
 
     const handleDuplicate = () => {
