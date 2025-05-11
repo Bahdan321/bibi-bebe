@@ -9,6 +9,7 @@ import { observablePersistAsyncStorage } from '@legendapp/state/persist-plugins/
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
+import { Task } from '@/types/types';
 
 // Очищаем AsyncStorage при необходимости (раскомментируйте для отладки)
 // useEffect(() => {
@@ -95,7 +96,7 @@ export const addTask = (
       due_date: due_date || isoNow,
       display_date: display_date, // YYYY-MM-DD
       description: description || null,
-      parent_task_id: parent_task_id || null,
+      parent_task_id: parent_task_id || null, // Всегда используем переданный parent_task_id
       created_at: created_at || isoNow, // Фиксируем дату создания
       updated_at: isoNow,
       completion_date: completion_date || null,
@@ -107,21 +108,25 @@ export const addTask = (
       reward_id: reward_id || null,
       is_anime_task: is_anime_task || false,
     };
+    console.log('Данные для вставки в Supabase:', taskData); // Добавляем лог для отладки
     tasks$.set((prev) => ({
       ...prev,
       [newId]: taskData,
     }));
     console.log('Task added:', { id: newId, title, due_date, display_date, created_at: taskData.created_at });
     // Принудительная вставка для отладки
-    supabase.from('tasks').insert([taskData]).then(({ error }) => {
+    return supabase.from('tasks').insert([taskData]).then(({ error }) => {
       if (error) {
         console.error('Ошибка вставки в Supabase:', error);
+        return Promise.reject(error);
       } else {
         console.log('Задача успешно сохранена в Supabase:', taskData);
+        return Promise.resolve(newId); // Возвращаем newId при успехе
       }
     });
   } catch (error) {
     console.error('Ошибка добавления задачи:', error);
+    return Promise.reject(error);
   }
 };
 
@@ -153,7 +158,7 @@ export const toggleTaskRemove = (taskId: string) => {
   tasks$[taskId].delete();
 };
 
-export const toggleDublicateTask = (
+export const toggleDublicateTask = async (
   title: string,
   space_id: string,
   user_id: string,
@@ -171,38 +176,68 @@ export const toggleDublicateTask = (
   is_urgent?: boolean,
   is_important?: boolean,
   reward_id?: string,
-  is_anime_task?: boolean
+  is_anime_task?: boolean,
+  originalTaskId?: string,
+  subtasks?: Task[] // Новый параметр для подзадач
 ) => {
   try {
     const newId = uuidv4();
     const now = new Date();
-    const dateString = now.toISOString().split('T')[0];
-    tasks$.set((prev) => ({
-      ...prev,
-      [newId]: {
-        id: newId,
-        space_id: space_id,
-        user_id: user_id,
-        title: title,
-        status: status || false,
-        due_date: due_date,
-        display_date: display_date,
-        description: description || null,
-        parent_task_id: parent_task_id || null,
-        created_at: created_at || dateString,
-        updated_at: dateString,
-        completion_date: completion_date || null,
-        is_repeating: is_repeating || false,
-        repeat_interval: repeat_interval || null,
-        planning_period: planning_period || null,
-        is_urgent: is_urgent || false,
-        is_important: is_important || false,
-        reward_id: reward_id || null,
-        is_anime_task: is_anime_task || false,
-      },
-    }));
+    const dateString = now.toISOString();
+
+    // Дублируем основную задачу и ждём подтверждения вставки
+    const mainTaskId = await addTask(
+      title,
+      space_id,
+      user_id,
+      due_date,
+      display_date,
+      status || false,
+      description || null,
+      parent_task_id || null,
+      created_at || dateString,
+      dateString,
+      completion_date || null,
+      is_repeating || false,
+      repeat_interval || null,
+      planning_period || null,
+      is_urgent || false,
+      is_important || false,
+      reward_id || null,
+      is_anime_task || false
+    );
+
+    // Дублируем подзадачи, если они переданы
+    if (!parent_task_id && subtasks && subtasks.length > 0) {
+      for (const subtask of subtasks) {
+        console.log('Дублируем подзадачу с parent_task_id:', mainTaskId); // Лог для отладки
+        await addTask(
+          subtask.title,
+          subtask.space_id,
+          subtask.user_id,
+          subtask.due_date,
+          subtask.display_date,
+          subtask.status,
+          subtask.description,
+          mainTaskId, // Устанавливаем новую дублированную задачу как родительскую
+          subtask.created_at,
+          subtask.updated_at,
+          subtask.completion_date,
+          subtask.is_repeating,
+          subtask.repeat_interval,
+          subtask.planning_period,
+          subtask.is_urgent,
+          subtask.is_important,
+          subtask.reward_id,
+          subtask.is_anime_task
+        );
+      }
+    }
+
+    console.log('Задача дублирована с ID:', newId);
   } catch (error) {
     console.error('Ошибка дублирования задачи:', error);
+    throw error; // Пробрасываем ошибку для отладки
   }
 };
 
