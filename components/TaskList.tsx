@@ -6,17 +6,11 @@ import NewTaskInput from '@/components/NewTaskInput';
 import { Task, TaskListProps } from '@/types/types';
 
 const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: TaskListProps) => {
-  // const handleAddTask = (newTaskText: string) => {
-  //   if (newTaskText.trim() !== '') {
-  //     onAddTask(newTaskText.trim());
-  //   }
-  // };
-
-  // tasks = Object.values(tasks);
+  const mainTasks = tasks.filter(task => task.parent_task_id === null);
 
   return (
     <View style={styles.container}>
-      {tasks.map((task) => (
+      {mainTasks.map((task) => (
         <TaskItem
           key={task.id}
           task={task}

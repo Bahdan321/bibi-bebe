@@ -1,26 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import {
+    import React, { useEffect, useState } from 'react';
+    import {
     View,
     Text,
     TextInput,
     TouchableOpacity,
     StyleSheet,
-} from 'react-native';
-import { useTheme } from '@/providers/ThemeProvider';
-import { Ionicons } from '@expo/vector-icons';
-import Feather from '@expo/vector-icons/Feather';
-import { Task, TaskMenuProps } from '@/types/types';
-import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate } from '@/Supabase/utils/SupaLegend';
-import { getFormatedDateOfYear } from '@/utils/DateUtils';
-import TimePickerModal from './TimePickerModal';
-import RoundButton from './RoundButton';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { tasks$ } from '@/Supabase/utils/SupaLegend';
-import DropdownMenu from './DropdownMenu';
-import CalendarModal from './CalendarModal';
-import { router } from 'expo-router';
+    ScrollView,
+    } from 'react-native';
+    import { useTheme } from '@/providers/ThemeProvider';
+    import { Ionicons } from '@expo/vector-icons';
+    import Feather from '@expo/vector-icons/Feather';
+    import { Task, TaskMenuProps } from '@/types/types';
+    import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate, addTask } from '@/Supabase/utils/SupaLegend';
+    import { getFormatedDateOfYear } from '@/utils/DateUtils';
+    import TimePickerModal from './TimePickerModal';
+    import RoundButton from './RoundButton';
+    import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+    import DropdownMenu from './DropdownMenu';
+    import CalendarModal from './CalendarModal';
+    import { router } from 'expo-router';
+    import NewSubtaskInput from './NewSubtaskInput';
+    import SubtaskItem from './SubtaskItem';
+    import { tasks$ } from '@/Supabase/utils/SupaLegend';
+    import { v4 as uuidv4 } from 'uuid';
+    import { observe } from '@legendapp/state'; // Добавляем observe для реактивности
 
-const TaskMenu: React.FC<TaskMenuProps> = ({
+    const TaskMenu: React.FC<TaskMenuProps> = ({
     task,
     visible,
     date,
@@ -29,7 +34,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     setTitle,
     description,
     setDescription,
-}) => {
+    }) => {
     const { theme } = useTheme();
     const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
     const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
@@ -38,7 +43,27 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const [timeLeft, setTimeLeft] = useState('');
     const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
     const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
+    const [subtasks, setSubtasks] = useState<Task[]>([]);
 
+    // Реактивное обновление подзадач
+    useEffect(() => {
+        // Начальная загрузка подзадач
+        const updateSubtasks = () => {
+        const allTasks = tasks$.get();
+        const subtasksList = Object.values(allTasks).filter(t => t.parent_task_id === task.id);
+        setSubtasks(subtasksList);
+        };
+        updateSubtasks();
+
+        // Подписка на изменения в tasks$
+        const dispose = observe(() => {
+        const allTasks = tasks$.get();
+        const subtasksList = Object.values(allTasks).filter(t => t.parent_task_id === task.id);
+        setSubtasks(subtasksList);
+        });
+
+        return () => dispose(); // Очистка подписки при размонтировании
+    }, [task.id]);
 
     const parsedDueDate = new Date(task.due_date);
     const formattedDueDate = isNaN(parsedDueDate.getTime())
@@ -53,25 +78,24 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     useEffect(() => {
         const updateTimer = () => {
-            const now = new Date();
-            const due = new Date(task.due_date);
-            if (isNaN(due.getTime())) {
-                setTimeLeft('Некорректная дата');
-                console.error('Invalid due_date:', task.due_date);
-                return;
-            }
+        const now = new Date();
+        const due = new Date(task.due_date);
+        if (isNaN(due.getTime())) {
+            setTimeLeft('Некорректная дата');
+            return;
+        }
 
-            const diffMs = due.getTime() - now.getTime();
-            if (diffMs < 0) {
-                setTimeLeft('Срок истёк');
-                return;
-            }
+        const diffMs = due.getTime() - now.getTime();
+        if (diffMs < 0) {
+            setTimeLeft('Срок истёк');
+            return;
+        }
 
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-            const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
-            setTimeLeft(`Осталось ${diffDays} дн. ${diffHours} ч. ${diffMinutes} мин.`);
+        setTimeLeft(`Осталось ${diffDays} дн. ${diffHours} ч. ${diffMinutes} мин.`);
         };
 
         updateTimer();
@@ -80,85 +104,55 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         return () => clearInterval(interval);
     }, [task.due_date]);
 
-
     const handleDateChange = () => {
         setIsCalendarVisible(true);
     };
 
     const handleCalendarApply = (selectedDate: Date) => {
         if (isNaN(selectedDate.getTime())) {
-            console.error('Invalid date selected:', selectedDate);
-            return;
+        console.error('Invalid date selected:', selectedDate);
+        return;
         }
 
-        if (tasks$[task.id]) {
-            // Создаем новую дату с локальной полночью (00:00:00)
-            const localDate = new Date(
-                selectedDate.getFullYear(),
-                selectedDate.getMonth(),
-                selectedDate.getDate(),
-                0,
-                0,
-                0,
-                0
-            );
-
-            // Форматируем due_date в ISO формате (локальная полночь в UTC)
-            const isoDate = localDate.toISOString();
-            // Форматируем display_date как YYYY-MM-DD
-            const displayDate = `${localDate.getFullYear()}-${String(
-                localDate.getMonth() + 1
-            ).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
-
-            // Обновляем задачу
-            tasks$[task.id].due_date.set(isoDate);
-            tasks$[task.id].display_date.set(displayDate);
-
-            console.log('Updated task:', {
-                id: task.id,
-                due_date: isoDate,
-                display_date: displayDate,
-            });
-        } else {
-            console.error('Task not found in tasks$:', task.id);
-        }
+        const isoDate = selectedDate.toISOString();
+        const displayDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+        toggleTaskChangeDisplayDate(task.id, displayDate);
         setIsCalendarVisible(false);
-        router.dismissTo("/(private)/home")
+        router.dismissTo("/(private)/home");
     };
 
     const handleDuplicate = () => {
-        console.log('Duplicating task:', task);
         toggleDublicateTask(
-            task.title,
-            task.space_id,
-            task.user_id,
-            task.due_date,
-            task.display_date,
-            task.status,
-            task.description,
-            task.parent_task_id,
-            task.created_at,
-            task.updated_at,
-            task.completion_date,
-            task.is_repeating,
-            task.repeat_interval,
-            task.planning_period,
-            task.is_urgent,
-            task.is_important,
-            task.reward_id,
-            task.is_anime_task
+        task.title,
+        task.space_id,
+        task.user_id,
+        task.due_date,
+        task.display_date,
+        task.status,
+        task.description,
+        task.parent_task_id,
+        task.created_at,
+        task.updated_at,
+        task.completion_date,
+        task.is_repeating,
+        task.repeat_interval,
+        task.planning_period,
+        task.is_urgent,
+        task.is_important,
+        task.reward_id,
+        task.is_anime_task
         );
         onClose();
     };
 
     const handleDelete = () => {
         console.log('Deleting task:', task.id);
-        toggleTaskRemove(task.id);
+        toggleTaskRemove(task.id); // Удаляем главную задачу
+        subtasks.forEach(subtask => toggleTaskRemove(subtask.id)); // Удаляем все подзадачи
         onClose();
     };
 
-
-    const handleTaskToggle = (taskId) => {
+    const handleTaskToggle = (taskId: string) => {
         toggleTaskCompletion(taskId);
         setTaskStatusCopy((prevStatus) => !prevStatus);
         setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
@@ -167,24 +161,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const calculateNewDueDate = (currentDueDate: string, time: { day: string; hours: number; minutes: number }) => {
         const dueDate = new Date(currentDueDate);
         if (isNaN(dueDate.getTime())) {
-            console.error('Invalid currentDueDate:', currentDueDate);
-            dueDate.setTime(new Date().getTime());
+        dueDate.setTime(new Date().getTime());
         }
 
         dueDate.setDate(dueDate.getDate() + parseInt(time.day));
         dueDate.setHours(dueDate.getHours() + time.hours);
         dueDate.setMinutes(dueDate.getMinutes() + time.minutes);
-        return dueDate.toISOString(); // Возвращаем полное время
+        return dueDate.toISOString();
     };
 
     const handleTimeSelected = (time: { day: string; hours: number; minutes: number }) => {
         const newDueDate = calculateNewDueDate(task.due_date, time);
-        if (tasks$[task.id]) {
-            tasks$[task.id].due_date.set(newDueDate);
-            console.log('Updated due_date:', newDueDate, 'display_date:', task.display_date, 'created_at:', task.created_at);
-        } else {
-            console.error('Task not found in tasks$:', task.id);
-        }
         setIsTimePickerVisible(false);
     };
 
@@ -192,12 +179,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     const handleChangeTaskColor = () => {
         setIsEisenhowerMatrixDropdownVisible(!isEisenhowerMatrixDropdownVisible);
-        setIsMainDropdownVisible(false)
-    }
+        setIsMainDropdownVisible(false);
+    };
 
     const handleOpenMainMenu = () => {
-        setIsMainDropdownVisible(!isMainDropdownVisible); // Toggle visibility directly
-        setIsEisenhowerMatrixDropdownVisible(false)
+        setIsMainDropdownVisible(!isMainDropdownVisible);
+        setIsEisenhowerMatrixDropdownVisible(false);
     };
 
     const closeMainDropdown = () => {
@@ -209,205 +196,194 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     };
 
     const handleChangeDate = (task: Task, newDate?: Date) => {
-        // Если новая дата не передана, используем текущую дату задачи
-        let dateToUse = newDate;
+        let dateToUse = newDate || new Date(task.display_date);
+        dateToUse.setDate(dateToUse.getDate() + 1);
 
-        if (!dateToUse) {
-            // По умолчанию перемещаем на завтра, если дата не указана
-            dateToUse = new Date(task.display_date);
-            if (isNaN(dateToUse.getTime())) {
-                console.error('Некорректная дата:', task.display_date);
-                return;
-            }
-            dateToUse.setDate(dateToUse.getDate() + 1);
-        }
-
-        const newDisplayDate = `${dateToUse.getFullYear()}-${String(
-            dateToUse.getMonth() + 1
-        ).padStart(2, '0')}-${String(dateToUse.getDate()).padStart(2, '0')}`;
-
+        const newDisplayDate = `${dateToUse.getFullYear()}-${String(dateToUse.getMonth() + 1).padStart(2, '0')}-${String(dateToUse.getDate()).padStart(2, '0')}`;
         toggleTaskChangeDisplayDate(task.id, newDisplayDate);
-
-        console.log('Дата задачи изменена на:', newDisplayDate);
-        router.dismissTo('/(private)/home')
-    }
+        router.dismissTo('/(private)/home');
+    };
 
     const menuItems = [
-        {
-            icon: 'pencil' as keyof typeof Ionicons.glyphMap,
-            text: 'На завтра',
-            onPress: () => handleChangeDate(task),
-        },
-        {
-            icon: 'pencil' as keyof typeof Ionicons.glyphMap,
-            text: 'На неделю',
-            onPress: () => {
-                const nextWeekDate = new Date(task.display_date);
-                if (!isNaN(nextWeekDate.getTime())) {
-                    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
-                    handleChangeDate(task, nextWeekDate);
-                }
-            },
-        }, {
-            icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap,
-            text: 'Дублировать',
-            onPress: handleDuplicate,
-        },
-        {
-            icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap,
-            text: 'Удалить',
-            onPress: handleDelete,
-        },
+        { icon: 'pencil', text: 'На завтра', onPress: () => handleChangeDate(task) },
+        { icon: 'duplicate-outline', text: 'Дублировать', onPress: handleDuplicate },
+        { icon: 'trash-bin-outline', text: 'Удалить', onPress: handleDelete },
     ];
 
     const eisenhowermatrixitems = [
-        {
-            text: 'Срочно и Важно',
-            color: theme.eisenhowerMatrix.urgentImportant,
-            icon: 'alert-circle' as keyof typeof Ionicons.glyphMap,
-            onPress: () => changeEisenhowerMatrixStatus(task.id, true, true),
-        },
-        {
-            text: 'Важно, не срочно',
-            color: theme.eisenhowerMatrix.notUrgentImportant,
-            icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap,
-            onPress: () => changeEisenhowerMatrixStatus(task.id, false, true),
-        },
-        {
-            text: 'Срочно, не важно',
-            color: theme.eisenhowerMatrix.urgentNotImportant,
-            icon: 'time' as keyof typeof Ionicons.glyphMap,
-            onPress: () => changeEisenhowerMatrixStatus(task.id, true, false),
-        },
-        {
-            text: 'Не срочно и не важно',
-            color: theme.eisenhowerMatrix.notUrgentNotImportant,
-            icon: 'heart-circle' as keyof typeof Ionicons.glyphMap,
-            onPress: () => changeEisenhowerMatrixStatus(task.id, false, false),
-        },
+        { text: 'Срочно и Важно', color: theme.eisenhowerMatrix.urgentImportant, icon: 'alert-circle', onPress: () => changeEisenhowerMatrixStatus(task.id, true, true) },
+        { text: 'Важно, не срочно', color: theme.eisenhowerMatrix.notUrgentImportant, icon: 'checkmark-circle', onPress: () => changeEisenhowerMatrixStatus(task.id, false, true) },
+        { text: 'Срочно, не важно', color: theme.eisenhowerMatrix.urgentNotImportant, icon: 'time', onPress: () => changeEisenhowerMatrixStatus(task.id, true, false) },
+        { text: 'Не срочно и не важно', color: theme.eisenhowerMatrix.notUrgentNotImportant, icon: 'heart-circle', onPress: () => changeEisenhowerMatrixStatus(task.id, false, false) },
     ];
 
-    const geteisenhowerMatrix = (isUrgent: boolean, isImportant: boolean) => {
-        if (isUrgent && isImportant) {
-            return ["Срочно и Важно", theme.eisenhowerMatrix.urgentImportant]
-        }
-        else if (!isUrgent && isImportant) {
-            return "Важно, не срочно"
-        }
-        else if (isUrgent && !isImportant) {
-            return "Срочно, не важно"
-        }
-    }
+    const handleAddSubtask = async (subtaskTitle: string) => {
+        const newSubtask: Task = {
+        id: uuidv4(),
+        title: subtaskTitle,
+        space_id: task.space_id,
+        user_id: task.user_id,
+        due_date: task.due_date,
+        display_date: task.display_date,
+        status: false,
+        description: '',
+        parent_task_id: task.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        completion_date: null,
+        is_repeating: false,
+        repeat_interval: null,
+        planning_period: null,
+        is_urgent: false,
+        is_important: false,
+        reward_id: null,
+        is_anime_task: false,
+        };
+        await addTask(
+        subtaskTitle,
+        task.space_id,
+        task.user_id,
+        task.due_date,
+        task.display_date,
+        false,
+        '',
+        task.id,
+        new Date().toISOString(),
+        new Date().toISOString(),
+        null,
+        false,
+        null,
+        null,
+        false,
+        false,
+        null,
+        false
+        );
+        // setSubtasks([...subtasks, newSubtask]); // Удаляем, так как обновление происходит через observe
+    };
 
-    const handleAddRepeat = () => {
-
-    }
-
-    const handleAddNotification = () => {
-
-    }
+    const handleSubtaskToggle = (subtaskId: string) => {
+        toggleTaskCompletion(subtaskId); // Обновляем статус в Supabase
+        // setSubtasks(subtasks.map(subtask =>
+        //   subtask.id === subtaskId ? { ...subtask, status: !subtask.status } : subtask
+        // )); // Удаляем, так как обновление происходит через observe
+    };
 
     if (!visible) return null;
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={handleDateChange} style={styles.dateContainer}>
-                    <Ionicons name="calendar-outline" size={24} color={theme.colors.text} style={styles.icon} />
-                    <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={onClose}>
-                    <Ionicons name="close" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-            </View>
-            <View style={styles.dueDateContainer}>
-                <Text style={[styles.dueDateText, { color: theme.colors.text }]}>
-                    Срок выполнения до: {formattedDueDate}
-                </Text>
-                <Text style={[styles.timeLeftText, { color: theme.colors.secondary }]}>
-                    {timeLeft}
-                </Text>
-            </View>
-            <View style={styles.titleSection}>
-                <TextInput
-                    style={[
-                        styles.titleInput,
-                        {
-                            color: taskStatusCopy ? theme.colors.secondary : theme.colors.text,
-                            opacity: taskStatusCopy ? 0.6 : 1,
-                            textDecorationLine: taskStatusCopy ? 'line-through' : 'none',
-                        },
-                    ]}
-                    value={title}
-                    onChangeText={setTitle}
-                    placeholder="Название задачи"
-                    placeholderTextColor={theme.colors.secondary}
-                />
-                <TouchableOpacity onPress={() => handleTaskToggle(task.id)}>
-                    <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
-                </TouchableOpacity>
-            </View>
+        <ScrollView style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
+        <View style={styles.header}>
+            <TouchableOpacity onPress={handleDateChange} style={styles.dateContainer}>
+            <Ionicons name="calendar-outline" size={24} color={theme.colors.text} style={styles.icon} />
+            <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
+            <Ionicons name="close" size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+        </View>
+        {/* <View style={styles.dueDateContainer}>
+            <Text style={[styles.dueDateText, { color: theme.colors.text }]}>
+            Срок выполнения до: {formattedDueDate}
+            </Text>
+            <Text style={[styles.timeLeftText, { color: theme.colors.secondary }]}>
+            {timeLeft}
+            </Text>
+        </View> */}
+        <View style={styles.titleSection}>
             <TextInput
-                style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Добавьте описание"
-                placeholderTextColor={theme.colors.secondary}
-                multiline
-                maxLength={150}
+            style={[
+                styles.titleInput,
+                {
+                color: taskStatusCopy ? theme.colors.secondary : theme.colors.text,
+                opacity: taskStatusCopy ? 0.6 : 1,
+                textDecorationLine: taskStatusCopy ? 'line-through' : 'none',
+                },
+            ]}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Название задачи"
+            placeholderTextColor={theme.colors.secondary}
             />
-
-            {/* Кнопки действий */}
-            <View style={styles.actions}>
-                <TouchableOpacity onPress={() => { handleAddRepeat }} style={styles.actionButton}>
-                    <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-                <View style={styles.ellipsisContainer}>
-                    <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
-                        <Feather name="circle" size={24} color={theme.colors.text} />
-                    </TouchableOpacity>
-
-                    <DropdownMenu
-                        items={eisenhowermatrixitems}
-                        visible={isEisenhowerMatrixDropdownVisible}
-                        onClose={closeEisenhowerMatrixDropdown}
-                        layout='vertical'
-                        containerStyle={styles.eisenhowerDropdownMenu}
-                    />
-                </View>
-                <TouchableOpacity onPress={() => { handleAddNotification }} style={styles.actionButton}>
-                    <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-
-                <View style={styles.ellipsisContainer}>
-                    <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
-                        <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
-                    </TouchableOpacity>
-
-                    <DropdownMenu
-                        items={menuItems}
-                        visible={isMainDropdownVisible}
-                        onClose={closeMainDropdown}
-                        containerStyle={styles.dropdownMenu}
-                    />
-                </View>
-            </View>
-            <TimePickerModal
-                visible={isTimePickerVisible}
-                onClose={() => setIsTimePickerVisible(false)}
-                onTimeSelected={handleTimeSelected}
+            <TouchableOpacity onPress={() => handleTaskToggle(task.id)}>
+            <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
+            </TouchableOpacity>
+        </View>
+        <TextInput
+            style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Добавьте описание"
+            placeholderTextColor={theme.colors.secondary}
+            multiline
+            maxLength={150}
+        />
+        {/* Секция подзадач */}
+        <View style={styles.subtasksSection}>
+            <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
+            {subtasks.map(subtask => (
+            <SubtaskItem
+                key={subtask.id}
+                subtask={subtask}
+                onToggleSubtaskCompletion={handleSubtaskToggle}
             />
-            <CalendarModal
-                visible={isCalendarVisible}
-                onClose={() => setIsCalendarVisible(false)}
-                onApply={handleCalendarApply}
-                initialDate={new Date(task.display_date || task.due_date)}
+            ))}
+            <NewSubtaskInput
+            parentTaskId={task.id}
+            spaceId={task.space_id}
+            userId={task.user_id}
+            date={date}
+            onAddSubtask={handleAddSubtask}
             />
         </View>
+        {/* Кнопки действий */}
+        <View style={styles.actions}>
+            <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+            <View style={styles.ellipsisContainer}>
+            <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
+                <Feather name="circle" size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+            <DropdownMenu
+                items={eisenhowermatrixitems}
+                visible={isEisenhowerMatrixDropdownVisible}
+                onClose={closeEisenhowerMatrixDropdown}
+                layout='vertical'
+                containerStyle={styles.eisenhowerDropdownMenu}
+            />
+            </View>
+            <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+            <View style={styles.ellipsisContainer}>
+            <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
+                <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+            <DropdownMenu
+                items={menuItems}
+                visible={isMainDropdownVisible}
+                onClose={closeMainDropdown}
+                containerStyle={styles.dropdownMenu}
+            />
+            </View>
+        </View>
+        <TimePickerModal
+            visible={isTimePickerVisible}
+            onClose={() => setIsTimePickerVisible(false)}
+            onTimeSelected={handleTimeSelected}
+        />
+        <CalendarModal
+            visible={isCalendarVisible}
+            onClose={() => setIsCalendarVisible(false)}
+            onApply={handleCalendarApply}
+            initialDate={new Date(task.display_date || task.due_date)}
+        />
+        </ScrollView>
     );
-};
+    };
 
-const styles = StyleSheet.create({
+    const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
@@ -454,9 +430,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
     },
-    actionText: {
-        marginTop: 5,
-    },
     ellipsisContainer: {
         position: 'relative',
     },
@@ -492,6 +465,15 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 5,
     },
-});
+    subtasksSection: {
+        marginTop: 20,
+        marginBottom: 60,
+    },
+    subtasksTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    });
 
-export default TaskMenu;
+    export default TaskMenu;
