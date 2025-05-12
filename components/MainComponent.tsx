@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import DayBlock from './DayBlock';
+import DraggableDayBlock from './DraggableDayBlock';
 import { useTheme } from '@/providers/ThemeProvider';
 import { getWeekDays } from '@/utils/DateUtils';
 import { MainComponentProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
+import { DragDropProvider } from '@/providers/DragDropProvider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const MainComponent: React.FC<MainComponentProps> = observer(({ currentDate }) => {
     const days = getWeekDays(currentDate);
@@ -12,22 +14,25 @@ const MainComponent: React.FC<MainComponentProps> = observer(({ currentDate }) =
     const { theme } = useTheme();
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={true}
-                nestedScrollEnabled={true}
-            >
-                <View style={styles.content}>
-                    {days.map((day, index) => (
-                        <DayBlock key={index} date={day.date} dayOfWeek={day.dayOfWeek} />
-                    ))}
-                    {/* <DayBlock date={days[0].date} dayOfWeek={days[0].dayOfWeek} /> */}
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <DragDropProvider>
+                <View style={{ flex: 1, backgroundColor: theme.colors.primary }}>
+                    <ScrollView
+                        style={styles.container}
+                        contentContainerStyle={styles.scrollContent}
+                        showsVerticalScrollIndicator={false}
+                        scrollEnabled={true}
+                        nestedScrollEnabled={true}
+                    >
+                        <View style={styles.content}>
+                            {days.map((day, index) => (
+                                <DraggableDayBlock key={index} date={day.date} dayOfWeek={day.dayOfWeek} />
+                            ))}
+                        </View>
+                    </ScrollView>
                 </View>
-            </ScrollView>
-        </View>
+            </DragDropProvider>
+        </GestureHandlerRootView>
     );
 });
 
