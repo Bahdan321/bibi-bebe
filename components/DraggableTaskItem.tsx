@@ -6,6 +6,7 @@ import Animated, {
     useSharedValue,
     withSpring,
     runOnJS,
+    withTiming,
 } from 'react-native-reanimated';
 import TaskItem from './TaskItem';
 import { Task } from '@/types/types';
@@ -43,17 +44,32 @@ const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({
         handleTaskReorder,
     } = useDragDrop();
 
+    // Animation values
     const translateY = useSharedValue(0);
     const translateX = useSharedValue(0);
     const scale = useSharedValue(1);
     const zIndex = useSharedValue(1);
     const opacity = useSharedValue(1);
     const isActive = useSharedValue(false);
-    const taskRef = useRef<any>(null);
+
+    // For Trello-like animations when other tasks move
+    const offsetY = useSharedValue(0);
+
+    // Use a regular ref, not a worklet-shared ref
+    const taskRef = useRef<View>(null);
+    // Store task position in shared values for use in worklets
+    const taskPosition = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
 
     // Register this task's position for hit testing
     const onLayout = (event: LayoutChangeEvent) => {
         const layout = event.nativeEvent.layout;
+        // Store the layout in the shared value for use in worklets
+        taskPosition.value = {
+            x: layout.x,
+            y: layout.y,
+            width: layout.width,
+            height: layout.height
+        };
         registerTaskPosition(task.id, layout, date);
     };
 
@@ -104,7 +120,7 @@ const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({
     const checkHitTest = (x: number, y: number) => {
         const positions = getTaskPositions();
 
-        // Check if we're hovering over another task
+        // Check if we're hovering over another task or a virtual task (empty day)
         for (const pos of positions) {
             if (pos.taskId !== task.id) {
                 const { layout } = pos;
@@ -114,15 +130,26 @@ const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({
                     y >= layout.y &&
                     y <= layout.y + layout.height
                 ) {
-                    setHoveredTaskId(pos.taskId);
-                    setHoveredDate(pos.date);
+                    // Check if this is a virtual task (representing an empty day)
+                    const isVirtualTask = pos.taskId.startsWith('virtual-task-');
+
+                    // If it's a regular task, set both hoveredTaskId and hoveredDate
+                    if (!isVirtualTask) {
+                        setHoveredTaskId(pos.taskId);
+                        setHoveredDate(pos.date);
+                    } else {
+                        // If it's a virtual task (empty day), only set hoveredDate
+                        setHoveredTaskId(null);
+                        setHoveredDate(pos.date);
+                    }
                     return;
                 }
             }
         }
 
-        // Not hovering over any task
+        // Not hovering over any task or day
         setHoveredTaskId(null);
+        // Don't clear hoveredDate here, as we might still be over a day but not directly over a task
     };
 
     const panGesture = Gesture.Pan()
@@ -136,13 +163,11 @@ const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({
             translateX.value = event.translationX;
             translateY.value = event.translationY;
 
-            // Check if we're hovering over another task
-            if (taskRef.current) {
-                // Use the event position to determine where we are
-                const centerX = event.x;
-                const centerY = event.y;
-                runOnJS(checkHitTest)(centerX, centerY);
-            }
+            // Use the event position to determine where we are
+            // No need to access taskRef.current in the worklet
+            const centerX = event.absoluteX;
+            const centerY = event.absoluteY;
+            runOnJS(checkHitTest)(centerX, centerY);
         })
         .onEnd(() => {
             translateX.value = withSpring(0);
@@ -153,11 +178,32 @@ const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({
             runOnJS(endDrag)();
         });
 
+    // If another task is being dragged, animate this task
+    React.useEffect(() => {
+        if (isDragging && draggingTask?.id !== task.id) {
+            // Fade out slightly
+            opacity.value = withSpring(0.8);
+
+            // If this is the hovered task, move it to make space for the dragged task
+            if (hoveredTaskId === task.id) {
+                // Move down to make space for the dragged task
+                offsetY.value = withSpring(60, { damping: 15, stiffness: 150 });
+            } else {
+                // Reset position if not hovered
+                offsetY.value = withSpring(0, { damping: 15, stiffness: 150 });
+            }
+        } else {
+            // Reset when not dragging
+            opacity.value = withSpring(1);
+            offsetY.value = withSpring(0);
+        }
+    }, [isDragging, draggingTask, task.id, opacity, hoveredTaskId, offsetY]);
+
     const animatedStyle = useAnimatedStyle(() => {
         return {
             transform: [
                 { translateX: translateX.value },
-                { translateY: translateY.value },
+                { translateY: translateY.value + offsetY.value },
                 { scale: scale.value },
             ],
             zIndex: zIndex.value,
@@ -169,18 +215,12 @@ const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.3,
                 shadowRadius: 5,
-            } : {})
+            } : {}),
+            // Add a smooth transition for better Trello-like feel
+            borderRadius: withTiming(isActive.value ? 8 : 4),
+            margin: withTiming(isActive.value ? 2 : 0),
         };
     });
-
-    // If another task is being dragged, slightly fade out this task
-    React.useEffect(() => {
-        if (isDragging && draggingTask?.id !== task.id) {
-            opacity.value = withSpring(0.6);
-        } else {
-            opacity.value = withSpring(1);
-        }
-    }, [isDragging, draggingTask, task.id, opacity]);
 
     return (
         <GestureDetector gesture={panGesture}>

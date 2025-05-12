@@ -7,6 +7,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import TaskMenu from '@/components/TaskMenu';
 import { useAuth } from '@/providers/AuthProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { DragDropProvider } from '@/providers/DragDropProvider';
 
 const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -52,11 +53,14 @@ const Home = observer(() => {
     };
 
     return (
-        <View style={{ flex: 1, flexDirection: 'column' }}>
-            <MainComponent currentDate={currentDate} />
-            <NavigatePanel currentDate={currentDate} goToPreviousWeek={goToPreviousWeek} goToNextWeek={goToNextWeek} />
-        </View>
-
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <DragDropProvider>
+                <View style={{ flex: 1, flexDirection: 'column' }}>
+                    <MainComponent currentDate={currentDate} />
+                    <NavigatePanel currentDate={currentDate} goToPreviousWeek={goToPreviousWeek} goToNextWeek={goToNextWeek} />
+                </View>
+            </DragDropProvider>
+        </GestureHandlerRootView>
     )
 });
 
