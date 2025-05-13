@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import Gigabar from './Gigabar';
 import RoundButton from './RoundButton';
 import CustomText from './CustomText';
@@ -45,15 +45,40 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
 
   const taskBorderColor = (isUrgent: boolean, isImportant: boolean) => {
     if (isUrgent && isImportant) {
-      return theme.eisenhowerMatrix.urgentImportant
+      return theme.eisenhowerMatrix.urgentImportant;
+    } else if (!isUrgent && isImportant) {
+      return theme.eisenhowerMatrix.notUrgentImportant;
+    } else if (isUrgent && !isImportant) {
+      return theme.eisenhowerMatrix.urgentNotImportant;
     }
-    else if (!isUrgent && isImportant) {
-      return theme.eisenhowerMatrix.notUrgentImportant
+  };
+
+  const handleToggleCompletion = () => {
+    const currentStatus = task.status;
+
+    // Вызываем функцию изменения статуса
+    onToggleTaskCompletion(task.id);
+
+    // Показываем уведомление только если задача СТАНОВИТСЯ завершенной и у неё есть reward_id
+    if (!currentStatus && task.reward_id) {
+      if (task.reward) {
+        // Если данные о награде доступны в task.reward
+        Alert.alert(
+          'Поздравляем! 🎉',
+          `Вы получили награду:\n\n${task.reward.reward_name}\n\n${task.reward.reward_description || ''}`, // Изменено с task.title на task.reward.reward_name
+          [{ text: 'Супер!', style: 'default' }]
+        );
+      } else {
+        // Если данных о награде нет, показываем базовое уведомление
+        Alert.alert(
+          'Поздравляем! 🎉',
+          `Вы выполнили задачу и получили награду!`,
+          [{ text: 'Супер!', style: 'default' }]
+        );
+        console.warn('Reward ID exists but reward data is missing:', task.reward_id);
+      }
     }
-    else if (isUrgent && !isImportant) {
-      return theme.eisenhowerMatrix.urgentNotImportant
-    }
-  }
+  };
 
   return (
     <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
@@ -79,7 +104,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
           buttonColor={theme.colors.primary}
           borderColor={task.status ? theme.colors.third : theme.colors.text}
           borderWidth={1.5}
-          onPress={() => { onToggleTaskCompletion(task.id) }}
+          onPress={handleToggleCompletion}
           size={hp('3.5')}
           hitSlop={10}
         />
@@ -103,6 +128,16 @@ const styles = StyleSheet.create({
     padding: 4,
     marginBottom: 15,
     borderRadius: 4,
+  },
+  rewardIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  rewardText: {
+    fontSize: 12,
+    marginLeft: 4,
+    fontWeight: '500',
   },
 });
 

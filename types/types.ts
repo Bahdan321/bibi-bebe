@@ -53,6 +53,7 @@ export interface Task {
     reward_id?: string | null; // UUID награды (опционально)
     is_anime_task: boolean; // Аниме-задача
     deleted?: boolean; // Флаг удаления (опционально, если используется soft delete)
+    reward?: { reward_name: string; reward_description: string }; // Опциональные данные о награде
 }
 
 export interface User {

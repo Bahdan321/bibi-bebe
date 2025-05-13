@@ -51,3 +51,5 @@ export const darkTheme: Theme = {
     notUrgentNotImportant: 'green',
   }
 };
+
+export { Theme };

@@ -153,9 +153,9 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
                 style={[
                   styles.dayCell,
                   selectedDate &&
-                  selectedDate.getDate() === day &&
-                  selectedDate.getMonth() === currentMonth &&
-                  selectedDate.getFullYear() === currentYear
+                    selectedDate.getDate() === day &&
+                    selectedDate.getMonth() === currentMonth &&
+                    selectedDate.getFullYear() === currentYear
                     ? styles.selectedDay
                     : null,
                 ]}
@@ -165,9 +165,9 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
                   style={[
                     styles.dayText,
                     selectedDate &&
-                    selectedDate.getDate() === day &&
-                    selectedDate.getMonth() === currentMonth &&
-                    selectedDate.getFullYear() === currentYear
+                      selectedDate.getDate() === day &&
+                      selectedDate.getMonth() === currentMonth &&
+                      selectedDate.getFullYear() === currentYear
                       ? styles.selectedDayText
                       : null,
                   ]}

@@ -16,7 +16,7 @@ import { Task } from '@/types/types';
 //   AsyncStorage.clear();
 // }, []);
 
-const supabase = createClient(
+export const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
 );
@@ -45,7 +45,7 @@ export const tasks$ = observable(
     collection: 'tasks',
     select: (from) =>
       from.select(
-        'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, display_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, reward_id, is_anime_task'
+        'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, display_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, reward_id, is_anime_task, reward:rewards(reward_name, reward_description)'
       ),
     filter: (select) => select.eq('space_id', "37366bcc-a1d5-4025-aa34-66efcb1e632a"),
     actions: ['read', 'create', 'update', 'delete'],
@@ -169,6 +169,33 @@ export const updateTaskTitle = async (taskId: string, newTitle: string) => {
   }
 };
 
+export const addReward = async (rewardName: string, rewardDescription: string) => {
+  const newId = uuidv4();
+  const { data, error } = await supabase
+    .from('rewards')
+    .insert([{ reward_id: newId, reward_name: rewardName, reward_description: rewardDescription }])
+    .select('reward_id')
+    .single();
+
+  if (error) {
+    console.error('Ошибка добавления награды:', error);
+    throw error;
+  }
+  return data.reward_id;
+};
+
+export const updateReward = async (rewardId: string, rewardName: string, rewardDescription: string) => {
+  const { error } = await supabase
+    .from('rewards')
+    .update({ reward_name: rewardName, reward_description: rewardDescription })
+    .eq('reward_id', rewardId);
+
+  if (error) {
+    console.error('Ошибка обновления награды:', error);
+    throw error;
+  }
+};
+
 export const toggleDublicateTask = async (
   title: string,
   space_id: string,
@@ -255,4 +282,32 @@ export const toggleDublicateTask = async (
 export const changeEisenhowerMatrixStatus = (taskId: string, isUrgent: boolean, isImportant: boolean) => {
   tasks$[taskId].is_urgent.set((prev) => isUrgent);
   tasks$[taskId].is_important.set((prev) => isImportant);
+};
+
+// Убедимся, что запрос включает данные о наградах
+export const fetchTasks = async () => {
+  try {
+    if (!supabase) {
+      console.error('Supabase client is not initialized');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .select(`
+        *,
+        reward:rewards(reward_id, reward_name, reward_description)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Ошибка при получении задач:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error('Unexpected error in fetchTasks:', err);
+    return [];
+  }
 };

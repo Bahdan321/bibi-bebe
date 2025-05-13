@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import Feather from '@expo/vector-icons/Feather';
 import { Task, TaskMenuProps } from '@/types/types';
-import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate, addTask } from '@/Supabase/utils/SupaLegend';
+import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate, addTask, addReward, updateReward } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
 import RoundButton from './RoundButton';
@@ -24,7 +25,9 @@ import SubtaskItem from './SubtaskItem';
 import { tasks$ } from '@/Supabase/utils/SupaLegend';
 import { v4 as uuidv4 } from 'uuid';
 import { observe } from '@legendapp/state';
+import RewardModal from './RewardModal';
 
+// Добавим секцию с наградой в TaskMenu
 const TaskMenu: React.FC<TaskMenuProps> = ({
   task,
   visible,
@@ -43,6 +46,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const [timeLeft, setTimeLeft] = useState('');
   const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
   const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
+  const [isRewardModalVisible, setIsRewardModalVisible] = useState(false);
   const [subtasks, setSubtasks] = useState<Task[]>([]);
 
   // Реактивное обновление подзадач
@@ -67,12 +71,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const formattedDueDate = isNaN(parsedDueDate.getTime())
     ? 'Некорректная дата'
     : parsedDueDate.toLocaleString('ru-RU', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   useEffect(() => {
     const updateTimer = () => {
@@ -153,10 +157,37 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     onClose();
   };
 
+  // Обновим функцию handleTaskToggle для отображения уведомления о награде
   const handleTaskToggle = (taskId: string) => {
+    // Сохраняем текущее состояние задачи перед изменением
+    const currentStatus = taskStatusCopy;
+
+    // Вызываем функцию изменения статуса в базе данных
     toggleTaskCompletion(taskId);
+
+    // Обновляем локальное состояние
     setTaskStatusCopy((prevStatus) => !prevStatus);
     setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
+
+    // Показываем уведомление только если задача СТАНОВИТСЯ завершенной и у неё есть reward_id
+    if (currentStatus === false && task.reward_id) {
+      // Если у нас есть объект reward, используем его данные
+      if (task.reward) {
+        Alert.alert(
+          'Поздравляем! 🎉',
+          `Вы получили награду:\n\n${task.reward.reward_name}`, // Изменено с task.title на task.reward.reward_name
+          [{ text: 'Супер!', style: 'default' }]
+        );
+      } else {
+        // Если объекта reward нет, но есть reward_id, показываем базовое уведомление
+        Alert.alert(
+          'Поздравляем! 🎉',
+          'Вы выполнили задачу и получили награду!',
+          [{ text: 'Супер!', style: 'default' }]
+        );
+        console.log('Reward ID exists but reward object is missing:', task.reward_id);
+      }
+    }
   };
 
   const calculateNewDueDate = (currentDueDate: string, time: { day: string; hours: number; minutes: number }) => {
@@ -293,6 +324,38 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     toggleTaskCompletion(subtaskId);
   };
 
+  const handleRewardButtonPress = (subtaskId: string) => {
+    if (task.reward) {
+      Alert.alert(
+        'Награда уже создана',
+        `Награда: ${task.reward.reward_name}\nХотите изменить награду?`,
+        [
+          { text: 'Нет', style: 'cancel' },
+          { text: 'Да', onPress: () => setIsRewardModalVisible(true) },
+        ]
+      );
+    } else {
+      setIsRewardModalVisible(true);
+    }
+  };
+
+  const handleSaveReward = async (rewardName: string, rewardDescription: string) => {
+    try {
+      if (task.reward_id) {
+        // Если награда уже существует, обновляем её
+        await updateReward(task.reward_id, rewardName, rewardDescription);
+      } else {
+        // Если награды нет, создаём новую
+        const rewardId = await addReward(rewardName, rewardDescription);
+        tasks$[task.id].reward_id.set(rewardId);
+      }
+      setIsRewardModalVisible(false);
+    } catch (error) {
+      console.error('Ошибка при сохранении награды:', error);
+      Alert.alert('Ошибка', 'Не удалось сохранить награду');
+    }
+  };
+
   if (!visible) return null;
 
   return (
@@ -325,6 +388,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
         </TouchableOpacity>
       </View>
+      {/* Добавляем отображение награды после описания задачи */}
       <TextInput
         style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
         value={description}
@@ -334,23 +398,42 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         multiline
         maxLength={150}
       />
-      {/* Секция подзадач */}
-      <View style={styles.subtasksSection}>
-  <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
-  {subtasks.map((subtask, index) => (
-    <React.Fragment key={subtask.id}>
-      <SubtaskItem
-        subtask={subtask}
-        onToggleSubtaskCompletion={handleSubtaskToggle}
-        onDeleteSubtask={handleDeleteSubtask}
-      />
-      {index < subtasks.length - 1 && (
-        <View style={styles.arrowContainer}>
-          <Ionicons name="arrow-down" size={24} color={theme.colors.text} />
+
+      {/* Отображение награды */}
+      {task.reward && (
+        <View style={styles.rewardInfoContainer}>
+          <View style={styles.rewardHeader}>
+            <Ionicons name="gift-outline" size={20} color={theme.colors.primary} />
+            <Text style={[styles.rewardHeaderText, { color: theme.colors.primary }]}>
+              Награда за выполнение:
+            </Text>
+          </View>
+          <Text style={[styles.rewardName, { color: theme.colors.text }]}>
+            {task.reward.reward_name}
+          </Text>
+          <Text style={[styles.rewardDescription, { color: theme.colors.secondary }]}>
+            {task.reward.reward_description}
+          </Text>
         </View>
       )}
-    </React.Fragment>
-  ))}
+
+      {/* Секция подзадач */}
+      <View style={styles.subtasksSection}>
+        <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
+        {subtasks.map((subtask, index) => (
+          <React.Fragment key={subtask.id}>
+            <SubtaskItem
+              subtask={subtask}
+              onToggleSubtaskCompletion={handleSubtaskToggle}
+              onDeleteSubtask={handleDeleteSubtask}
+            />
+            {index < subtasks.length - 1 && (
+              <View style={styles.arrowContainer}>
+                <Ionicons name="arrow-down" size={24} color={theme.colors.text} />
+              </View>
+            )}
+          </React.Fragment>
+        ))}
         <NewSubtaskInput
           parentTaskId={task.id}
           spaceId={task.space_id}
@@ -379,6 +462,11 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
         </TouchableOpacity>
+        <View>
+          <TouchableOpacity style={styles.actionButton} onPress={handleRewardButtonPress}>
+            <Ionicons name="gift-outline" size={24} color={theme.colors.text} />
+          </TouchableOpacity>
+        </View>
         <View style={styles.ellipsisContainer}>
           <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
             <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
@@ -401,6 +489,13 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         onClose={() => setIsCalendarVisible(false)}
         onApply={handleCalendarApply}
         initialDate={new Date(task.display_date || task.due_date)}
+      />
+      <RewardModal
+        visible={isRewardModalVisible}
+        onClose={() => setIsRewardModalVisible(false)}
+        onSave={handleSaveReward}
+        initialRewardName={task.reward?.reward_name || ''}
+        initialRewardDescription={task.reward?.reward_description || ''}
       />
     </ScrollView>
   );
@@ -496,8 +591,39 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   arrowContainer: {
-  alignItems: 'center',
-  marginVertical: 0,
+    alignItems: 'center',
+    marginVertical: 0,
+  },
+  rewardInfoContainer: {
+    marginVertical: 15,
+    padding: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: '#007AFF',
+  },
+  rewardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  rewardHeaderText: {
+    fontSize: hp('1.8%'),
+    fontWeight: 'bold',
+    marginLeft: 6,
+  },
+  rewardName: {
+    fontSize: hp('2%'),
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  rewardDescription: {
+    fontSize: hp('1.8%'),
+  },
+
+  rewardText: {
+    fontSize: 16,
+    marginTop: 10,
   },
 });
 
