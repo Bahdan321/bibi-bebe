@@ -158,6 +158,17 @@ export const toggleTaskRemove = (taskId: string) => {
   tasks$[taskId].delete();
 };
 
+export const updateTaskTitle = async (taskId: string, newTitle: string) => {
+  const { error } = await supabase
+    .from('tasks')
+    .update({ title: newTitle })
+    .eq('id', taskId);
+
+  if (error) {
+    console.error('Ошибка при обновлении названия задачи:', error);
+  }
+};
+
 export const toggleDublicateTask = async (
   title: string,
   space_id: string,

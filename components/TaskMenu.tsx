@@ -336,15 +336,21 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       />
       {/* Секция подзадач */}
       <View style={styles.subtasksSection}>
-        <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
-        {subtasks.map(subtask => (
-          <SubtaskItem
-            key={subtask.id}
-            subtask={subtask}
-            onToggleSubtaskCompletion={handleSubtaskToggle}
-            onDeleteSubtask={handleDeleteSubtask}
-          />
-        ))}
+  <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
+  {subtasks.map((subtask, index) => (
+    <React.Fragment key={subtask.id}>
+      <SubtaskItem
+        subtask={subtask}
+        onToggleSubtaskCompletion={handleSubtaskToggle}
+        onDeleteSubtask={handleDeleteSubtask}
+      />
+      {index < subtasks.length - 1 && (
+        <View style={styles.arrowContainer}>
+          <Ionicons name="arrow-down" size={24} color={theme.colors.text} />
+        </View>
+      )}
+    </React.Fragment>
+  ))}
         <NewSubtaskInput
           parentTaskId={task.id}
           spaceId={task.space_id}
@@ -488,6 +494,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  arrowContainer: {
+  alignItems: 'center',
+  marginVertical: 0,
   },
 });
 
