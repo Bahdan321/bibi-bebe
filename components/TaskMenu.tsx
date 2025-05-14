@@ -21,9 +21,7 @@ import {
   toggleTaskChangeDisplayDate,
   addTask,
   addReward,
-  supabase,
   tasks$,
-  updateReward,
 } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
@@ -48,9 +46,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 }) => {
   const { theme } = useTheme();
 
-  /* ────────────────────────────
-     Local state
-  ──────────────────────────── */
   const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
   const [taskStatusColor, setTaskStatusColor] = useState(
     task.status ? theme.colors.icon : theme.colors.text,
@@ -61,11 +56,9 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
   const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
   const [subtasks, setSubtasks] = useState<Task[]>([]);
-  const [rewardNameInput, setRewardNameInput] = useState('');
+  const [rewardNameInput, setRewardNameInput] = useState(task.reward);
+  const [taskRewardCopy, setTaskRewardCopy] = useState(task.reward);
 
-  /* ────────────────────────────
-     Pulsating border animation
-  ──────────────────────────── */
   const borderAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (task.reward && !task.status) {
@@ -94,9 +87,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     borderColor: theme.colors.primary,
   };
 
-  /* ────────────────────────────
-     Subtasks sync
-  ──────────────────────────── */
   useEffect(() => {
     const updateSubtasks = () => {
       const allTasks = tasks$.get();
@@ -114,9 +104,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     return () => dispose();
   }, [task.id]);
 
-  /* ────────────────────────────
-     Timer for due-date
-  ──────────────────────────── */
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
@@ -145,9 +132,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     return () => clearInterval(interval);
   }, [task.due_date]);
 
-  /* ────────────────────────────
-     Handlers
-  ──────────────────────────── */
   const handleDateChange = () => setIsCalendarVisible(true);
 
   const handleCalendarApply = (selectedDate: Date) => {
@@ -180,7 +164,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.planning_period,
       task.is_urgent,
       task.is_important,
-      task.reward_id,
+      task.reward,
       task.is_anime_task,
       task.id,
       subtasks,
@@ -199,27 +183,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     toggleTaskCompletion(taskId);
     setTaskStatusCopy((prev) => !prev);
     setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.icon : theme.colors.text));
-
-    if (currentStatus === false && task.reward_id) {
-      // Показываем алерт с наградой
-      if (task.reward) {
-        Alert.alert('Поздравляем! 🎉', `Вы получили награду:\n\n${task.reward.reward_name}`, [
-          { text: 'Супер!', style: 'default' },
-        ]);
-      } else {
-        const { data } = await supabase
-          .from('rewards')
-          .select('reward_name')
-          .eq('reward_id', task.reward_id)
-          .single();
-
-        Alert.alert(
-          'Поздравляем! 🎉',
-          `Вы получили награду:\n\n${data?.reward_name || 'Неизвестная награда'}`,
-          [{ text: 'Супер!', style: 'default' }],
-        );
-      }
-    }
   };
 
   const formattedDate = getFormatedDateOfYear(date);
@@ -336,9 +299,11 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     if (!trimmed) return;
 
     try {
-      const rewardId = await addReward(task.id, trimmed, '');
-      setRewardNameInput('');
-      // Alert.alert('Успех', 'Награда добавлена');
+      addReward(
+        task.id,
+        trimmed,
+      );
+      setTaskRewardCopy(trimmed);
     } catch (err) {
       console.error('Ошибка при добавлении награды:', err);
       // Alert.alert('Ошибка', 'Не удалось добавить награду');
@@ -421,43 +386,31 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       {/* Reward block */}
       <View style={{ marginBottom: 20 }}>
         <Text style={[styles.rewardHeaderText, { color: theme.colors.text, marginBottom: 10 }]}>Награда</Text>
-
-        {task.reward ? (
-          <Animated.View style={[styles.rewardInfoContainer, animatedRewardStyle]}>
-            <Text style={[styles.rewardName, { color: theme.colors.text }]}>{task.reward.reward_name}</Text>
-            {task.reward.reward_description ? (
-              <Text style={[styles.rewardDescription, { color: theme.colors.secondary }]}>
-                {task.reward.reward_description}
-              </Text>
-            ) : null}
-          </Animated.View>
-        ) : (
-          <>
-            <TextInput
-              value={rewardNameInput}
-              onChangeText={setRewardNameInput}
-              placeholder="Введите название награды"
-              placeholderTextColor={theme.colors.secondary}
-              style={[
-                styles.titleInput,
-                {
-                  fontSize: 18,
-                  marginBottom: 10,
-                  color: theme.colors.text,
-                },
-              ]}
-            />
-            <TouchableOpacity
-              onPress={handleAddReward}
-              style={[
-                styles.addRewardButton,
-                { backgroundColor: theme.colors.button, borderRadius: 10 },
-              ]}
-            >
-              <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>Добавить награду</Text>
-            </TouchableOpacity>
-          </>
-        )}
+        <TextInput
+          value={rewardNameInput}
+          onChangeText={setRewardNameInput}
+          placeholder="Введите название награды"
+          placeholderTextColor={theme.colors.secondary}
+          style={[
+            styles.titleInput,
+            {
+              fontSize: 18,
+              marginBottom: 10,
+              color: theme.colors.text,
+            },
+          ]}
+        />
+        <TouchableOpacity
+          onPress={handleAddReward}
+          style={[
+            styles.addRewardButton,
+            { backgroundColor: theme.colors.button, borderRadius: 10 },
+          ]}
+        >
+          <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
+            {task.reward ? 'Изменить награду' : 'Добавить награду'}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Actions */}
@@ -596,9 +549,9 @@ const styles = StyleSheet.create({
   },
   rewardInfoContainer: {
     padding: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
     borderRadius: 10,
     borderLeftWidth: 3,
+    marginBottom: 12
   },
   rewardHeaderText: {
     fontSize: hp('1.8%'),

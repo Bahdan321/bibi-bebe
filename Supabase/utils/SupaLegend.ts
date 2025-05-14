@@ -45,7 +45,7 @@ export const tasks$ = observable(
     collection: 'tasks',
     select: (from) =>
       from.select(
-        'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, display_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, reward_id, is_anime_task, reward:rewards(reward_name, reward_description)'
+        'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, display_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, is_anime_task, reward'
       ),
     filter: (select) => select.eq('space_id', "37366bcc-a1d5-4025-aa34-66efcb1e632a"),
     actions: ['read', 'create', 'update', 'delete'],
@@ -69,6 +69,7 @@ export const addTask = (
   user_id: string,
   due_date: string,
   display_date: string,
+  reward: string,
   status?: boolean,
   description?: string,
   parent_task_id?: string,
@@ -80,7 +81,6 @@ export const addTask = (
   planning_period?: string,
   is_urgent?: boolean,
   is_important?: boolean,
-  reward_id?: string,
   is_anime_task?: boolean
 ) => {
   try {
@@ -92,12 +92,13 @@ export const addTask = (
       space_id: space_id,
       user_id: user_id,
       title: title,
+      reward: reward,
       status: status || false,
       due_date: due_date || isoNow,
-      display_date: display_date, // YYYY-MM-DD
+      display_date: display_date,
       description: description || null,
-      parent_task_id: parent_task_id || null, // Всегда используем переданный parent_task_id
-      created_at: created_at || isoNow, // Фиксируем дату создания
+      parent_task_id: parent_task_id || null,
+      created_at: created_at || isoNow,
       updated_at: isoNow,
       completion_date: completion_date || null,
       is_repeating: is_repeating || false,
@@ -105,28 +106,107 @@ export const addTask = (
       planning_period: planning_period || null,
       is_urgent: is_urgent || false,
       is_important: is_important || false,
-      reward_id: reward_id || null,
       is_anime_task: is_anime_task || false,
     };
-    console.log('Данные для вставки в Supabase:', taskData); // Добавляем лог для отладки
+    console.log('Данные для вставки в Supabase:', taskData);
     tasks$.set((prev) => ({
       ...prev,
       [newId]: taskData,
     }));
     console.log('Task added:', { id: newId, title, due_date, display_date, created_at: taskData.created_at });
-    // Принудительная вставка для отладки
     return supabase.from('tasks').insert([taskData]).then(({ error }) => {
       if (error) {
         console.error('Ошибка вставки в Supabase:', error);
         return Promise.reject(error);
       } else {
         console.log('Задача успешно сохранена в Supabase:', taskData);
-        return Promise.resolve(newId); // Возвращаем newId при успехе
+        return Promise.resolve(newId);
       }
     });
   } catch (error) {
     console.error('Ошибка добавления задачи:', error);
     return Promise.reject(error);
+  }
+};
+
+export const toggleDublicateTask = async (
+  title: string,
+  space_id: string,
+  user_id: string,
+  due_date: string,
+  display_date: string,
+  reward: string,
+  status?: boolean,
+  description?: string,
+  parent_task_id?: string,
+  created_at?: string,
+  updated_at?: string,
+  completion_date?: string,
+  is_repeating?: boolean,
+  repeat_interval?: string,
+  planning_period?: string,
+  is_urgent?: boolean,
+  is_important?: boolean,
+  is_anime_task?: boolean,
+  originalTaskId?: string,
+  subtasks?: Task[]
+) => {
+  try {
+    const newId = uuidv4();
+    const now = new Date();
+    const dateString = now.toISOString();
+
+    const mainTaskId = await addTask(
+      title,
+      space_id,
+      user_id,
+      due_date,
+      display_date,
+      reward, // Используем новое текстовое поле
+      status || false,
+      description || null,
+      parent_task_id || null,
+      created_at || dateString,
+      dateString,
+      completion_date || null,
+      is_repeating || false,
+      repeat_interval || null,
+      planning_period || null,
+      is_urgent || false,
+      is_important || false,
+      is_anime_task || false
+    );
+
+    if (!parent_task_id && subtasks && subtasks.length > 0) {
+      for (const subtask of subtasks) {
+        console.log('Дублируем подзадачу с parent_task_id:', mainTaskId);
+        await addTask(
+          subtask.title,
+          subtask.space_id,
+          subtask.user_id,
+          subtask.due_date,
+          subtask.display_date,
+          subtask.reward, // Используем новое текстовое поле
+          subtask.status,
+          subtask.description,
+          mainTaskId,
+          subtask.created_at,
+          subtask.updated_at,
+          subtask.completion_date,
+          subtask.is_repeating,
+          subtask.repeat_interval,
+          subtask.planning_period,
+          subtask.is_urgent,
+          subtask.is_important,
+          subtask.is_anime_task
+        );
+      }
+    }
+
+    console.log('Задача дублирована с ID:', newId);
+  } catch (error) {
+    console.error('Ошибка дублирования задачи:', error);
+    throw error;
   }
 };
 
@@ -169,147 +249,11 @@ export const updateTaskTitle = async (taskId: string, newTitle: string) => {
   }
 };
 
-export const addReward = async (taskId: string, rewardName: string, rewardDescription: string) => {
-  const newId = uuidv4();
-  tasks$[taskId].reward.set((prev) => ({ reward_id: newId, }));
-
-  const { data, error } = await supabase
-    .from('rewards')
-    .insert([{ reward_id: newId, reward_name: rewardName, reward_description: rewardDescription }])
-    .select('reward_id')
-    .single();
-
-  if (error) {
-    console.error('Ошибка добавления награды:', error);
-    throw error;
-  }
-  return data.reward_id;
-};
-
-export const updateReward = async (rewardId: string, rewardName: string, rewardDescription: string) => {
-  const { error } = await supabase
-    .from('rewards')
-    .update({ reward_name: rewardName, reward_description: rewardDescription })
-    .eq('reward_id', rewardId);
-
-  if (error) {
-    console.error('Ошибка обновления награды:', error);
-    throw error;
-  }
-};
-
-export const toggleDublicateTask = async (
-  title: string,
-  space_id: string,
-  user_id: string,
-  due_date: string,
-  display_date: string,
-  status?: boolean,
-  description?: string,
-  parent_task_id?: string,
-  created_at?: string,
-  updated_at?: string,
-  completion_date?: string,
-  is_repeating?: boolean,
-  repeat_interval?: string,
-  planning_period?: string,
-  is_urgent?: boolean,
-  is_important?: boolean,
-  reward_id?: string,
-  is_anime_task?: boolean,
-  originalTaskId?: string,
-  subtasks?: Task[] // Новый параметр для подзадач
-) => {
-  try {
-    const newId = uuidv4();
-    const now = new Date();
-    const dateString = now.toISOString();
-
-    // Дублируем основную задачу и ждём подтверждения вставки
-    const mainTaskId = await addTask(
-      title,
-      space_id,
-      user_id,
-      due_date,
-      display_date,
-      status || false,
-      description || null,
-      parent_task_id || null,
-      created_at || dateString,
-      dateString,
-      completion_date || null,
-      is_repeating || false,
-      repeat_interval || null,
-      planning_period || null,
-      is_urgent || false,
-      is_important || false,
-      reward_id || null,
-      is_anime_task || false
-    );
-
-    // Дублируем подзадачи, если они переданы
-    if (!parent_task_id && subtasks && subtasks.length > 0) {
-      for (const subtask of subtasks) {
-        console.log('Дублируем подзадачу с parent_task_id:', mainTaskId); // Лог для отладки
-        await addTask(
-          subtask.title,
-          subtask.space_id,
-          subtask.user_id,
-          subtask.due_date,
-          subtask.display_date,
-          subtask.status,
-          subtask.description,
-          mainTaskId, // Устанавливаем новую дублированную задачу как родительскую
-          subtask.created_at,
-          subtask.updated_at,
-          subtask.completion_date,
-          subtask.is_repeating,
-          subtask.repeat_interval,
-          subtask.planning_period,
-          subtask.is_urgent,
-          subtask.is_important,
-          subtask.reward_id,
-          subtask.is_anime_task
-        );
-      }
-    }
-
-    console.log('Задача дублирована с ID:', newId);
-  } catch (error) {
-    console.error('Ошибка дублирования задачи:', error);
-    throw error; // Пробрасываем ошибку для отладки
-  }
-};
-
 export const changeEisenhowerMatrixStatus = (taskId: string, isUrgent: boolean, isImportant: boolean) => {
   tasks$[taskId].is_urgent.set((prev) => isUrgent);
   tasks$[taskId].is_important.set((prev) => isImportant);
 };
 
-// Убедимся, что запрос включает данные о наградах
-export const fetchTasks = async () => {
-  try {
-    if (!supabase) {
-      console.error('Supabase client is not initialized');
-      return [];
-    }
-
-    const { data, error } = await supabase
-      .from('tasks')
-      .select(`
-        *,
-        reward:rewards(reward_id, reward_name, reward_description)
-      `)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Ошибка при получении задач:', error);
-      return [];
-    }
-
-    return data || [];
-  } catch (err) {
-    console.error('Unexpected error in fetchTasks:', err);
-    return [];
-  }
-};
+export const addReward = (taskId: string, reward: string) => {
+  tasks$[taskId].reward.set((prev) => reward)
+}
