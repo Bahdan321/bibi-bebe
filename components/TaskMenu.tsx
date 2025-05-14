@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,25 +7,34 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Animated,
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import Feather from '@expo/vector-icons/Feather';
 import { Task, TaskMenuProps } from '@/types/types';
-import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate, addTask, addReward, updateReward, supabase } from '@/Supabase/utils/SupaLegend';
+import {
+  toggleTaskRemove,
+  toggleDublicateTask,
+  toggleTaskCompletion,
+  changeEisenhowerMatrixStatus,
+  toggleTaskChangeDisplayDate,
+  addTask,
+  addReward,
+  supabase,
+  tasks$,
+  updateReward,
+} from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
-import RoundButton from './RoundButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import DropdownMenu from './DropdownMenu';
 import CalendarModal from './CalendarModal';
 import { router } from 'expo-router';
 import NewSubtaskInput from './NewSubtaskInput';
 import SubtaskItem from './SubtaskItem';
-import { tasks$ } from '@/Supabase/utils/SupaLegend';
 import { v4 as uuidv4 } from 'uuid';
 import { observe } from '@legendapp/state';
-import RewardModal from './RewardModal';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
   task,
@@ -38,44 +47,76 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   setDescription,
 }) => {
   const { theme } = useTheme();
+
+  /* ────────────────────────────
+     Local state
+  ──────────────────────────── */
   const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
-  const [taskStatusColor, setTaskStatusColor] = useState(task.status ? theme.colors.icon : theme.colors.text);
+  const [taskStatusColor, setTaskStatusColor] = useState(
+    task.status ? theme.colors.icon : theme.colors.text,
+  );
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
   const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
-  const [isRewardModalVisible, setIsRewardModalVisible] = useState(false);
   const [subtasks, setSubtasks] = useState<Task[]>([]);
+  const [rewardNameInput, setRewardNameInput] = useState('');
 
+  /* ────────────────────────────
+     Pulsating border animation
+  ──────────────────────────── */
+  const borderAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (task.reward && !task.status) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(borderAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: false,
+          }),
+          Animated.timing(borderAnim, {
+            toValue: 0,
+            duration: 800,
+            useNativeDriver: false,
+          }),
+        ]),
+      ).start();
+    }
+  }, [task.reward, task.status, borderAnim]);
+
+  const animatedRewardStyle = {
+    borderWidth: borderAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 3],
+    }),
+    borderColor: theme.colors.primary,
+  };
+
+  /* ────────────────────────────
+     Subtasks sync
+  ──────────────────────────── */
   useEffect(() => {
     const updateSubtasks = () => {
       const allTasks = tasks$.get();
-      const subtasksList = Object.values(allTasks).filter(t => t.parent_task_id === task.id);
+      const subtasksList = Object.values(allTasks).filter((t) => t.parent_task_id === task.id);
       setSubtasks(subtasksList);
     };
     updateSubtasks();
 
     const dispose = observe(() => {
       const allTasks = tasks$.get();
-      const subtasksList = Object.values(allTasks).filter(t => t.parent_task_id === task.id);
+      const subtasksList = Object.values(allTasks).filter((t) => t.parent_task_id === task.id);
       setSubtasks(subtasksList);
     });
 
     return () => dispose();
   }, [task.id]);
 
-  const parsedDueDate = new Date(task.due_date);
-  const formattedDueDate = isNaN(parsedDueDate.getTime())
-    ? 'Некорректная дата'
-    : parsedDueDate.toLocaleString('ru-RU', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
+  /* ────────────────────────────
+     Timer for due-date
+  ──────────────────────────── */
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
@@ -104,25 +145,24 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     return () => clearInterval(interval);
   }, [task.due_date]);
 
-  const handleDateChange = () => {
-    setIsCalendarVisible(true);
-  };
+  /* ────────────────────────────
+     Handlers
+  ──────────────────────────── */
+  const handleDateChange = () => setIsCalendarVisible(true);
 
   const handleCalendarApply = (selectedDate: Date) => {
-    if (isNaN(selectedDate.getTime())) {
-      console.error('Invalid date selected:', selectedDate);
-      return;
-    }
+    if (isNaN(selectedDate.getTime())) return;
 
-    const isoDate = selectedDate.toISOString();
-    const displayDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    const displayDate = `${selectedDate.getFullYear()}-${String(
+      selectedDate.getMonth() + 1,
+    ).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+
     toggleTaskChangeDisplayDate(task.id, displayDate);
     setIsCalendarVisible(false);
-    router.dismissTo("/(private)/home");
+    router.dismissTo('/(private)/home');
   };
 
   const handleDuplicate = () => {
-    console.log('Подзадачи перед дублированием:', subtasks);
     toggleDublicateTask(
       task.title,
       task.space_id,
@@ -143,73 +183,43 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.reward_id,
       task.is_anime_task,
       task.id,
-      subtasks
+      subtasks,
     );
     onClose();
   };
 
   const handleDelete = () => {
-    console.log('Deleting task:', task.id);
     toggleTaskRemove(task.id);
-    subtasks.forEach(subtask => toggleTaskRemove(subtask.id));
+    subtasks.forEach((subtask) => toggleTaskRemove(subtask.id));
     onClose();
   };
 
   const handleTaskToggle = async (taskId: string) => {
     const currentStatus = taskStatusCopy;
-
     toggleTaskCompletion(taskId);
-
-    setTaskStatusCopy((prevStatus) => !prevStatus);
-    setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
+    setTaskStatusCopy((prev) => !prev);
+    setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.icon : theme.colors.text));
 
     if (currentStatus === false && task.reward_id) {
+      // Показываем алерт с наградой
       if (task.reward) {
-        Alert.alert(
-          'Поздравляем! 🎉',
-          `Вы получили награду:\n\n${task.reward.reward_name}`,
-          [{ text: 'Супер!', style: 'default' }]
-        );
+        Alert.alert('Поздравляем! 🎉', `Вы получили награду:\n\n${task.reward.reward_name}`, [
+          { text: 'Супер!', style: 'default' },
+        ]);
       } else {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('rewards')
-          .select('reward_name, reward_description')
+          .select('reward_name')
           .eq('reward_id', task.reward_id)
           .single();
 
-        if (data) {
-          Alert.alert(
-            'Поздравляем! 🎉',
-            `Вы получили награду:\n\n${data.reward_name}`,
-            [{ text: 'Супер!', style: 'default' }]
-          );
-        } else {
-          console.error('Reward not found:', task.reward_id);
-          Alert.alert(
-            'Поздравляем! 🎉',
-            'Вы выполнили задачу и получили награду!',
-            [{ text: 'Супер!', style: 'default' }]
-          );
-        }
+        Alert.alert(
+          'Поздравляем! 🎉',
+          `Вы получили награду:\n\n${data?.reward_name || 'Неизвестная награда'}`,
+          [{ text: 'Супер!', style: 'default' }],
+        );
       }
     }
-  };
-
-  const calculateNewDueDate = (currentDueDate: string, time: { day: string; hours: number; minutes: number }) => {
-    const dueDate = new Date(currentDueDate);
-    if (isNaN(dueDate.getTime())) {
-      dueDate.setTime(new Date().getTime());
-    }
-
-    dueDate.setDate(dueDate.getDate() + parseInt(time.day));
-    dueDate.setHours(dueDate.getHours() + time.hours);
-    dueDate.setMinutes(dueDate.getMinutes() + time.minutes);
-    return dueDate.toISOString();
-  };
-
-  const handleTimeSelected = (time: { day: string; hours: number; minutes: number }) => {
-    const newDueDate = calculateNewDueDate(task.due_date, time);
-    setIsTimePickerVisible(false);
   };
 
   const formattedDate = getFormatedDateOfYear(date);
@@ -224,26 +234,21 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     setIsEisenhowerMatrixDropdownVisible(false);
   };
 
-  const closeMainDropdown = () => {
-    setIsMainDropdownVisible(false);
-  };
-
-  const closeEisenhowerMatrixDropdown = () => {
-    setIsEisenhowerMatrixDropdownVisible(false);
-  };
+  const closeMainDropdown = () => setIsMainDropdownVisible(false);
+  const closeEisenhowerMatrixDropdown = () => setIsEisenhowerMatrixDropdownVisible(false);
 
   const handleChangeDate = (task: Task, newDate?: Date) => {
     let dateToUse = newDate || new Date(task.display_date);
     dateToUse.setDate(dateToUse.getDate() + 1);
 
-    const newDisplayDate = `${dateToUse.getFullYear()}-${String(dateToUse.getMonth() + 1).padStart(2, '0')}-${String(dateToUse.getDate()).padStart(2, '0')}`;
+    const newDisplayDate = `${dateToUse.getFullYear()}-${String(
+      dateToUse.getMonth() + 1,
+    ).padStart(2, '0')}-${String(dateToUse.getDate()).padStart(2, '0')}`;
     toggleTaskChangeDisplayDate(task.id, newDisplayDate);
     router.dismissTo('/(private)/home');
   };
 
-  const handleDeleteSubtask = (subtaskId: string) => {
-    toggleTaskRemove(subtaskId);
-  };
+  const handleDeleteSubtask = (subtaskId: string) => toggleTaskRemove(subtaskId);
 
   const menuItems = [
     {
@@ -275,34 +280,33 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   ];
 
   const eisenhowermatrixitems = [
-    { text: 'Срочно и Важно', color: theme.eisenhowerMatrix.urgentImportant, icon: 'alert-circle', onPress: () => changeEisenhowerMatrixStatus(task.id, true, true) },
-    { text: 'Важно, не срочно', color: theme.eisenhowerMatrix.notUrgentImportant, icon: 'checkmark-circle', onPress: () => changeEisenhowerMatrixStatus(task.id, false, true) },
-    { text: 'Срочно, не важно', color: theme.eisenhowerMatrix.urgentNotImportant, icon: 'time', onPress: () => changeEisenhowerMatrixStatus(task.id, true, false) },
-    { text: 'Не срочно и не важно', color: theme.eisenhowerMatrix.notUrgentNotImportant, icon: 'heart-circle', onPress: () => changeEisenhowerMatrixStatus(task.id, false, false) },
+    {
+      text: 'Срочно и Важно',
+      color: theme.eisenhowerMatrix.urgentImportant,
+      icon: 'alert-circle',
+      onPress: () => changeEisenhowerMatrixStatus(task.id, true, true),
+    },
+    {
+      text: 'Важно, не срочно',
+      color: theme.eisenhowerMatrix.notUrgentImportant,
+      icon: 'checkmark-circle',
+      onPress: () => changeEisenhowerMatrixStatus(task.id, false, true),
+    },
+    {
+      text: 'Срочно, не важно',
+      color: theme.eisenhowerMatrix.urgentNotImportant,
+      icon: 'time',
+      onPress: () => changeEisenhowerMatrixStatus(task.id, true, false),
+    },
+    {
+      text: 'Не срочно и не важно',
+      color: theme.eisenhowerMatrix.notUrgentNotImportant,
+      icon: 'heart-circle',
+      onPress: () => changeEisenhowerMatrixStatus(task.id, false, false),
+    },
   ];
 
   const handleAddSubtask = async (subtaskTitle: string) => {
-    const newSubtask: Task = {
-      id: uuidv4(),
-      title: subtaskTitle,
-      space_id: task.space_id,
-      user_id: task.user_id,
-      due_date: task.due_date,
-      display_date: task.display_date,
-      status: false,
-      description: '',
-      parent_task_id: task.id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      completion_date: null,
-      is_repeating: false,
-      repeat_interval: null,
-      planning_period: null,
-      is_urgent: false,
-      is_important: false,
-      reward_id: null,
-      is_anime_task: false,
-    };
     await addTask(
       subtaskTitle,
       task.space_id,
@@ -321,41 +325,23 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       false,
       false,
       null,
-      false
+      false,
     );
   };
 
-  const handleSubtaskToggle = (subtaskId: string) => {
-    toggleTaskCompletion(subtaskId);
-  };
+  const handleSubtaskToggle = (subtaskId: string) => toggleTaskCompletion(subtaskId);
 
-  const handleRewardButtonPress = (subtaskId: string) => {
-    if (task.reward) {
-      Alert.alert(
-        'Награда уже создана',
-        `Награда: ${task.reward.reward_name}\nХотите изменить награду?`,
-        [
-          { text: 'Нет', style: 'cancel' },
-          { text: 'Да', onPress: () => setIsRewardModalVisible(true) },
-        ]
-      );
-    } else {
-      setIsRewardModalVisible(true);
-    }
-  };
+  const handleAddReward = async () => {
+    const trimmed = rewardNameInput.trim();
+    if (!trimmed) return;
 
-  const handleSaveReward = async (rewardName: string, rewardDescription: string) => {
     try {
-      if (task.reward_id) {
-        await updateReward(task.reward_id, rewardName, rewardDescription);
-      } else {
-        const rewardId = await addReward(rewardName, rewardDescription);
-        tasks$[task.id].reward_id.set(rewardId);
-      }
-      setIsRewardModalVisible(false);
-    } catch (error) {
-      console.error('Ошибка при сохранении награды:', error);
-      Alert.alert('Ошибка', 'Не удалось сохранить награду');
+      const rewardId = await addReward(task.id, trimmed, '');
+      setRewardNameInput('');
+      // Alert.alert('Успех', 'Награда добавлена');
+    } catch (err) {
+      console.error('Ошибка при добавлении награды:', err);
+      // Alert.alert('Ошибка', 'Не удалось добавить награду');
     }
   };
 
@@ -363,6 +349,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleDateChange} style={styles.dateContainer}>
           <Ionicons name="calendar-outline" size={24} color={theme.colors.text} style={styles.icon} />
@@ -372,6 +359,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           <Ionicons name="close" size={24} color={theme.colors.text} />
         </TouchableOpacity>
       </View>
+
+      {/* Title */}
       <View style={styles.titleSection}>
         <TextInput
           style={[
@@ -391,6 +380,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
         </TouchableOpacity>
       </View>
+
+      {/* Description */}
       <TextInput
         style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
         value={description}
@@ -400,22 +391,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         multiline
         maxLength={150}
       />
-      {task.reward && (
-        <View style={styles.rewardInfoContainer}>
-          <View style={styles.rewardHeader}>
-            <Ionicons name="gift-outline" size={20} color={theme.colors.primary} />
-            <Text style={[styles.rewardHeaderText, { color: theme.colors.primary }]}>
-              Награда за выполнение:
-            </Text>
-          </View>
-          <Text style={[styles.rewardName, { color: theme.colors.text }]}>
-            {task.reward.reward_name}
-          </Text>
-          <Text style={[styles.rewardDescription, { color: theme.colors.secondary }]}>
-            {task.reward.reward_description}
-          </Text>
-        </View>
-      )}
+
+      {/* Subtasks */}
       <View style={styles.subtasksSection}>
         <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
         {subtasks.map((subtask, index) => (
@@ -440,10 +417,55 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           onAddSubtask={handleAddSubtask}
         />
       </View>
+
+      {/* Reward block */}
+      <View style={{ marginBottom: 20 }}>
+        <Text style={[styles.rewardHeaderText, { color: theme.colors.text, marginBottom: 10 }]}>Награда</Text>
+
+        {task.reward ? (
+          <Animated.View style={[styles.rewardInfoContainer, animatedRewardStyle]}>
+            <Text style={[styles.rewardName, { color: theme.colors.text }]}>{task.reward.reward_name}</Text>
+            {task.reward.reward_description ? (
+              <Text style={[styles.rewardDescription, { color: theme.colors.secondary }]}>
+                {task.reward.reward_description}
+              </Text>
+            ) : null}
+          </Animated.View>
+        ) : (
+          <>
+            <TextInput
+              value={rewardNameInput}
+              onChangeText={setRewardNameInput}
+              placeholder="Введите название награды"
+              placeholderTextColor={theme.colors.secondary}
+              style={[
+                styles.titleInput,
+                {
+                  fontSize: 18,
+                  marginBottom: 10,
+                  color: theme.colors.text,
+                },
+              ]}
+            />
+            <TouchableOpacity
+              onPress={handleAddReward}
+              style={[
+                styles.addRewardButton,
+                { backgroundColor: theme.colors.button, borderRadius: 10 },
+              ]}
+            >
+              <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>Добавить награду</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+
+      {/* Actions */}
       <View style={styles.actions}>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
         </TouchableOpacity>
+
         <View style={styles.ellipsisContainer}>
           <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
             <Feather name="circle" size={24} color={theme.colors.text} />
@@ -456,14 +478,11 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             containerStyle={styles.eisenhowerDropdownMenu}
           />
         </View>
+
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
         </TouchableOpacity>
-        <View>
-          <TouchableOpacity style={styles.actionButton} onPress={handleRewardButtonPress}>
-            <Ionicons name="gift-outline" size={24} color={theme.colors.text} />
-          </TouchableOpacity>
-        </View>
+
         <View style={styles.ellipsisContainer}>
           <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
             <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
@@ -476,23 +495,18 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           />
         </View>
       </View>
+
+      {/* Modals */}
       <TimePickerModal
         visible={isTimePickerVisible}
         onClose={() => setIsTimePickerVisible(false)}
-        onTimeSelected={handleTimeSelected}
+        onTimeSelected={() => setIsTimePickerVisible(false)}
       />
       <CalendarModal
         visible={isCalendarVisible}
         onClose={() => setIsCalendarVisible(false)}
         onApply={handleCalendarApply}
         initialDate={new Date(task.display_date || task.due_date)}
-      />
-      <RewardModal
-        visible={isRewardModalVisible}
-        onClose={() => setIsRewardModalVisible(false)}
-        onSave={handleSaveReward}
-        initialRewardName={task.reward?.reward_name || ''}
-        initialRewardDescription={task.reward?.reward_description || ''}
       />
     </ScrollView>
   );
@@ -567,17 +581,6 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5,
   },
-  dueDateContainer: {
-    marginBottom: 20,
-  },
-  dueDateText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  timeLeftText: {
-    fontSize: 14,
-    marginTop: 5,
-  },
   subtasksSection: {
     marginTop: 20,
     marginBottom: 20,
@@ -592,22 +595,14 @@ const styles = StyleSheet.create({
     marginVertical: 0,
   },
   rewardInfoContainer: {
-    marginVertical: 15,
     padding: 12,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
     borderRadius: 10,
     borderLeftWidth: 3,
-    borderLeftColor: '#007AFF',
-  },
-  rewardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
   },
   rewardHeaderText: {
     fontSize: hp('1.8%'),
     fontWeight: 'bold',
-    marginLeft: 6,
   },
   rewardName: {
     fontSize: hp('2%'),
@@ -617,9 +612,9 @@ const styles = StyleSheet.create({
   rewardDescription: {
     fontSize: hp('1.8%'),
   },
-  rewardText: {
-    fontSize: 16,
-    marginTop: 10,
+  addRewardButton: {
+    alignItems: 'center',
+    paddingVertical: 10,
   },
 });
 

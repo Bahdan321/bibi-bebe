@@ -169,8 +169,10 @@ export const updateTaskTitle = async (taskId: string, newTitle: string) => {
   }
 };
 
-export const addReward = async (rewardName: string, rewardDescription: string) => {
+export const addReward = async (taskId: string, rewardName: string, rewardDescription: string) => {
   const newId = uuidv4();
+  tasks$[taskId].reward.set((prev) => ({ reward_id: newId, }));
+
   const { data, error } = await supabase
     .from('rewards')
     .insert([{ reward_id: newId, reward_name: rewardName, reward_description: rewardDescription }])

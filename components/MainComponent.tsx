@@ -24,7 +24,6 @@ const MainComponent: React.FC<MainComponentProps> = observer(({ currentDate }) =
                     {days.map((day, index) => (
                         <DayBlock key={index} date={day.date} dayOfWeek={day.dayOfWeek} />
                     ))}
-                    {/* <DayBlock date={days[0].date} dayOfWeek={days[0].dayOfWeek} /> */}
                 </View>
             </ScrollView>
         </View>
