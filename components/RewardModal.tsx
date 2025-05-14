@@ -39,14 +39,14 @@ const RewardModal: React.FC<RewardModalProps> = ({
                         Добавьте награду
                     </Text>
                     <TextInput
-                        style={[styles.input, { color: theme.colors.text, borderColor: theme.colors.secondary }]}
+                        style={[styles.input, { color: theme.colors.text, borderColor: theme.colors.background }]}
                         value={rewardName}
                         onChangeText={setRewardName}
                         placeholder="Название награды"
                         placeholderTextColor={theme.colors.secondary}
                     />
                     <TextInput
-                        style={[styles.input, { color: theme.colors.text, borderColor: theme.colors.secondary }]}
+                        style={[styles.input, { color: theme.colors.text, borderColor: theme.colors.background }]}
                         value={rewardDescription}
                         onChangeText={setRewardDescription}
                         placeholder="Описание награды"

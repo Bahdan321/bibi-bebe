@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { observer } from '@legendapp/state/react';
 import TaskItem from '@/components/TaskItem';
@@ -8,6 +8,9 @@ import { Task, TaskListProps } from '@/types/types';
 const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: TaskListProps) => {
   const mainTasks = tasks.filter(task => task.parent_task_id === null);
 
+  useEffect(() => {
+    console.log('Tasks data:', tasks);
+  }, [tasks]);
   return (
     <View style={styles.container}>
       {mainTasks.map((task) => (

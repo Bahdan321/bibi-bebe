@@ -11,6 +11,7 @@ import TaskMenu from './TaskMenu';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
+import { supabase } from '@/Supabase/utils/SupaLegend';
 
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCompletion }) => {
   const { theme } = useTheme();
@@ -34,13 +35,10 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         date: date,
       },
     });
-    // setIsMenuVisible(true);
-    // bottomSheetRef.current?.expand();
   };
 
   const handleCloseMenu = () => {
     setIsMenuVisible(false);
-    // bottomSheetRef.current?.close();
   };
 
   const taskBorderColor = (isUrgent: boolean, isImportant: boolean) => {
@@ -53,29 +51,39 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
     }
   };
 
-  const handleToggleCompletion = () => {
+  const handleToggleCompletion = async () => {
     const currentStatus = task.status;
 
-    // Вызываем функцию изменения статуса
     onToggleTaskCompletion(task.id);
 
-    // Показываем уведомление только если задача СТАНОВИТСЯ завершенной и у неё есть reward_id
     if (!currentStatus && task.reward_id) {
       if (task.reward) {
-        // Если данные о награде доступны в task.reward
         Alert.alert(
           'Поздравляем! 🎉',
-          `Вы получили награду:\n\n${task.reward.reward_name}\n\n${task.reward.reward_description || ''}`, // Изменено с task.title на task.reward.reward_name
+          `Вы получили награду:\n\n${task.reward.reward_name}\n\n${task.reward.reward_description || ''}`,
           [{ text: 'Супер!', style: 'default' }]
         );
       } else {
-        // Если данных о награде нет, показываем базовое уведомление
-        Alert.alert(
-          'Поздравляем! 🎉',
-          `Вы выполнили задачу и получили награду!`,
-          [{ text: 'Супер!', style: 'default' }]
-        );
-        console.warn('Reward ID exists but reward data is missing:', task.reward_id);
+        const { data, error } = await supabase
+          .from('rewards')
+          .select('reward_name, reward_description')
+          .eq('reward_id', task.reward_id)
+          .single();
+
+        if (data) {
+          Alert.alert(
+            'Поздравляем! 🎉',
+            `Вы получили награду:\n\n${data.reward_name}`,
+            [{ text: 'Супер!', style: 'default' }]
+          );
+        } else {
+          console.error('Reward not found:', task.reward_id);
+          Alert.alert(
+            'Поздравляем! 🎉',
+            'Вы выполнили задачу и получили награду!',
+            [{ text: 'Супер!', style: 'default' }]
+          );
+        }
       }
     }
   };

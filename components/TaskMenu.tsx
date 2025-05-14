@@ -12,7 +12,7 @@ import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import Feather from '@expo/vector-icons/Feather';
 import { Task, TaskMenuProps } from '@/types/types';
-import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate, addTask, addReward, updateReward } from '@/Supabase/utils/SupaLegend';
+import { toggleTaskRemove, toggleDublicateTask, toggleTaskCompletion, changeEisenhowerMatrixStatus, toggleTaskChangeDisplayDate, addTask, addReward, updateReward, supabase } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
 import RoundButton from './RoundButton';
@@ -27,7 +27,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { observe } from '@legendapp/state';
 import RewardModal from './RewardModal';
 
-// Добавим секцию с наградой в TaskMenu
 const TaskMenu: React.FC<TaskMenuProps> = ({
   task,
   visible,
@@ -49,7 +48,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const [isRewardModalVisible, setIsRewardModalVisible] = useState(false);
   const [subtasks, setSubtasks] = useState<Task[]>([]);
 
-  // Реактивное обновление подзадач
   useEffect(() => {
     const updateSubtasks = () => {
       const allTasks = tasks$.get();
@@ -124,7 +122,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   };
 
   const handleDuplicate = () => {
-    console.log('Подзадачи перед дублированием:', subtasks); // Лог для проверки
+    console.log('Подзадачи перед дублированием:', subtasks);
     toggleDublicateTask(
       task.title,
       task.space_id,
@@ -145,7 +143,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.reward_id,
       task.is_anime_task,
       task.id,
-      subtasks // Передаём подзадачи
+      subtasks
     );
     onClose();
   };
@@ -157,35 +155,42 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     onClose();
   };
 
-  // Обновим функцию handleTaskToggle для отображения уведомления о награде
-  const handleTaskToggle = (taskId: string) => {
-    // Сохраняем текущее состояние задачи перед изменением
+  const handleTaskToggle = async (taskId: string) => {
     const currentStatus = taskStatusCopy;
 
-    // Вызываем функцию изменения статуса в базе данных
     toggleTaskCompletion(taskId);
 
-    // Обновляем локальное состояние
     setTaskStatusCopy((prevStatus) => !prevStatus);
     setTaskStatusColor((prevColor) => (prevColor === theme.colors.text ? theme.colors.icon : theme.colors.text));
 
-    // Показываем уведомление только если задача СТАНОВИТСЯ завершенной и у неё есть reward_id
     if (currentStatus === false && task.reward_id) {
-      // Если у нас есть объект reward, используем его данные
       if (task.reward) {
         Alert.alert(
           'Поздравляем! 🎉',
-          `Вы получили награду:\n\n${task.reward.reward_name}`, // Изменено с task.title на task.reward.reward_name
+          `Вы получили награду:\n\n${task.reward.reward_name}`,
           [{ text: 'Супер!', style: 'default' }]
         );
       } else {
-        // Если объекта reward нет, но есть reward_id, показываем базовое уведомление
-        Alert.alert(
-          'Поздравляем! 🎉',
-          'Вы выполнили задачу и получили награду!',
-          [{ text: 'Супер!', style: 'default' }]
-        );
-        console.log('Reward ID exists but reward object is missing:', task.reward_id);
+        const { data, error } = await supabase
+          .from('rewards')
+          .select('reward_name, reward_description')
+          .eq('reward_id', task.reward_id)
+          .single();
+
+        if (data) {
+          Alert.alert(
+            'Поздравляем! 🎉',
+            `Вы получили награду:\n\n${data.reward_name}`,
+            [{ text: 'Супер!', style: 'default' }]
+          );
+        } else {
+          console.error('Reward not found:', task.reward_id);
+          Alert.alert(
+            'Поздравляем! 🎉',
+            'Вы выполнили задачу и получили награду!',
+            [{ text: 'Супер!', style: 'default' }]
+          );
+        }
       }
     }
   };
@@ -342,10 +347,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const handleSaveReward = async (rewardName: string, rewardDescription: string) => {
     try {
       if (task.reward_id) {
-        // Если награда уже существует, обновляем её
         await updateReward(task.reward_id, rewardName, rewardDescription);
       } else {
-        // Если награды нет, создаём новую
         const rewardId = await addReward(rewardName, rewardDescription);
         tasks$[task.id].reward_id.set(rewardId);
       }
@@ -388,7 +391,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
         </TouchableOpacity>
       </View>
-      {/* Добавляем отображение награды после описания задачи */}
       <TextInput
         style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
         value={description}
@@ -398,8 +400,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         multiline
         maxLength={150}
       />
-
-      {/* Отображение награды */}
       {task.reward && (
         <View style={styles.rewardInfoContainer}>
           <View style={styles.rewardHeader}>
@@ -416,8 +416,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           </Text>
         </View>
       )}
-
-      {/* Секция подзадач */}
       <View style={styles.subtasksSection}>
         <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
         {subtasks.map((subtask, index) => (
@@ -442,7 +440,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           onAddSubtask={handleAddSubtask}
         />
       </View>
-      {/* Кнопки действий */}
       <View style={styles.actions}>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
@@ -620,7 +617,6 @@ const styles = StyleSheet.create({
   rewardDescription: {
     fontSize: hp('1.8%'),
   },
-
   rewardText: {
     fontSize: 16,
     marginTop: 10,
