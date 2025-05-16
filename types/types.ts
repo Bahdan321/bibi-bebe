@@ -50,10 +50,9 @@ export interface Task {
     planning_period?: string | null; // Период планирования
     is_urgent: boolean; // Срочная задача
     is_important: boolean; // Важная задача
-    reward_id?: string | null; // UUID награды (опционально)
+    reward?: string | null;
     is_anime_task: boolean; // Аниме-задача
     deleted?: boolean; // Флаг удаления (опционально, если используется soft delete)
-    reward?: { reward_name: string; reward_description: string }; // Опциональные данные о награде
 }
 
 export interface User {

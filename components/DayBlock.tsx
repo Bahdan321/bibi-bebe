@@ -6,14 +6,14 @@ import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { tasks$, toggleTaskCompletion, addTask } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
-import { DayBlockProps } from '@/types/types';
+import { DayBlockProps, Task } from '@/types/types';
 
 const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = tasks$.get();
     const { theme } = useTheme();
 
     // Фильтрация задач по display_date, с обработкой NULL и невалидных created_at
-    const tasksForDay = Object.values(todos || {}).filter((task) => {
+    const tasksForDay = Object.values(todos || {}).filter((task: Task) => {
         let taskDisplayDate = task.display_date;
         if (!taskDisplayDate) {
             // Проверяем валидность created_at
