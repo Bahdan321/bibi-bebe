@@ -52,40 +52,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   };
 
   const handleToggleCompletion = async () => {
-    const currentStatus = task.status;
-
     onToggleTaskCompletion(task.id);
-
-    if (!currentStatus && task.reward_id) {
-      if (task.reward) {
-        Alert.alert(
-          'Поздравляем! 🎉',
-          `Вы получили награду:\n\n${task.reward.reward_name}\n\n${task.reward.reward_description || ''}`,
-          [{ text: 'Супер!', style: 'default' }]
-        );
-      } else {
-        const { data, error } = await supabase
-          .from('rewards')
-          .select('reward_name, reward_description')
-          .eq('reward_id', task.reward_id)
-          .single();
-
-        if (data) {
-          Alert.alert(
-            'Поздравляем! 🎉',
-            `Вы получили награду:\n\n${data.reward_name}`,
-            [{ text: 'Супер!', style: 'default' }]
-          );
-        } else {
-          console.error('Reward not found:', task.reward_id);
-          Alert.alert(
-            'Поздравляем! 🎉',
-            'Вы выполнили задачу и получили награду!',
-            [{ text: 'Супер!', style: 'default' }]
-          );
-        }
-      }
-    }
   };
 
   return (
@@ -118,12 +85,6 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         />
       </View>
       <Gigabar color="gray" size={1} />
-      <TaskMenu
-        task={task}
-        visible={isMenuVisible}
-        onClose={handleCloseMenu}
-        date={date}
-      />
     </View>
   );
 });

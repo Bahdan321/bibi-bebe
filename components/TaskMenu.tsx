@@ -276,6 +276,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.user_id,
       task.due_date,
       task.display_date,
+      task.reward,
       false,
       '',
       task.id,
