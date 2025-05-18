@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Gigabar from './Gigabar';
 import RoundButton from './RoundButton';
 import CustomText from './CustomText';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -12,14 +12,14 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
 import { supabase, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
-import useMemeAlert from '@/hooks/useMemeAlert';
+import useRandomMeme from '@/hooks/useRandomMeme';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Confetti from './Confetti';
 
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCompletion }) => {
   const { theme } = useTheme();
   const [showAnimation, setShowAnimation] = useState(false);
-  const getRandomMeme = useMemeAlert();
+  const getRandomMeme = useRandomMeme();
 
   // Анимированные значения для мема
   const opacity = useSharedValue(0);
@@ -61,14 +61,16 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
 
   const handleToggleCompletion = async () => {
     onToggleTaskCompletion(task.id);
-    setShowAnimation(true);
-    opacity.value = withTiming(1, { duration: 500 }); // Появление
-    scale.value = withTiming(1, { duration: 500 });
-    setTimeout(() => {
-      opacity.value = withTiming(0, { duration: 500 }); // Исчезновение
-      scale.value = withTiming(0.5, { duration: 500 });
-      setTimeout(() => setShowAnimation(false), 500); // Убираем после анимации
-    }, 2000); // Мем виден 2 секунды
+    if (task.status) {
+      setShowAnimation(true);
+      opacity.value = withTiming(1, { duration: 500 }); // Появление
+      scale.value = withTiming(1, { duration: 500 });
+      setTimeout(() => {
+        opacity.value = withTiming(0, { duration: 500 }); // Исчезновение
+        scale.value = withTiming(0.5, { duration: 500 });
+        setTimeout(() => setShowAnimation(false), 500); // Убираем после анимации
+      }, 2000); // Мем виден 2 секунды
+    }
   };
 
   return (
@@ -105,16 +107,20 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         <Animated.View
           style={[
             animatedStyle,
-            { position: 'absolute', top: hp("50%"), left: 50 },
+            {
+              position: 'absolute',
+              top: hp('1%'),
+              left: wp("15%"),
+            },
           ]}
         >
           <Image
-            source={getRandomMeme()}
-            style={{ width: 100, height: 100 }}
+            source={getRandomMeme}
+            style={{ width: 250, height: 250, borderRadius: 20 }}
           />
+          <Confetti />
         </Animated.View>
       )}
-      <Confetti visible={showAnimation} onComplete={toggleTaskCompletion} />
     </View>
   );
 });

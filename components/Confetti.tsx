@@ -2,24 +2,16 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
 
-const Confetti = ({ visible, onComplete }) => {
-    const handleAnimationFinish = () => {
-        if (onComplete) {
-            onComplete();
-        }
-    };
+const Confetti = () => {
 
     return (
         <View style={styles.container}>
-            {visible && (
-                <LottieView
-                    source={require('@/assets/lottie/Confettie.json')}
-                    autoPlay
-                    loop={false}
-                    onAnimationFinish={handleAnimationFinish}
-                    style={styles.lottie}
-                />
-            )}
+            <LottieView
+                source={require('@/assets/lottie/confettie.json')}
+                autoPlay
+                loop={false}
+                style={styles.lottie}
+            />
         </View>
     );
 };
@@ -36,8 +28,8 @@ const styles = StyleSheet.create({
         zIndex: 1000,
     },
     lottie: {
-        width: 300,
-        height: 300,
+        width: 500,
+        height: 500,
     },
 });
 
