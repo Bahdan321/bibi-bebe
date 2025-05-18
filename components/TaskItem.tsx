@@ -61,7 +61,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
 
   const handleToggleCompletion = async () => {
     onToggleTaskCompletion(task.id);
-    if (task.status) {
+    if (task.status && !showAnimation) {
       setShowAnimation(true);
       opacity.value = withTiming(1, { duration: 500 }); // Появление
       scale.value = withTiming(1, { duration: 500 });
@@ -111,12 +111,13 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
               position: 'absolute',
               top: hp('1%'),
               left: wp("15%"),
+              zIndex: 1000,
             },
           ]}
         >
           <Image
             source={getRandomMeme}
-            style={{ width: 250, height: 250, borderRadius: 20 }}
+            style={{ width: 250, height: 250, borderRadius: 20, }}
           />
           <Confetti />
         </Animated.View>
