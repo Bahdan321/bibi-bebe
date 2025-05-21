@@ -21,6 +21,7 @@ import { useTheme } from '@/providers/ThemeProvider';
 import { NavigatePanelProps } from '@/types/types';
 import { ShowCurrentMonth } from '@/utils/DateUtils';
 import { observer } from '@legendapp/state/react';
+import { router } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -97,7 +98,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 iconName="ellipse-sharp"
                                 iconColor={theme.colors.icon}
                                 buttonColor={theme.colors.button}
-                                onPress={() => { }}
+                                onPress={() => { router.push("/(private)/settings") }}
                                 size={hp('6')}
                                 borderWidth={0}
                             />
@@ -105,7 +106,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 iconName="copy-outline"
                                 iconColor={theme.colors.icon}
                                 buttonColor={theme.colors.button}
-                                onPress={() => { }}
+                                onPress={() => { router.push("/(private)/kakoetoMenu") }}
                                 size={hp('6')}
                                 borderWidth={0}
                             />
@@ -113,7 +114,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 iconName="calendar-clear"
                                 iconColor={theme.colors.icon}
                                 buttonColor={theme.colors.button}
-                                onPress={() => { }}
+                                onPress={() => { router.push("/(private)/goals") }}
                                 size={hp('6')}
                                 borderWidth={0}
                             />
@@ -121,7 +122,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 iconName="browsers-outline"
                                 iconColor={theme.colors.icon}
                                 buttonColor={theme.colors.button}
-                                onPress={() => { }}
+                                onPress={() => { router.push("/(private)/spaces") }}
                                 size={hp('6')}
                                 borderWidth={0}
                             />
@@ -129,7 +130,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 iconName="person"
                                 iconColor={theme.colors.icon}
                                 buttonColor={theme.colors.button}
-                                onPress={() => { }}
+                                onPress={() => { router.push("/(private)/profile") }}
                                 size={hp('6')}
                                 borderWidth={0}
                             />
