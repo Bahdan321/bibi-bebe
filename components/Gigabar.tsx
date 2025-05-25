@@ -8,7 +8,13 @@ type GigabarProps = {
 }
 
 const Gigabar: React.FC<GigabarProps> = ({ color, size, marginHorizontal = 0 }) => {
-    return <View style={{ backgroundColor: color, height: size, marginBottom: 12, marginHorizontal: marginHorizontal }} />;
+    return <View style={{
+        backgroundColor: color,
+        height: size,
+        marginBottom: 12,
+        marginHorizontal: marginHorizontal,
+        borderRadius: 999,
+    }} />;
 };
 
 export default Gigabar;

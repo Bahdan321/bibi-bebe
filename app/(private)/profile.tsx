@@ -1,11 +1,26 @@
-import { View, Text } from 'react-native'
+import { View, Text, ImageBackground } from 'react-native'
+import { useTheme } from '@/providers/ThemeProvider';
 import React from 'react'
 
 const profile = () => {
+    const { theme } = useTheme();
     return (
-        <View>
-            <Text>profile</Text>
-        </View>
+        <ImageBackground
+            // source={require('../../assets/images/gradients/VioletGradient.png')}
+            // source={require('../../assets/images/gradients/BlueSkyGradient.png')}
+            // source={require('../../assets/images/gradients/BlueSkyGradient2.png')}
+            // source={require('../../assets/images/gradients/GreenYellowGradient.png')}
+            // source={require('../../assets/images/gradients/OrangeBlueGradient.png')}
+            source={require('../../assets/images/gradients/OrangeBlueGradient2.png')}
+            // source={require('../../assets/images/gradients/OrangeRedGradient.png')}
+            // source={require('../../assets/images/gradients/PinkOrangeGradient.png')}
+            // source={require('../../assets/images/gradients/PinkVioletGradient.png')}
+
+            style={{ flex: 1, backgroundColor: theme.colors.settingsBackground }}
+            resizeMode="cover"
+        >
+
+        </ImageBackground >
     )
 }
 

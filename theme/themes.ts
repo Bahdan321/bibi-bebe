@@ -9,7 +9,8 @@ export const lightTheme: Theme = {
     text: 'black',
     error: 'red',
     icon: 'black',
-    button: 'yellow'
+    button: 'yellow',
+    settingsBackground: "white",
   },
   spacing: {
     xs: 4,
@@ -35,7 +36,8 @@ export const darkTheme: Theme = {
     text: 'white',
     error: 'red',
     icon: 'black',
-    button: 'white'
+    button: 'white',
+    settingsBackground: "black",
   },
   spacing: {
     xs: 4,

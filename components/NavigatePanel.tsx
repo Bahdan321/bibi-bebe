@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingRight: 20,
+        paddingRight: Platform.OS === "ios" ? 28 : 20,
     },
 });
 
