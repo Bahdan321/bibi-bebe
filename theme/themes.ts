@@ -8,8 +8,8 @@ export const lightTheme: Theme = {
     background: 'gray',
     text: 'black',
     error: 'red',
-    icon: 'black',
-    button: 'yellow',
+    icon: '#FAEBD7',
+    button: 'black',
     settingsBackground: "white",
   },
   spacing: {

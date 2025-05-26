@@ -13,7 +13,8 @@ const CustomText: React.FC<CustomTextProps> = ({
     borderColor,
     borderWidth,
     backgroundColor,
-    paddingHorizontal = 0
+    paddingHorizontal = 0,
+    textCenter = false,
 
 }) => {
     const validatedOpacity = Math.min(Math.max(opacity, 0), 1);
@@ -25,6 +26,7 @@ const CustomText: React.FC<CustomTextProps> = ({
         opacity: validatedOpacity,
         borderRadius: borderRadius,
         paddingHorizontal: paddingHorizontal,
+        textAlign: textCenter ? "center" : "auto"
     };
 
     const viewStyle: ViewStyle = {

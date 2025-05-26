@@ -103,5 +103,6 @@ export type CustomTextProps = {
     borderColor?: string;
     borderWidth?: number;
     backgroundColor?: string;
-    paddingHorizontal?: number
+    paddingHorizontal?: number;
+    textCenter?: boolean;
 }
