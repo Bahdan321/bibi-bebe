@@ -66,7 +66,7 @@ const settings = () => {
             style={{ flex: 1, backgroundColor: theme.colors.settingsBackground }}
             resizeMode="cover"
         >
-            <View style={{ margin: hp("3"), flex: 1 }}>
+            <View style={{ margin: hp("3") }}>
                 {settingsItems.map((item, index) => (
                     <React.Fragment key={index}>
                         <SettingsRow
