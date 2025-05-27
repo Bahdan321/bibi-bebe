@@ -128,11 +128,11 @@ const styles = StyleSheet.create({
         borderRadius: 16,
     },
     titleWrapper: {
-        paddingHorizontal: 8,
+        paddingHorizontal: hp("1"),
     },
     title: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: hp("3.6"),
+        fontWeight: '900',
         textAlign: 'center',
     },
 });
