@@ -49,7 +49,7 @@ const taskMenu = () => {
     );
 
     return (
-        <View style={{ flex: 1, flexDirection: 'column' }}>
+        <View style={{ flex: 1, flexDirection: 'column', }}>
             <TaskMenu
                 task={parsedTask}
                 visible={true}

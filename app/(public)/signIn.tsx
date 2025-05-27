@@ -18,25 +18,27 @@ export default function SignIn() {
     const { signIn } = useAuth();
 
     const handleSignIn = async () => {
-        if (!name || !password) {
-            Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
-            return;
-        }
+        // if (!name || !password) {
+        //     Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
+        //     return;
+        // }
 
-        setIsLoading(true);
-        try {
-            const result = await signIn(name, password);
-            if (result.success) {
-                router.push('/(private)/home');
-            } else {
-                Alert.alert('Ошибка входа', result.error || 'Неверное почта или пароль');
-            }
-        } catch (error) {
-            console.error('Error signing in:', error);
-            Alert.alert('Ошибка', 'Произошла ошибка при входе');
-        } finally {
-            setIsLoading(false);
-        }
+        // setIsLoading(true);
+        // try {
+        //     const result = await signIn(name, password);
+        //     if (result.success) {
+        //         router.push('/(private)/home');
+        //     } else {
+        //         Alert.alert('Ошибка входа', result.error || 'Неверное почта или пароль');
+        //     }
+        // } catch (error) {
+        //     console.error('Error signing in:', error);
+        //     Alert.alert('Ошибка', 'Произошла ошибка при входе');
+        // } finally {
+        //     setIsLoading(false);
+        // }
+        router.push('/(private)/home');
+
     };
 
     const routeToSignUp = () => {

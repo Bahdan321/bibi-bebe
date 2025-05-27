@@ -39,8 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (accessToken && refreshToken) {
                     console.log("Токены найдены");
                     setIsAuthenticated(true);
-                    router.push('/(private)/home');
-                    console.log("Пользователь перенаправлен на домашний экран");
+                    // Навигация будет выполнена в отдельном эффекте после монтирования
                     return;
                 }
 
@@ -51,8 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         const newAccessToken = await refreshAccessToken();
                         if (newAccessToken) {
                             setIsAuthenticated(true);
-                            router.push('/(private)/home');
-                            console.log("Токен обновлен, пользователь перенаправлен");
+                            // Навигация будет выполнена в отдельном эффекте после монтирования
                             return;
                         }
                     } catch (refreshError) {
@@ -62,27 +60,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
 
-                // Если ни один из сценариев выше не сработал, отправляем на экран регистрации
+                // Если ни один из сценариев выше не сработал, устанавливаем флаг неаутентифицированного пользователя
                 console.log("Токены отсутствуют или недействительны");
                 setIsAuthenticated(false);
-                router.push('/(public)/signUp');
-                console.log("Пользователь перенаправлен на экран регистрации");
+                // Навигация будет выполнена в отдельном эффекте после монтирования
 
             } catch (error) {
                 console.error('Ошибка при проверке аутентификации:', error);
                 setIsAuthenticated(false);
-                router.push('/(public)/signUp');
             } finally {
                 setIsLoading(false);
             }
         };
 
+        // Запускаем проверку аутентификации при монтировании компонента
         // checkAuth();
         // SecureStore.deleteItemAsync('access_token');
         // SecureStore.deleteItemAsync('refresh_token');
-        router.push('/(private)/home');
-        // router.push('/(private)/onboardingScreen');
     }, []);
+
+    // Отдельный эффект для навигации, который будет выполняться после монтирования и изменения состояния аутентификации
+    useEffect(() => {
+        // Пропускаем первый рендер, когда isLoading = true
+        if (!isLoading) {
+            // if (isAuthenticated) {
+            //     router.push('/(private)/home');
+            // } else {
+            //     router.push('/(public)/signUp');
+            // }
+            router.push('/(private)/home');
+
+        }
+    }, [isAuthenticated, isLoading]);
 
     // Функция для входа в аккаунт
     const signIn = async (username: string, password: string) => {

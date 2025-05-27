@@ -22,9 +22,11 @@ const memes = [
     require('@/assets/images/memes/meme20.jpg'),
 ];
 
-const useRandomMeme = useCallback(() => {
+const useRandomMeme = () => {
+    // return useCallback(() => {
     const randomIndex = Math.floor(Math.random() * memes.length);
     return memes[randomIndex];
-}, []);
+    // }, []);
+};
 
 export default useRandomMeme

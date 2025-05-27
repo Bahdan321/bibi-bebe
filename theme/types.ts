@@ -8,6 +8,7 @@ export interface Theme {
     error: string;
     icon: string;
     button: string;
+    settingsBackground: string;
   };
   spacing: {
     xs: number;

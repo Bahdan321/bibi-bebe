@@ -30,7 +30,7 @@ export default function PrivateLayout() {
                             animation: 'slide_from_bottom',
                             sheetGrabberVisible: true,
                             sheetInitialDetentIndex: 0,
-                            sheetAllowedDetents: [0.5, 1],
+                            sheetAllowedDetents: [0.45, 1],
                             sheetCornerRadius: 20,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
@@ -48,13 +48,10 @@ export default function PrivateLayout() {
                             animation: 'slide_from_bottom',
                             sheetGrabberVisible: true,
                             sheetInitialDetentIndex: 0,
-                            sheetAllowedDetents: [0.5, 1],
+                            sheetAllowedDetents: [0.45, 1],
                             sheetCornerRadius: 20,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
-                            contentStyle: {
-                                backgroundColor: theme.colors.third,
-                            },
                         }}
                     />
                     <Stack.Screen
@@ -66,13 +63,10 @@ export default function PrivateLayout() {
                             animation: 'slide_from_bottom',
                             sheetGrabberVisible: true,
                             sheetInitialDetentIndex: 0,
-                            sheetAllowedDetents: [0.5, 1],
+                            sheetAllowedDetents: [0.45],
                             sheetCornerRadius: 20,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
-                            contentStyle: {
-                                backgroundColor: theme.colors.third,
-                            },
                         }}
                     />
                     <Stack.Screen
@@ -84,13 +78,10 @@ export default function PrivateLayout() {
                             animation: 'slide_from_bottom',
                             sheetGrabberVisible: true,
                             sheetInitialDetentIndex: 0,
-                            sheetAllowedDetents: [0.5, 1],
+                            sheetAllowedDetents: [0.45],
                             sheetCornerRadius: 20,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
-                            contentStyle: {
-                                backgroundColor: theme.colors.third,
-                            },
                         }}
                     />
                     <Stack.Screen
@@ -102,13 +93,10 @@ export default function PrivateLayout() {
                             animation: 'slide_from_bottom',
                             sheetGrabberVisible: true,
                             sheetInitialDetentIndex: 0,
-                            sheetAllowedDetents: [0.5, 1],
+                            sheetAllowedDetents: [0.45],
                             sheetCornerRadius: 20,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
-                            contentStyle: {
-                                backgroundColor: theme.colors.third,
-                            },
                         }}
                     />
                     <Stack.Screen
@@ -120,13 +108,10 @@ export default function PrivateLayout() {
                             animation: 'slide_from_bottom',
                             sheetGrabberVisible: true,
                             sheetInitialDetentIndex: 0,
-                            sheetAllowedDetents: [0.5, 1],
-                            sheetCornerRadius: 20,
+                            sheetAllowedDetents: [0.45],
+                            sheetCornerRadius: 24,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
-                            contentStyle: {
-                                backgroundColor: theme.colors.third,
-                            },
                         }}
                     />
                 </Stack>
