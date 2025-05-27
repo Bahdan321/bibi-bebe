@@ -13,11 +13,12 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import RoundedCard from '@/components/RoundedCard';
 
 interface Space {
     id: string;
     name: string;
-    image: number; // React Native static image resource
+    image: number;
 }
 
 const SPACES: Space[] = [
@@ -75,21 +76,14 @@ const SpacesScreen = () => {
                 {SPACES.map((space, index) => {
                     const isFullWidth = index % 3 === 2;
                     return (
-                        <Pressable
-                            key={space.id}
-                            style={[styles.cardBase, isFullWidth ? styles.cardFull : styles.cardHalf, { backgroundColor: theme.colors.primary }]}
-                            onPress={() => handleSelect(space)}
-                        >
-                            <View
-                                style={[styles.image, { backgroundColor: theme.colors.background }]}
-                            >
-                                <View style={styles.titleWrapper}>
-                                    <Text style={[styles.title, { color: theme.colors.text }]}>
-                                        {space.name}
-                                    </Text>
-                                </View>
-                            </View>
-                        </Pressable>
+                        <View style={[styles.cardBase, isFullWidth ? styles.cardFull : styles.cardHalf, { backgroundColor: theme.colors.primary }]}>
+                            <RoundedCard
+                                key={space.id}
+                                title={space.name}
+                                image={require("../../assets/images/gradients/OrangeBlueGradient.png")}
+                                onPress={() => handleSelect(space)}
+                            />
+                        </View>
                     );
                 })}
             </ScrollView>
@@ -104,14 +98,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        // gap: 16, // Removed to allow flexible spacing for cardHalf items and rely on marginBottom for vertical spacing
+
         padding: 16,
     },
     cardBase: {
         borderRadius: 16,
         overflow: 'hidden',
         height: CARD_HEIGHT,
-        marginBottom: 16, // Added for vertical spacing between rows, replacing container gap for this axis
+        marginBottom: 16,
     },
     cardHalf: {
         width: '48%',
