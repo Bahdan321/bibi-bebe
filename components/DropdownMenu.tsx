@@ -17,9 +17,10 @@ type DropdownMenuProps = {
     onClose: () => void;
     // position: { x: number; y: number }; // Removed position prop
     containerStyle?: StyleProp<ViewStyle>;
+    closeOnSelect?: boolean;
 };
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /* position, */ containerStyle }) => {
+const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /* position, */ containerStyle, closeOnSelect = true }) => {
     const { theme } = useTheme();
 
     if (!visible) return null;
@@ -28,9 +29,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /*
         <View
             style={[
                 styles.overlay,
-                // Removed position styles
                 containerStyle,
-                { backgroundColor: theme.colors.primary, borderColor: theme.colors.button }
+                { backgroundColor: theme.colors.primary, borderColor: theme.colors.button },
             ]}
         >
             {items.map((item, index) => (
@@ -39,14 +39,12 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /*
                         style={styles.menuItem}
                         onPress={() => {
                             item.onPress();
-                            onClose(); // Close menu after action
+                            if (closeOnSelect) onClose();
                         }}
                     >
-                        {/* Меняем местами текст и иконку */}
                         <Text style={[styles.menuText, { color: theme.colors.text }]}>{item.text}</Text>
                         <Ionicons name={item.icon} size={20} color={theme.colors.text} style={styles.icon} />
                     </TouchableOpacity>
-                    {/* Добавляем Gigabar под каждым элементом, кроме последнего */}
                     {index < items.length - 1 && (
                         <Gigabar color={theme.colors.button || 'grey'} size={1} marginHorizontal={10} />
                     )}

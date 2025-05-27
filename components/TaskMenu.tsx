@@ -58,6 +58,44 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const [subtasks, setSubtasks] = useState<Task[]>([]);
   const [rewardNameInput, setRewardNameInput] = useState(task.reward);
   const [taskRewardCopy, setTaskRewardCopy] = useState(task.reward);
+  const [isRepeatMenuVisible, setIsRepeatMenuVisible] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<string[]>(
+    task.repeat_interval ? JSON.parse(task.repeat_interval) : []
+  );
+
+  const daysOfWeek = [
+    { text: 'Понедельник', value: 'mon' },
+    { text: 'Вторник', value: 'tue' },
+    { text: 'Среда', value: 'wed' },
+    { text: 'Четверг', value: 'thu' },
+    { text: 'Пятница', value: 'fri' },
+    { text: 'Суббота', value: 'sat' },
+    { text: 'Воскресенье', value: 'sun' },
+  ];
+
+  // Функция переключения дня
+  const toggleDay = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  // Элементы меню повторения
+  const repeatMenuItems = daysOfWeek.map((day) => ({
+    text: day.text,
+    icon: selectedDays.includes(day.value) ? 'checkmark' : 'square-outline',
+    onPress: () => toggleDay(day.value),
+  }));
+
+  useEffect(() => {
+    if (selectedDays.length > 0) {
+      tasks$[task.id].repeat_interval.set(JSON.stringify(selectedDays));
+      tasks$[task.id].is_repeating.set(true);
+    } else {
+      tasks$[task.id].repeat_interval.set(null);
+      tasks$[task.id].is_repeating.set(false);
+    }
+  }, [selectedDays, task.id]);
 
   const borderAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -416,9 +454,21 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
       {/* Actions */}
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
+        <View style={styles.ellipsisContainer}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => setIsRepeatMenuVisible(!isRepeatMenuVisible)}
+          >
+            <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
+          </TouchableOpacity>
+          <DropdownMenu
+            items={repeatMenuItems}
+            visible={isRepeatMenuVisible}
+            onClose={() => setIsRepeatMenuVisible(false)}
+            closeOnSelect={false} // Не закрываем после выбора
+            containerStyle={styles.repeatDropdownMenu}
+          />
+        </View>
 
         <View style={styles.ellipsisContainer}>
           <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
@@ -569,6 +619,14 @@ const styles = StyleSheet.create({
   addRewardButton: {
     alignItems: 'center',
     paddingVertical: 10,
+  },
+  repeatDropdownMenu: {
+    position: 'absolute',
+    bottom: '100%',
+    right: 0,
+    left: 0,
+    marginBottom: 5,
+    zIndex: 1000,
   },
 });
 

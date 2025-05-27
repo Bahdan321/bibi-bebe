@@ -12,7 +12,7 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = tasks$.get();
     const { theme } = useTheme();
 
-    // Фильтрация задач по display_date, с обработкой NULL и невалидных created_at
+    // Фильтрация задач по display_date, с учетом повторяющихся задач
     const tasksForDay = Object.values(todos || {}).filter((task: Task) => {
         let taskDisplayDate = task.display_date;
         if (!taskDisplayDate) {
@@ -25,7 +25,25 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
                 console.warn('Invalid created_at for task:', { id: task.id, title: task.title, created_at: task.created_at });
             }
         }
-        return taskDisplayDate === date;
+
+        const taskDate = new Date(taskDisplayDate);
+        const currentDate = new Date(date);
+
+        if (task.is_repeating) {
+            if (task.repeat_interval) {
+                try {
+                    const repeatDays = JSON.parse(task.repeat_interval); // ["mon", "wed", "fri"]
+                    const dayOfWeek = currentDate.toLocaleString('en-US', { weekday: 'short' }).toLowerCase(); // "mon"
+                    return taskDate <= currentDate && repeatDays.includes(dayOfWeek);
+                } catch (e) {
+                    console.error('Ошибка парсинга repeat_interval:', e);
+                    return false;
+                }
+            }
+            return false;
+        } else {
+            return taskDisplayDate === date;
+        }
     });
 
     // Отладка: логируем дату и задачи
@@ -35,7 +53,9 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
         title: t.title,
         due_date: t.due_date,
         display_date: t.display_date,
-        created_at: t.created_at
+        created_at: t.created_at,
+        is_repeating: t.is_repeating,
+        repeat_interval: t.repeat_interval
     })));
 
     return (
