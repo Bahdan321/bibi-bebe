@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Gigabar from './Gigabar';
 import RoundButton from './RoundButton';
 import CustomText from './CustomText';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -11,12 +11,24 @@ import TaskMenu from './TaskMenu';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
-import { supabase } from '@/Supabase/utils/SupaLegend';
+import { supabase, toggleTaskCompletion } from '@/Supabase/utils/SupaLegend';
+import useRandomMeme from '@/hooks/useRandomMeme';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Confetti from './Confetti';
 
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCompletion }) => {
   const { theme } = useTheme();
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const getRandomMeme = useRandomMeme();
+
+  // Анимированные значения для мема
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.5);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
 
   const truncateTask = (text: string) => {
     const maxLength = 25;
@@ -37,10 +49,6 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
     });
   };
 
-  const handleCloseMenu = () => {
-    setIsMenuVisible(false);
-  };
-
   const taskBorderColor = (isUrgent: boolean, isImportant: boolean) => {
     if (isUrgent && isImportant) {
       return theme.eisenhowerMatrix.urgentImportant;
@@ -52,39 +60,16 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   };
 
   const handleToggleCompletion = async () => {
-    const currentStatus = task.status;
-
     onToggleTaskCompletion(task.id);
-
-    if (!currentStatus && task.reward_id) {
-      if (task.reward) {
-        Alert.alert(
-          'Поздравляем! 🎉',
-          `Вы получили награду:\n\n${task.reward.reward_name}\n\n${task.reward.reward_description || ''}`,
-          [{ text: 'Супер!', style: 'default' }]
-        );
-      } else {
-        const { data, error } = await supabase
-          .from('rewards')
-          .select('reward_name, reward_description')
-          .eq('reward_id', task.reward_id)
-          .single();
-
-        if (data) {
-          Alert.alert(
-            'Поздравляем! 🎉',
-            `Вы получили награду:\n\n${data.reward_name}`,
-            [{ text: 'Супер!', style: 'default' }]
-          );
-        } else {
-          console.error('Reward not found:', task.reward_id);
-          Alert.alert(
-            'Поздравляем! 🎉',
-            'Вы выполнили задачу и получили награду!',
-            [{ text: 'Супер!', style: 'default' }]
-          );
-        }
-      }
+    if (task.status && !showAnimation) {
+      setShowAnimation(true);
+      opacity.value = withTiming(1, { duration: 500 }); // Появление
+      scale.value = withTiming(1, { duration: 500 });
+      setTimeout(() => {
+        opacity.value = withTiming(0, { duration: 500 }); // Исчезновение
+        scale.value = withTiming(0.5, { duration: 500 });
+        setTimeout(() => setShowAnimation(false), 500); // Убираем после анимации
+      }, 2000); // Мем виден 2 секунды
     }
   };
 
@@ -118,12 +103,25 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         />
       </View>
       <Gigabar color="gray" size={1} />
-      <TaskMenu
-        task={task}
-        visible={isMenuVisible}
-        onClose={handleCloseMenu}
-        date={date}
-      />
+      {showAnimation && (
+        <Animated.View
+          style={[
+            animatedStyle,
+            {
+              position: 'absolute',
+              top: hp('1%'),
+              left: wp("15%"),
+              zIndex: 1000,
+            },
+          ]}
+        >
+          <Image
+            source={getRandomMeme}
+            style={{ width: 250, height: 250, borderRadius: 20, }}
+          />
+          <Confetti />
+        </Animated.View>
+      )}
     </View>
   );
 });
