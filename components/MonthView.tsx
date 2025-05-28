@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
+import Animated, {
+    useSharedValue,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    interpolate,
+    Extrapolate,
+} from 'react-native-reanimated';
 import { useTheme } from '@/providers/ThemeProvider';
 import { tasks$ } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
@@ -10,6 +17,8 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, s
 import { ru } from 'date-fns/locale';
 import Gigabar from './Gigabar';
 
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 interface MonthViewProps {
     currentDate: Date;
     onDayPress: (date: string) => void;
@@ -18,6 +27,7 @@ interface MonthViewProps {
 const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress }) => {
     const { theme } = useTheme();
     const todos = tasks$.get();
+    const scrollY = useSharedValue(0);
 
     // Получаем все месяцы текущего года
     const yearStart = startOfYear(currentDate);
@@ -132,7 +142,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
         const dotsToShow = Math.min(taskCount, maxDots);
 
         return (
-            <View style={styles.indicatorsContainer}>
+            <Animated.View style={styles.indicatorsContainer}>
                 {Array.from({ length: dotsToShow }, (_, index) => (
                     <View
                         key={index}
@@ -142,9 +152,15 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                 {taskCount > maxDots && (
                     <Text style={[styles.moreIndicator, { color: theme.colors.text }]}>+</Text>
                 )}
-            </View>
+            </Animated.View>
         );
     };
+
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            scrollY.value = event.contentOffset.y;
+        },
+    });
 
     // Функция для рендера отдельного месяца
     const renderMonth = (monthDate: Date, monthIndex: number) => {
@@ -152,8 +168,41 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
         const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
         const calendarDays = getMonthDays(monthDate);
 
+        // Примерная высота одного месяца (заголовок + дни недели + календарь + отступы)
+        const MONTH_HEIGHT = hp('50'); // Приблизительная высота месяца
+        const monthOffset = monthIndex * MONTH_HEIGHT;
+
+        const animatedStyle = useAnimatedStyle(() => {
+            const inputRange = [
+                monthOffset - SCREEN_HEIGHT,
+                monthOffset - SCREEN_HEIGHT / 2,
+                monthOffset,
+                monthOffset + SCREEN_HEIGHT / 2,
+                monthOffset + SCREEN_HEIGHT
+            ];
+
+            const opacity = interpolate(
+                scrollY.value,
+                inputRange,
+                [0, 0.3, 1, 1, 0.3],
+                Extrapolate.CLAMP
+            );
+
+            const translateY = interpolate(
+                scrollY.value,
+                inputRange,
+                [50, 25, 0, 0, 25],
+                Extrapolate.CLAMP
+            );
+
+            return {
+                opacity,
+                transform: [{ translateY }],
+            };
+        });
+
         return (
-            <View key={monthIndex} style={styles.monthContainer}>
+            <Animated.View key={monthIndex} style={[styles.monthContainer, animatedStyle]}>
                 {/* Заголовок месяца */}
                 <View style={styles.monthHeader}>
                     <CustomText
@@ -213,19 +262,21 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                         );
                     })}
                 </View>
-            </View>
+            </Animated.View>
         );
     };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-            <ScrollView
+            <Animated.ScrollView
                 style={styles.scrollContainer}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
+                onScroll={scrollHandler}
+                scrollEventThrottle={16}
             >
                 {monthsOfYear.map((monthDate, index) => renderMonth(monthDate, index))}
-            </ScrollView>
+            </Animated.ScrollView>
         </View>
     );
 });
