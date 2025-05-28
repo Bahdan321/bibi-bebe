@@ -12,6 +12,8 @@ import Animated, {
     withTiming,
     useAnimatedStyle,
     interpolate,
+    runOnJS,
+    withSequence,
 } from 'react-native-reanimated';
 import RoundButton from '@/components/RoundButton';
 import CustomText from '@/components/CustomText';
@@ -40,10 +42,17 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
         const { theme } = useTheme();
         const translateX = useSharedValue(0);
         const textAnimationValue = useSharedValue(isMonthView ? 1 : 0);
+        const navigationAnimationValue = useSharedValue(0);
+        const [isAnimating, setIsAnimating] = React.useState(false);
 
         // Обновляем анимацию текста при изменении isMonthView
         React.useEffect(() => {
-            textAnimationValue.value = withTiming(isMonthView ? 1 : 0, { duration: 300 });
+            setIsAnimating(true);
+            textAnimationValue.value = withTiming(isMonthView ? 1 : 0, { 
+                duration: 400 
+            }, () => {
+                runOnJS(setIsAnimating)(false);
+            });
         }, [isMonthView]);
 
         const slideLeft = () => {
@@ -55,23 +64,31 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
         };
 
         const handleTextPress = () => {
-            if (toggleView) {
+            if (toggleView && !isAnimating) {
                 toggleView();
             }
+        };
+
+        const animateNavigation = (callback: () => void) => {
+            navigationAnimationValue.value = withSequence(
+                withTiming(1, { duration: 150 }),
+                withTiming(0, { duration: 150 })
+            );
+            callback();
         };
 
         const handleNavigation = () => {
             if (isMonthView) {
                 // В месячном режиме навигация по годам
                 return {
-                    onPrevious: goToPreviousYear || (() => { }),
-                    onNext: goToNextYear || (() => { })
+                    onPrevious: () => animateNavigation(goToPreviousYear || (() => { })),
+                    onNext: () => animateNavigation(goToNextYear || (() => { }))
                 };
             } else {
                 // В недельном режиме навигация по неделям
                 return {
-                    onPrevious: goToPreviousWeek,
-                    onNext: goToNextWeek
+                    onPrevious: () => animateNavigation(goToPreviousWeek),
+                    onNext: () => animateNavigation(goToNextWeek)
                 };
             }
         };
@@ -100,6 +117,15 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                 position: 'absolute' as const,
             };
         });
+
+        const navigationAnimatedStyle = useAnimatedStyle(() => {
+            const scale = interpolate(navigationAnimationValue.value, [0, 1], [1, 0.95]);
+            const opacity = interpolate(navigationAnimationValue.value, [0, 1], [1, 0.7]);
+            return {
+                transform: [{ scale }],
+                opacity,
+            };
+        });
         return (
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : 'height'}
@@ -116,9 +142,10 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                         {/* PAGE 1 — default set */}
                         <View style={[styles.buttonsPage, { width: SCREEN_WIDTH }]}>
                             <TouchableOpacity
-                                style={styles.leftContainer}
+                                style={[styles.leftContainer, isAnimating && styles.disabled]}
                                 onPress={handleTextPress}
-                                activeOpacity={0.7}
+                                activeOpacity={isAnimating ? 1 : 0.7}
+                                disabled={isAnimating}
                             >
                                 <View style={styles.textContainer}>
                                     <Animated.View style={monthAnimatedStyle}>
@@ -139,22 +166,26 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     </Animated.View>
                                 </View>
                             </TouchableOpacity>
-                            <RoundButton
-                                iconName="chevron-back-outline"
-                                iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
-                                onPress={navigation.onPrevious}
-                                size={hp('6')}
-                                borderWidth={0}
-                            />
-                            <RoundButton
-                                iconName="chevron-forward-outline"
-                                iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
-                                onPress={navigation.onNext}
-                                size={hp('6')}
-                                borderWidth={0}
-                            />
+                            <Animated.View style={navigationAnimatedStyle}>
+                                <RoundButton
+                                    iconName="chevron-back-outline"
+                                    iconColor={theme.colors.icon}
+                                    buttonColor={theme.colors.button}
+                                    onPress={navigation.onPrevious}
+                                    size={hp('6')}
+                                    borderWidth={0}
+                                />
+                            </Animated.View>
+                            <Animated.View style={navigationAnimatedStyle}>
+                                <RoundButton
+                                    iconName="chevron-forward-outline"
+                                    iconColor={theme.colors.icon}
+                                    buttonColor={theme.colors.button}
+                                    onPress={navigation.onNext}
+                                    size={hp('6')}
+                                    borderWidth={0}
+                                />
+                            </Animated.View>
                             <RoundButton
                                 iconName="grid"
                                 iconColor={theme.colors.icon}
@@ -251,6 +282,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-start',
         minHeight: hp('3.5'),
+    },
+
+    /* Disabled state */
+    disabled: {
+        opacity: 0.6,
     },
 
     /* Slider wrapper */

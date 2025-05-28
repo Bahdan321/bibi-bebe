@@ -48,7 +48,7 @@ export default function PrivateLayout() {
                             animation: 'slide_from_bottom',
                             sheetGrabberVisible: true,
                             sheetInitialDetentIndex: 0,
-                            sheetAllowedDetents: [0.45, 1],
+                            sheetAllowedDetents: [0.45],
                             sheetCornerRadius: 20,
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
