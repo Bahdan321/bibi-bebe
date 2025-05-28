@@ -48,8 +48,8 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
         // Обновляем анимацию текста при изменении isMonthView
         React.useEffect(() => {
             setIsAnimating(true);
-            textAnimationValue.value = withTiming(isMonthView ? 1 : 0, { 
-                duration: 400 
+            textAnimationValue.value = withTiming(isMonthView ? 1 : 0, {
+                duration: 400
             }, () => {
                 runOnJS(setIsAnimating)(false);
             });
@@ -159,7 +159,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     <Animated.View style={yearAnimatedStyle}>
                                         <CustomText
                                             content={ShowCurrentYear(currentDate)}
-                                            size={hp('2.8')}
+                                            size={hp('3.8')}
                                             color={theme.colors.text}
                                             weight="700"
                                         />

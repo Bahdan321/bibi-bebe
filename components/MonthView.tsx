@@ -8,6 +8,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import CustomText from './CustomText';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, subDays, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import Gigabar from './Gigabar';
 
 interface MonthViewProps {
     currentDate: Date;
@@ -157,10 +158,10 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                 <View style={styles.monthHeader}>
                     <CustomText
                         content={capitalizedMonthName}
-                        size={hp('2.8')}
+                        size={hp('4.8')}
                         color={theme.colors.text}
                         weight="700"
-                        textCenter
+                    // textCenter
                     />
                 </View>
 
@@ -170,7 +171,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                         <View key={index} style={styles.weekDayContainer}>
                             <CustomText
                                 content={day}
-                                size={hp('1.6')}
+                                size={hp('2.6')}
                                 color={theme.colors.secondary}
                                 weight="600"
                                 textCenter
@@ -179,6 +180,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                     ))}
                 </View>
 
+                <Gigabar color="gray" size={2} />
                 {/* Сетка календаря */}
                 <View style={styles.calendarGrid}>
                     {calendarDays.map((date, index) => {
@@ -201,7 +203,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                             >
                                 <CustomText
                                     content={dayNumber.toString()}
-                                    size={hp('1.8')}
+                                    size={hp('2.8')}
                                     color={isTodayDay ? theme.colors.primary : theme.colors.text}
                                     weight={isTodayDay ? '700' : '400'}
                                     textCenter

@@ -35,7 +35,7 @@ const CustomText: React.FC<CustomTextProps> = ({
         borderColor: borderColor,
         borderRadius: borderRadius,
         padding: borderWidth ? 5 : 2,
-        alignSelf: 'flex-start',
+        alignSelf: textCenter ? "center" : "flex-start",
         opacity: validatedOpacity,
     };
 
