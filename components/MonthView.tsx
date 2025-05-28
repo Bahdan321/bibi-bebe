@@ -6,7 +6,7 @@ import { observer } from '@legendapp/state/react';
 import { Task } from '@/types/types';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import CustomText from './CustomText';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, subDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, subDays, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
 interface MonthViewProps {
@@ -18,26 +18,33 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
     const { theme } = useTheme();
     const todos = tasks$.get();
 
-    // Получаем дни месяца
-    const monthStart = startOfMonth(currentDate);
-    const monthEnd = endOfMonth(currentDate);
+    // Получаем все месяцы текущего года
+    const yearStart = startOfYear(currentDate);
+    const yearEnd = endOfYear(currentDate);
+    const monthsOfYear = eachMonthOfInterval({ start: yearStart, end: yearEnd });
 
-    // Получаем первый день недели (понедельник = 1)
-    const startDay = getDay(monthStart);
-    const adjustedStartDay = startDay === 0 ? 6 : startDay - 1; // Преобразуем воскресенье (0) в 6
+    // Функция для получения дней конкретного месяца
+    const getMonthDays = (monthDate: Date) => {
+        const monthStart = startOfMonth(monthDate);
+        const monthEnd = endOfMonth(monthDate);
 
-    // Добавляем дни предыдущего месяца для заполнения первой недели
-    const calendarStart = subDays(monthStart, adjustedStartDay);
+        // Получаем первый день недели (понедельник = 1)
+        const startDay = getDay(monthStart);
+        const adjustedStartDay = startDay === 0 ? 6 : startDay - 1; // Преобразуем воскресенье (0) в 6
 
-    // Получаем последний день недели
-    const endDay = getDay(monthEnd);
-    const adjustedEndDay = endDay === 0 ? 6 : endDay - 1;
+        // Добавляем дни предыдущего месяца для заполнения первой недели
+        const calendarStart = subDays(monthStart, adjustedStartDay);
 
-    // Добавляем дни следующего месяца для заполнения последней недели
-    const calendarEnd = addDays(monthEnd, 6 - adjustedEndDay);
+        // Получаем последний день недели
+        const endDay = getDay(monthEnd);
+        const adjustedEndDay = endDay === 0 ? 6 : endDay - 1;
 
-    // Получаем все дни для отображения в календаре
-    const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+        // Добавляем дни следующего месяца для заполнения последней недели
+        const calendarEnd = addDays(monthEnd, 6 - adjustedEndDay);
+
+        // Получаем все дни для отображения в календаре
+        return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+    };
 
     // Функция для проверки наличия задач в определенный день
     const hasTasksForDay = (date: Date): boolean => {
@@ -102,8 +109,8 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
     };
 
     // Проверка, является ли день текущим месяцем
-    const isCurrentMonth = (date: Date): boolean => {
-        return date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
+    const isCurrentMonth = (date: Date, monthDate: Date): boolean => {
+        return date.getMonth() === monthDate.getMonth() && date.getFullYear() === monthDate.getFullYear();
     };
 
     // Проверка, является ли день сегодняшним
@@ -138,35 +145,32 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
         );
     };
 
-    // Получаем название месяца
-    const monthName = format(currentDate, 'LLLL', { locale: ru });
-    const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    // Функция для рендера отдельного месяца
+    const renderMonth = (monthDate: Date, monthIndex: number) => {
+        const monthName = format(monthDate, 'LLLL', { locale: ru });
+        const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+        const calendarDays = getMonthDays(monthDate);
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-            {/* Заголовок с названием месяца */}
-            <View style={styles.monthHeader}>
-                <CustomText
-                    content={capitalizedMonthName}
-                    size={hp('3.2')}
-                    color={theme.colors.text}
-                    weight="700"
-                    textCenter
-                />
-            </View>
+        return (
+            <View key={monthIndex} style={styles.monthContainer}>
+                {/* Заголовок месяца */}
+                <View style={styles.monthHeader}>
+                    <CustomText
+                        content={capitalizedMonthName}
+                        size={hp('2.8')}
+                        color={theme.colors.text}
+                        weight="700"
+                        textCenter
+                    />
+                </View>
 
-            <ScrollView
-                style={styles.scrollContainer}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
                 {/* Заголовок с днями недели */}
                 <View style={styles.weekHeader}>
                     {weekDays.map((day, index) => (
                         <View key={index} style={styles.weekDayContainer}>
                             <CustomText
                                 content={day}
-                                size={hp('1.8')}
+                                size={hp('1.6')}
                                 color={theme.colors.secondary}
                                 weight="600"
                                 textCenter
@@ -180,7 +184,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                     {calendarDays.map((date, index) => {
                         const dateString = format(date, 'yyyy-MM-dd');
                         const dayNumber = date.getDate();
-                        const isCurrentMonthDay = isCurrentMonth(date);
+                        const isCurrentMonthDay = isCurrentMonth(date, monthDate);
                         const isTodayDay = isToday(date);
                         const hasTasks = hasTasksForDay(date);
 
@@ -197,7 +201,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                             >
                                 <CustomText
                                     content={dayNumber.toString()}
-                                    size={hp('2')}
+                                    size={hp('1.8')}
                                     color={isTodayDay ? theme.colors.primary : theme.colors.text}
                                     weight={isTodayDay ? '700' : '400'}
                                     textCenter
@@ -207,6 +211,18 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                         );
                     })}
                 </View>
+            </View>
+        );
+    };
+
+    return (
+        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
+            <ScrollView
+                style={styles.scrollContainer}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                {monthsOfYear.map((monthDate, index) => renderMonth(monthDate, index))}
             </ScrollView>
         </View>
     );
@@ -215,12 +231,15 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 12,
+        paddingHorizontal: hp("2"),
         paddingTop: 12,
     },
+    monthContainer: {
+        marginBottom: 32,
+    },
     monthHeader: {
-        paddingVertical: 16,
-        paddingBottom: 20,
+        paddingVertical: 12,
+        paddingBottom: 16,
         alignItems: 'center',
     },
     scrollContainer: {
