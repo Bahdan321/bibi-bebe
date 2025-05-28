@@ -37,7 +37,7 @@ export default function SignIn() {
         // } finally {
         //     setIsLoading(false);
         // }
-        router.push('/(private)/home');
+        router.replace('/(private)/home');
 
     };
 

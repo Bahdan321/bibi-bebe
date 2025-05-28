@@ -84,11 +84,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Пропускаем первый рендер, когда isLoading = true
         if (!isLoading) {
             // if (isAuthenticated) {
-            //     router.push('/(private)/home');
+            //     router.replace('/(private)/home');
             // } else {
-            //     router.push('/(public)/signUp');
+            //     router.replace('/(public)/signUp');
             // }
-            router.push('/(private)/home');
+            router.replace('/(private)/home');
 
         }
     }, [isAuthenticated, isLoading]);

@@ -30,7 +30,7 @@ export default function SignUp() {
         try {
             const result = await signUp(name, email, password);
             if (result.success) {
-                router.push('/(private)/onboardingScreen');
+                router.replace('/(private)/onboardingScreen');
             } else {
                 Alert.alert('Ошибка регистрации', result.error || 'Неверное имя пользователя или пароль');
             }
