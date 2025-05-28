@@ -156,6 +156,29 @@ export const toggleDublicateTask = async (
     const now = new Date();
     const dateString = now.toISOString();
 
+    console.log('Параметры toggleDublicateTask:', {
+      title,
+      space_id,
+      user_id,
+      due_date,
+      display_date,
+      reward,
+      status,
+      description,
+      parent_task_id,
+      created_at,
+      updated_at,
+      completion_date,
+      is_repeating,
+      repeat_interval,
+      planning_period,
+      is_urgent,
+      is_important,
+      is_anime_task,
+      originalTaskId,
+      subtasks
+    });
+
     const mainTaskId = await addTask(
       title,
       space_id,

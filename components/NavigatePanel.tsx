@@ -61,7 +61,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                             <View style={styles.leftContainer}>
                                 <CustomText
                                     content={ShowCurrentMonth(currentDate)}
-                                    size={Platform.OS === 'ios' ? hp('2') : hp('2.8')}
+                                    size={hp('2.8')}
                                     color={theme.colors.text}
                                     weight="700"
                                 />

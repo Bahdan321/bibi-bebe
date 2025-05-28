@@ -21,6 +21,9 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   const [showAnimation, setShowAnimation] = useState(false);
   const getRandomMeme = useRandomMeme();
 
+  console.log('TaskItem rendered for task:', task);
+  console.log('TaskItem rendered for task JSON:', JSON.stringify(task));
+
   // Анимированные значения для мема
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.5);

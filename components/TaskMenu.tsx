@@ -185,12 +185,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   };
 
   const handleDuplicate = () => {
+    console.log("123123122312312312313213123123123123", task.space_id)
     toggleDublicateTask(
       task.title,
       task.space_id,
       task.user_id,
       task.due_date,
       task.display_date,
+      task.reward,
       task.status,
       task.description,
       task.parent_task_id,
@@ -202,7 +204,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.planning_period,
       task.is_urgent,
       task.is_important,
-      task.reward,
       task.is_anime_task,
       task.id,
       subtasks,

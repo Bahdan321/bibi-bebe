@@ -14,6 +14,7 @@ const taskMenu = () => {
 
     const { task, date } = useLocalSearchParams();
     const parsedTask: Task | null = task && typeof task === 'string' ? JSON.parse(task) : null;
+    console.log('Parsed task:', parsedTask);
 
     // Состояние для редактируемых полей
     const [title, setTitle] = useState(parsedTask?.title || '');
