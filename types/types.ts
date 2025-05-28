@@ -6,6 +6,10 @@ export type NavigatePanelProps = {
     currentDate: Date;
     goToPreviousWeek: () => void;
     goToNextWeek: () => void;
+    goToPreviousYear?: () => void;
+    goToNextYear?: () => void;
+    isMonthView?: boolean;
+    toggleView?: () => void;
 }
 
 

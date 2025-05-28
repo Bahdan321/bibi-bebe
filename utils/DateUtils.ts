@@ -90,3 +90,7 @@ export const ShowCurrentMonth = (date: Date) => {
     const formatedData = format(date, 'LLLL yyyy', { locale: ru });
     return `${formatedData[0].toUpperCase()}${formatedData.slice(1)}`;
 };
+
+export const ShowCurrentYear = (date: Date) => {
+    return format(date, 'yyyy', { locale: ru });
+};

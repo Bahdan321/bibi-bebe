@@ -5,11 +5,13 @@ import {
     Platform,
     KeyboardAvoidingView,
     Dimensions,
+    TouchableOpacity,
 } from 'react-native';
 import Animated, {
     useSharedValue,
     withTiming,
     useAnimatedStyle,
+    interpolate,
 } from 'react-native-reanimated';
 import RoundButton from '@/components/RoundButton';
 import CustomText from '@/components/CustomText';
@@ -19,30 +21,85 @@ import {
 } from 'react-native-responsive-screen';
 import { useTheme } from '@/providers/ThemeProvider';
 import { NavigatePanelProps } from '@/types/types';
-import { ShowCurrentMonth } from '@/utils/DateUtils';
+import { ShowCurrentMonth, ShowCurrentYear } from '@/utils/DateUtils';
 import { observer } from '@legendapp/state/react';
 import { router } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const NavigatePanel: React.FC<NavigatePanelProps> = observer(
-    ({ currentDate, goToNextWeek, goToPreviousWeek }) => {
+    ({
+        currentDate,
+        goToNextWeek,
+        goToPreviousWeek,
+        goToNextYear,
+        goToPreviousYear,
+        isMonthView = false,
+        toggleView
+    }) => {
         const { theme } = useTheme();
         const translateX = useSharedValue(0);
+        const textAnimationValue = useSharedValue(isMonthView ? 1 : 0);
+
+        // Обновляем анимацию текста при изменении isMonthView
+        React.useEffect(() => {
+            textAnimationValue.value = withTiming(isMonthView ? 1 : 0, { duration: 300 });
+        }, [isMonthView]);
 
         const slideLeft = () => {
-            console.log("321")
             translateX.value = withTiming(-SCREEN_WIDTH, { duration: 400 });
         };
 
         const slideRight = () => {
-            console.log("123")
             translateX.value = withTiming(0, { duration: 400 });
         };
+
+        const handleTextPress = () => {
+            if (toggleView) {
+                toggleView();
+            }
+        };
+
+        const handleNavigation = () => {
+            if (isMonthView) {
+                // В месячном режиме навигация по годам
+                return {
+                    onPrevious: goToPreviousYear || (() => { }),
+                    onNext: goToNextYear || (() => { })
+                };
+            } else {
+                // В недельном режиме навигация по неделям
+                return {
+                    onPrevious: goToPreviousWeek,
+                    onNext: goToNextWeek
+                };
+            }
+        };
+
+        const navigation = handleNavigation();
 
         const animatedStyle = useAnimatedStyle(() => ({
             transform: [{ translateX: translateX.value }],
         }));
+
+        const monthAnimatedStyle = useAnimatedStyle(() => {
+            const opacity = interpolate(textAnimationValue.value, [0, 1], [1, 0]);
+            const translateY = interpolate(textAnimationValue.value, [0, 1], [0, -10]);
+            return {
+                opacity,
+                transform: [{ translateY }],
+            };
+        });
+
+        const yearAnimatedStyle = useAnimatedStyle(() => {
+            const opacity = interpolate(textAnimationValue.value, [0, 1], [0, 1]);
+            const translateY = interpolate(textAnimationValue.value, [0, 1], [10, 0]);
+            return {
+                opacity,
+                transform: [{ translateY }],
+                position: 'absolute' as const,
+            };
+        });
         return (
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : 'height'}
@@ -58,19 +115,35 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                     >
                         {/* PAGE 1 — default set */}
                         <View style={[styles.buttonsPage, { width: SCREEN_WIDTH }]}>
-                            <View style={styles.leftContainer}>
-                                <CustomText
-                                    content={ShowCurrentMonth(currentDate)}
-                                    size={hp('2.8')}
-                                    color={theme.colors.text}
-                                    weight="700"
-                                />
-                            </View>
+                            <TouchableOpacity
+                                style={styles.leftContainer}
+                                onPress={handleTextPress}
+                                activeOpacity={0.7}
+                            >
+                                <View style={styles.textContainer}>
+                                    <Animated.View style={monthAnimatedStyle}>
+                                        <CustomText
+                                            content={ShowCurrentMonth(currentDate)}
+                                            size={hp('2.8')}
+                                            color={theme.colors.text}
+                                            weight="700"
+                                        />
+                                    </Animated.View>
+                                    <Animated.View style={yearAnimatedStyle}>
+                                        <CustomText
+                                            content={ShowCurrentYear(currentDate)}
+                                            size={hp('2.8')}
+                                            color={theme.colors.text}
+                                            weight="700"
+                                        />
+                                    </Animated.View>
+                                </View>
+                            </TouchableOpacity>
                             <RoundButton
                                 iconName="chevron-back-outline"
                                 iconColor={theme.colors.icon}
                                 buttonColor={theme.colors.button}
-                                onPress={goToPreviousWeek}
+                                onPress={navigation.onPrevious}
                                 size={hp('6')}
                                 borderWidth={0}
                             />
@@ -78,7 +151,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 iconName="chevron-forward-outline"
                                 iconColor={theme.colors.icon}
                                 buttonColor={theme.colors.button}
-                                onPress={goToNextWeek}
+                                onPress={navigation.onNext}
                                 size={hp('6')}
                                 borderWidth={0}
                             />
@@ -170,6 +243,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignContent: 'center',
         paddingLeft: 20,
+    },
+
+    /* Text container for animations */
+    textContainer: {
+        position: 'relative',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        minHeight: hp('3.5'),
     },
 
     /* Slider wrapper */
