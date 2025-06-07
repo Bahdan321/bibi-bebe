@@ -12,9 +12,9 @@ import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
 import { Task } from '@/types/types';
 
 // Очищаем AsyncStorage при необходимости (раскомментируйте для отладки)
-// useEffect(() => {
-//   AsyncStorage.clear();
-// }, []);
+useEffect(() => {
+  AsyncStorage.clear();
+}, []);
 
 export const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL,

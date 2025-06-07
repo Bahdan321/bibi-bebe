@@ -25,12 +25,22 @@ const Home = observer(() => {
     // Проверка даты для показа цитаты
     useEffect(() => {
         const checkQuoteDisplay = async () => {
-            const lastShownDate = await AsyncStorage.getItem('lastQuoteShown');
-            const today = new Date().toISOString().split('T')[0]; // Получаем текущую дату в формате YYYY-MM-DD
+            console.log('Проверка показа цитаты...');
+            try {
+                const lastShownDate = await AsyncStorage.getItem('lastQuoteShown');
+                console.log('Последняя дата:', lastShownDate);
+                const today = new Date().toISOString().split('T')[0];
+                console.log('Сегодня:', today);
 
-            if (lastShownDate !== today) {
-                setShowQuote(true); // Показываем модальное окно, если цитата еще не отображалась сегодня
-                await AsyncStorage.setItem('lastQuoteShown', today); // Сохраняем текущую дату
+                if (lastShownDate !== today) {
+                    console.log('Показываем цитату');
+                    setShowQuote(true);
+                    await AsyncStorage.setItem('lastQuoteShown', today);
+                } else {
+                    console.log('Цитата уже показана сегодня');
+                }
+            } catch (error) {
+                console.error('Ошибка при проверке цитаты:', error);
             }
         };
 
