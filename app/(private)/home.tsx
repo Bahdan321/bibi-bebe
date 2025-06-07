@@ -8,26 +8,38 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import TaskMenu from '@/components/TaskMenu';
 import { useAuth } from '@/providers/AuthProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import QuoteModal from '@/components/QuoteModal';
 
 const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [isMonthView, setIsMonthView] = useState(false);
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [isMenuVisible, setIsMenuVisible] = useState(false);
-    // const { getUserInfo } = useAuth();
+    const [showQuote, setShowQuote] = useState(false); // Состояние для управления видимостью цитаты
 
     useEffect(() => {
         bottomSheetRef.current?.expand();
+    }, [bottomSheetRef]);
 
-    }, [bottomSheetRef])
+    // Проверка даты для показа цитаты
+    useEffect(() => {
+        const checkQuoteDisplay = async () => {
+            const lastShownDate = await AsyncStorage.getItem('lastQuoteShown');
+            const today = new Date().toISOString().split('T')[0]; // Получаем текущую дату в формате YYYY-MM-DD
+
+            if (lastShownDate !== today) {
+                setShowQuote(true); // Показываем модальное окно, если цитата еще не отображалась сегодня
+                await AsyncStorage.setItem('lastQuoteShown', today); // Сохраняем текущую дату
+            }
+        };
+
+        checkQuoteDisplay();
+    }, []);
 
     const handleCloseMenu = () => {
         console.log('BottomSheet closed');
     };
-
-    // getUserInfo();
-
-
 
     const handleDuplicateTask = (task: any) => {
         console.log('Duplicate task:', task);
@@ -81,6 +93,10 @@ const Home = observer(() => {
         setIsMonthView(false);
     };
 
+    const closeQuoteModal = () => {
+        setShowQuote(false);
+    };
+
     return (
         <View style={{ flex: 1, flexDirection: 'column' }}>
             {isMonthView ? (
@@ -97,6 +113,7 @@ const Home = observer(() => {
                 isMonthView={isMonthView}
                 toggleView={toggleView}
             />
+            <QuoteModal visible={showQuote} onClose={closeQuoteModal} />
         </View>
     )
 });
