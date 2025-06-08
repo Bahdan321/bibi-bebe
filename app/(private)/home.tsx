@@ -123,7 +123,7 @@ const Home = observer(() => {
                 isMonthView={isMonthView}
                 toggleView={toggleView}
             />
-            <QuoteModal visible={showQuote} onClose={closeQuoteModal} />
+            {/* <QuoteModal visible={showQuote} onClose={closeQuoteModal} /> */}
         </View>
     )
 });

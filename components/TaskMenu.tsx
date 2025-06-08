@@ -33,6 +33,7 @@ import NewSubtaskInput from './NewSubtaskInput';
 import SubtaskItem from './SubtaskItem';
 import { v4 as uuidv4 } from 'uuid';
 import { observe } from '@legendapp/state';
+import ReminderModal from './ReminderModal';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
   task,
@@ -55,6 +56,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const [timeLeft, setTimeLeft] = useState('');
   const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
   const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
+  const [reminderVisible, setReminderVisible] = useState(false);
+
   const [subtasks, setSubtasks] = useState<Task[]>([]);
   const [rewardNameInput, setRewardNameInput] = useState(task.reward);
   const [taskRewardCopy, setTaskRewardCopy] = useState(task.reward);
@@ -484,7 +487,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           />
         </View>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity onPress={() => { setReminderVisible(!reminderVisible) }} style={styles.actionButton}>
           <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
         </TouchableOpacity>
 
@@ -512,6 +515,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         onClose={() => setIsCalendarVisible(false)}
         onApply={handleCalendarApply}
         initialDate={new Date(task.display_date || task.due_date)}
+      />
+      <ReminderModal
+        visible={reminderVisible}
+        onClose={() => setReminderVisible(!reminderVisible)}
+        taskTitle="Моя задача"
+        onReminderSet={(date, id) => {/* сохранить */ }}
       />
     </ScrollView>
   );
