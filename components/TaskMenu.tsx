@@ -48,7 +48,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
   const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
   const [taskStatusColor, setTaskStatusColor] = useState(
-    task.status ? theme.colors.icon : theme.colors.text,
+    task.status ? theme.colors.secondary : theme.colors.text,
   );
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
@@ -221,7 +221,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const currentStatus = taskStatusCopy;
     toggleTaskCompletion(taskId);
     setTaskStatusCopy((prev) => !prev);
-    setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.icon : theme.colors.text));
+    setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.secondary : theme.colors.text));
   };
 
   const formattedDate = getFormatedDateOfYear(date);

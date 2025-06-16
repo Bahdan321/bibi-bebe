@@ -3,12 +3,12 @@ import { Theme } from '@/theme/types';
 export const lightTheme: Theme = {
   colors: {
     primary: 'white',
-    secondary: 'pink',
-    third: "#FAEBD7",
+    secondary: '#bfd3c1',
+    third: "white",
     background: 'gray',
     text: 'black',
     error: 'red',
-    icon: '#FAEBD7',
+    icon: 'white',
     button: 'black',
     settingsBackground: "white",
     currentDay: '#00BFFF',
@@ -30,16 +30,16 @@ export const lightTheme: Theme = {
 
 export const darkTheme: Theme = {
   colors: {
-    primary: 'black',
+    primary: '#1D1E33',
     secondary: 'white',
-    third: "#1C1C1C",
+    third: "#1D1E33",
     background: 'gray',
     text: 'white',
     error: 'red',
     icon: 'black',
     button: 'white',
-    settingsBackground: "black",
-    currentDay: '#FFD700',
+    settingsBackground: '#1D1E33',
+    currentDay: '#048ba8',
   },
   spacing: {
     xs: 4,

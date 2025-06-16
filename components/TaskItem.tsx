@@ -96,9 +96,9 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         </TouchableOpacity>
         <RoundButton
           iconName={'checkmark-outline'}
-          iconColor={task.status ? theme.colors.third : theme.colors.text}
-          buttonColor={theme.colors.primary}
-          borderColor={task.status ? theme.colors.third : theme.colors.text}
+          iconColor={task.status ? theme.colors.primary : theme.colors.text}
+          buttonColor={task.status ? theme.colors.secondary : theme.colors.third}
+          borderColor={task.status ? theme.colors.secondary : theme.colors.text}
           borderWidth={1.5}
           onPress={handleToggleCompletion}
           size={hp('3.5')}
