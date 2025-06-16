@@ -9,6 +9,7 @@ export interface Theme {
     icon: string;
     button: string;
     settingsBackground: string;
+    currentDay: string;
   };
   spacing: {
     xs: number;

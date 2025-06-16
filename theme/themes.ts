@@ -11,6 +11,7 @@ export const lightTheme: Theme = {
     icon: '#FAEBD7',
     button: 'black',
     settingsBackground: "white",
+    currentDay: '#00BFFF',
   },
   spacing: {
     xs: 4,
@@ -38,6 +39,7 @@ export const darkTheme: Theme = {
     icon: 'black',
     button: 'white',
     settingsBackground: "black",
+    currentDay: '#FFD700',
   },
   spacing: {
     xs: 4,
