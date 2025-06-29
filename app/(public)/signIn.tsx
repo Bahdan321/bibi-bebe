@@ -1,72 +1,51 @@
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import ReverseButton from '@/components/ReverseButton';
 import TextInputField from '@/components/TextInputField';
-import ClickableText from '@/components/СlickableText';
 import Button from '@/components/Button';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/providers/ThemeProvider';
 import { useAuth } from '@/providers/AuthProvider';
 
 export default function SignIn() {
-    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { theme } = useTheme();
     const { signIn } = useAuth();
 
     const handleSignIn = async () => {
-        // if (!name || !password) {
-        //     Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
-        //     return;
-        // }
-
-        // setIsLoading(true);
-        // try {
-        //     const result = await signIn(name, password);
-        //     if (result.success) {
-        //         router.push('/(private)/home');
-        //     } else {
-        //         Alert.alert('Ошибка входа', result.error || 'Неверное почта или пароль');
-        //     }
-        // } catch (error) {
-        //     console.error('Error signing in:', error);
-        //     Alert.alert('Ошибка', 'Произошла ошибка при входе');
-        // } finally {
-        //     setIsLoading(false);
-        // }
         router.replace('/(private)/home');
-
-    };
-
-    const routeToSignUp = () => {
-        router.push('/(public)/signUp');
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-            <Text style={[styles.title, { color: theme.colors.text }]}>Авторизация</Text>
+        <View style={styles.container}>
+            <View style={styles.tabContainer}>
+                <Text style={[styles.tabText, { color: '#FFFFFF' }]}>Login</Text>
+                <Text style={styles.tabSeparator}>◆</Text>
+                <TouchableOpacity onPress={() => router.push('/(public)/signUp')}>
+                    <Text style={[styles.tabText, { color: '#8A8A8A' }]}>Sign up</Text>
+                </TouchableOpacity>
+            </View>
             <TextInputField
-                label="Никнейм"
-                labelColor={theme.colors.text}
-                borderColor={theme.colors.text}
-                textColor={theme.colors.text}
-                value={name}
-                onChangeText={setName}
-                style={[styles.inputField, { borderColor: theme.colors.primary }]}
+                label="Email"
+                labelColor="#B0B0B0"
+                borderColor="#4A4A4A"
+                textColor="#FFFFFF"
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
             />
             <View style={styles.passwordContainer}>
                 <TextInputField
-                    label="Пароль"
-                    labelColor={theme.colors.text}
-                    borderColor={theme.colors.text}
-                    textColor={theme.colors.text}
+                    label="Password"
+                    labelColor="#B0B0B0"
+                    borderColor="#4A4A4A"
+                    textColor="#FFFFFF"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!isPasswordVisible}
-                    style={[styles.passwordInput, { borderColor: theme.colors.primary }]}
+                    style={[styles.input, { paddingRight: 40 }]} // Отступ для кнопки
                 />
                 <ReverseButton
                     isVisible={isPasswordVisible}
@@ -75,24 +54,16 @@ export default function SignIn() {
                 />
             </View>
             {isLoading ? (
-                <ActivityIndicator size="large" color={theme.colors.secondary} style={styles.loader} />
+                <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
             ) : (
                 <Button
                     title="Войти"
-                    titleColor={theme.colors.secondary}
-                    buttonColor={theme.colors.primary}
+                    titleColor="#1C2526"
+                    buttonColor="#FFFFFF"
                     onPress={handleSignIn}
                     style={styles.button}
                 />
             )}
-            <View style={styles.clickableText}>
-                <ClickableText
-                    title="Нет аккаунта?"
-                    titleColor={theme.colors.secondary}
-                    onPress={routeToSignUp}
-                    style={styles.clickableText}
-                />
-            </View>
         </View>
     );
 }
@@ -102,38 +73,49 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 20,
+        backgroundColor: '#1C2526',
     },
-    title: {
-        fontSize: 24,
-        marginBottom: 20,
-        textAlign: 'center',
+    tabContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 40,
     },
-    inputField: {
+    tabText: {
+        fontSize: 18,
+        fontWeight: '500',
+    },
+    tabSeparator: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        marginHorizontal: 10,
+    },
+    input: {
+        backgroundColor: '#2A2A2A',
+        borderColor: '#4A4A4A',
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        color: '#FFFFFF',
         marginBottom: 15,
     },
     passwordContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        position: 'relative', // Относительное позиционирование
         marginBottom: 15,
     },
-    passwordInput: {
-        flex: 1,
-    },
     reverseButton: {
-        marginLeft: 8,
+        position: 'absolute', // Абсолютное позиционирование
+        right: 10, // Отступ справа
+        top: '50%', // Центрирование по вертикали
+        transform: [{ translateY: -20 }], // Корректировка положения
     },
     button: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    clickableText: {
-        marginTop: 20,
-        alignSelf: 'flex-start'
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
     },
     loader: {
-        marginVertical: 10
-    }
+        marginVertical: 10,
+    },
 });
