@@ -86,9 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // if (isAuthenticated) {
             //     router.replace('/(private)/home');
             // } else {
-            //     router.replace('/(public)/signUp');
+            //     router.replace('/(public)/signIn');
             // }
-            router.replace('/(private)/home');
+            // router.replace('/(private)/home');
 
         }
     }, [isAuthenticated, isLoading]);

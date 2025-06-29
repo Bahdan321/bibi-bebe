@@ -29,7 +29,7 @@ export const lightTheme: Theme = {
 
 export const darkTheme: Theme = {
   colors: {
-    primary: 'black',
+    primary: '#1C2526',
     secondary: 'white',
     third: "#1C1C1C",
     background: 'gray',
