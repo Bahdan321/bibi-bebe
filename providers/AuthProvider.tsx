@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         // Запускаем проверку аутентификации при монтировании компонента
-        // checkAuth();
+        checkAuth();
         // SecureStore.deleteItemAsync('access_token');
         // SecureStore.deleteItemAsync('refresh_token');
     }, []);
@@ -83,11 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         // Пропускаем первый рендер, когда isLoading = true
         if (!isLoading) {
-            // if (isAuthenticated) {
-            //     router.replace('/(private)/home');
-            // } else {
-            //     router.replace('/(public)/signIn');
-            // }
+            if (isAuthenticated) {
+                router.replace('/(private)/home');
+            } else {
+                router.replace('/(public)/signIn');
+            }
             // router.replace('/(private)/home');
 
         }

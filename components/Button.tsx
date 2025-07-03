@@ -12,10 +12,10 @@ type ButtonProps = {
 const Button: React.FC<ButtonProps> = ({ title, titleColor, buttonColor, onPress, style }) => {
     return (
         <TouchableOpacity
-            style={[styles.button,{ backgroundColor: buttonColor }]}
+            style={[styles.button, { backgroundColor: buttonColor }]}
             onPress={onPress}
         >
-            <Text style={[styles.text,{color:titleColor}]}>
+            <Text style={[styles.text, { color: titleColor }]}>
                 {title}
             </Text>
         </TouchableOpacity>
@@ -23,14 +23,14 @@ const Button: React.FC<ButtonProps> = ({ title, titleColor, buttonColor, onPress
 }
 
 const styles = StyleSheet.create({
-    button: { 
+    button: {
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    text: { 
+    text: {
         fontSize: 16,
     },
 });
