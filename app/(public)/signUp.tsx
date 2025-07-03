@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Platform } from 'react-native';
 import React, { useState } from 'react';
 import ReverseButton from '@/components/ReverseButton';
 import TextInputField from '@/components/TextInputField';
 import Button from '@/components/Button';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
+import ServiceButton from '@/components/ServiceButton';
 
 export default function SignUp() {
     const [name, setName] = useState('');
@@ -35,6 +36,16 @@ export default function SignUp() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleGoogleSignUp = () => {
+        Alert.alert('Внимание', 'Регистрация через Google пока не реализована');
+    };
+
+    const handleAppleSignUp = () => {
+        Alert
+
+            .alert('Внимание', 'Регистрация через Apple пока не реализована');
     };
 
     return (
@@ -73,7 +84,7 @@ export default function SignUp() {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!isPasswordVisible}
-                    style={[styles.input, { paddingRight: 40 }]} // Отступ для кнопки
+                    style={[styles.input, { paddingRight: 40 }]}
                 />
                 <ReverseButton
                     isVisible={isPasswordVisible}
@@ -84,13 +95,34 @@ export default function SignUp() {
             {isLoading ? (
                 <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
             ) : (
-                <Button
-                    title="Зарегистрироваться"
-                    titleColor="#1C2526"
-                    buttonColor="#FFFFFF"
-                    onPress={handleSignUp}
-                    style={styles.button}
-                />
+                <>
+                    <Button
+                        title="Зарегистрироваться"
+                        titleColor="#1C2526"
+                        buttonColor="#FFFFFF"
+                        onPress={handleSignUp}
+                        style={styles.button}
+                    />
+                    <Text style={styles.orText}>или</Text>
+                    <ServiceButton
+                        title="Google"
+                        titleColor="#FFFFFF"
+                        buttonColor="#4285F4"
+                        onPress={handleGoogleSignUp}
+                        style={styles.socialButton}
+                        icon='logo-google'
+                    />
+                    {Platform.OS === 'ios' && (
+                        <ServiceButton
+                            title="Apple"
+                            titleColor="#FFFFFF"
+                            buttonColor="#000000"
+                            onPress={handleAppleSignUp}
+                            style={styles.socialButton}
+                            icon='logo-apple'
+                        />
+                    )}
+                </>
             )}
         </View>
     );
@@ -127,14 +159,14 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     passwordContainer: {
-        position: 'relative', // Относительное позиционирование
+        position: 'relative',
         marginBottom: 15,
     },
     reverseButton: {
-        position: 'absolute', // Абсолютное позиционирование
-        right: 10, // Отступ справа
-        top: '50%', // Центрирование по вертикали
-        transform: [{ translateY: -20 }], // Корректировка положения
+        position: 'absolute',
+        right: 10,
+        top: '50%',
+        transform: [{ translateY: -20 }],
     },
     button: {
         elevation: 2,
@@ -142,6 +174,15 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
+        marginBottom: 10,
+    },
+    socialButton: {
+        marginBottom: 10,
+    },
+    orText: {
+        color: '#FFFFFF',
+        textAlign: 'center',
+        marginVertical: 10,
     },
     loader: {
         marginVertical: 10,
