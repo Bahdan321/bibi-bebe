@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Platform } from 'react-native';
 import React, { useState } from 'react';
-import ReverseButton from '@/components/ReverseButton';
+
 import TextInputField from '@/components/TextInputField';
-import Button from '@/components/Button';
+
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 import { Ionicons } from '@expo/vector-icons';
-import ServiceButton from '@/components/ServiceButton';
+import { CustomButton } from '@/components/base';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
@@ -57,7 +57,9 @@ export default function SignIn() {
                     secureTextEntry={!isPasswordVisible}
                     style={[styles.input, { paddingRight: 40 }]}
                 />
-                <ReverseButton
+                <CustomButton
+                    variant="reverse"
+                    size="small"
                     isVisible={isPasswordVisible}
                     onPress={() => setIsPasswordVisible(prev => !prev)}
                     style={styles.reverseButton}
@@ -67,30 +69,35 @@ export default function SignIn() {
                 <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
             ) : (
                 <>
-                    <Button
+                    <CustomButton
+                        variant="primary"
+                        size="medium"
                         title="Войти"
                         titleColor="#1C2526"
-                        buttonColor="#FFFFFF"
                         onPress={handleSignIn}
-                        style={styles.button}
+                        style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
                     />
                     <Text style={styles.orText}>или</Text>
-                    <ServiceButton
+                    <CustomButton
+                        variant="service"
+                        size="medium"
                         title="Google"
-                        titleColor="#FFFFFF"
-                        buttonColor="#4285F4"
                         onPress={handleGoogleSignIn}
-                        style={styles.socialButton}
-                        icon='logo-google'
+                        style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
+                        icon="logo-google"
+                        iconColor="#FFFFFF"
+                        titleColor="#FFFFFF"
                     />
                     {Platform.OS === 'ios' && (
-                        <ServiceButton
+                        <CustomButton
+                            variant="service"
+                            size="medium"
                             title="Apple"
-                            titleColor="#FFFFFF"
-                            buttonColor="#000000"
                             onPress={handleAppleSignIn}
-                            style={styles.socialButton}
-                            icon='logo-apple'
+                            style={{ ...styles.socialButton, backgroundColor: '#000000' }}
+                            icon="logo-apple"
+                            iconColor="#FFFFFF"
+                            titleColor="#FFFFFF"
                         />
                     )}
                 </>
@@ -149,6 +156,8 @@ const styles = StyleSheet.create({
     },
     socialButton: {
         marginBottom: 10,
+        alignSelf: 'center',
+        width: '70%',
     },
     orText: {
         color: '#FFFFFF',

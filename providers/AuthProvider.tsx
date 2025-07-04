@@ -230,6 +230,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         } catch (error) {
             console.error('Error during create new space:', error);
+            return { success: false, error: 'Произошла ошибка при создании пространства' };
         } finally {
             setIsLoading(false);
         }

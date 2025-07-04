@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Gigabar from './Gigabar';
-import RoundButton from './RoundButton';
+import { CustomButton } from './base';
 import CustomText from './CustomText';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { TaskItemProps } from '@/types/types';
@@ -94,14 +94,19 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
             backgroundColor={taskBorderColor(task.is_urgent, task.is_important)}
           />
         </TouchableOpacity>
-        <RoundButton
-          iconName={'checkmark-outline'}
+        <CustomButton
+          variant="round"
+          size="small"
+          icon="checkmark-outline"
           iconColor={task.status ? theme.colors.third : theme.colors.text}
-          buttonColor={theme.colors.primary}
-          borderColor={task.status ? theme.colors.third : theme.colors.text}
-          borderWidth={1.5}
           onPress={handleToggleCompletion}
-          size={hp('3.5')}
+          style={{
+            backgroundColor: theme.colors.primary,
+            borderColor: task.status ? theme.colors.third : theme.colors.text,
+            borderWidth: 1.5,
+            width: hp('3.5'),
+            height: hp('3.5')
+          }}
           hitSlop={10}
         />
       </View>

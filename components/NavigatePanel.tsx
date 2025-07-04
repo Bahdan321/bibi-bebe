@@ -15,7 +15,7 @@ import Animated, {
     runOnJS,
     withSequence,
 } from 'react-native-reanimated';
-import RoundButton from '@/components/RoundButton';
+import { CustomButton } from '@/components/base';
 import CustomText from '@/components/CustomText';
 import {
     widthPercentageToDP as wp,
@@ -172,84 +172,84 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 </View>
                             </TouchableOpacity>
                             <Animated.View style={navigationAnimatedStyle}>
-                                <RoundButton
-                                    iconName="chevron-back-outline"
+                                <CustomButton
+                                    variant="round"
+                                    size="medium"
+                                    icon="chevron-back-outline"
                                     iconColor={theme.colors.icon}
-                                    buttonColor={theme.colors.button}
                                     onPress={navigation.onPrevious}
-                                    size={hp('6')}
-                                    borderWidth={0}
+                                    style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                                 />
                             </Animated.View>
                             <Animated.View style={navigationAnimatedStyle}>
-                                <RoundButton
-                                    iconName="chevron-forward-outline"
+                                <CustomButton
+                                    variant="round"
+                                    size="medium"
+                                    icon="chevron-forward-outline"
                                     iconColor={theme.colors.icon}
-                                    buttonColor={theme.colors.button}
                                     onPress={navigation.onNext}
-                                    size={hp('6')}
-                                    borderWidth={0}
+                                    style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                                 />
                             </Animated.View>
-                            <RoundButton
-                                iconName="grid"
+                            <CustomButton
+                                variant="round"
+                                size="medium"
+                                icon="grid"
                                 iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
                                 onPress={slideLeft}
-                                size={hp('6')}
-                                borderWidth={0}
+                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                             />
                         </View>
 
                         {/* PAGE 2 — alternative set */}
                         <View style={[styles.buttonsPage, { width: SCREEN_WIDTH }]}>
-                            <RoundButton
-                                iconName="ellipse-sharp"
+                            <CustomButton
+                                variant="round"
+                                size="medium"
+                                icon="ellipse-sharp"
                                 iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
                                 onPress={onOpenSettings || (() => { })}
-                                size={hp('6')}
-                                borderWidth={0}
+                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                             />
-                            <RoundButton
-                                iconName="copy-outline"
+                            <CustomButton
+                                variant="round"
+                                size="medium"
+                                icon="copy-outline"
                                 iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
                                 onPress={onOpenKakoetoMenu || (() => { })}
-                                size={hp('6')}
-                                borderWidth={0}
+                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                             />
-                            <RoundButton
-                                iconName="calendar-clear"
+                            <CustomButton
+                                variant="round"
+                                size="medium"
+                                icon="calendar-clear"
                                 iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
                                 onPress={onOpenGoals || (() => { })}
-                                size={hp('6')}
-                                borderWidth={0}
+                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                             />
-                            <RoundButton
-                                iconName="browsers-outline"
+                            <CustomButton
+                                variant="round"
+                                size="medium"
+                                icon="browsers-outline"
                                 iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
                                 onPress={onOpenSpaces || (() => { })}
-                                size={hp('6')}
-                                borderWidth={0}
+                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                             />
-                            <RoundButton
-                                iconName="person"
+                            <CustomButton
+                                variant="round"
+                                size="medium"
+                                icon="person"
                                 iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
                                 onPress={onOpenProfile || (() => { })}
-                                size={hp('6')}
-                                borderWidth={0}
+                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                             />
-                            <RoundButton
-                                iconName="arrow-back"
+                            <CustomButton
+                                variant="round"
+                                size="medium"
+                                icon="arrow-back"
                                 iconColor={theme.colors.icon}
-                                buttonColor={theme.colors.button}
                                 onPress={slideRight}
-                                size={hp('6')}
-                                borderWidth={0}
+                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
                             />
                         </View>
                     </Animated.View>

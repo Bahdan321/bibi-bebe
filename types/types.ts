@@ -115,3 +115,68 @@ export type CustomTextProps = {
     paddingHorizontal?: number;
     textCenter?: boolean;
 }
+
+// Типы для базовых компонентов
+import { ViewStyle, GestureResponderEvent } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+export interface CustomButtonProps {
+    variant: 'primary' | 'secondary' | 'service' | 'round' | 'text' | 'reverse';
+    title?: string;
+    onPress: (event?: GestureResponderEvent) => void;
+    icon?: keyof typeof Ionicons.glyphMap;
+    iconColor?: string;
+    iconSize?: number;
+    disabled?: boolean;
+    loading?: boolean;
+    size?: 'small' | 'medium' | 'large';
+    style?: ViewStyle;
+    titleColor?: string;
+    buttonColor?: string;
+    borderColor?: string;
+    borderWidth?: number;
+    hitSlop?: number;
+    activeOpacity?: number;
+    isVisible?: boolean; // для reverse варианта
+}
+
+export interface CustomViewProps {
+    variant?: 'card' | 'container' | 'row' | 'column' | 'center' | 'flex';
+    padding?: number | 'small' | 'medium' | 'large' | 'none';
+    margin?: number | 'small' | 'medium' | 'large' | 'none';
+    backgroundColor?: string;
+    borderRadius?: number | 'small' | 'medium' | 'large';
+    borderWidth?: number;
+    borderColor?: string;
+    shadowEnabled?: boolean;
+    flex?: number;
+    alignItems?: 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
+    justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly';
+    flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+    style?: ViewStyle;
+    children: React.ReactNode;
+}
+
+export interface CustomTouchableProps {
+    onPress: (event?: GestureResponderEvent) => void;
+    disabled?: boolean;
+    activeOpacity?: number;
+    hitSlop?: {
+        top?: number;
+        bottom?: number;
+        left?: number;
+        right?: number;
+    };
+    style?: ViewStyle;
+    children: React.ReactNode;
+    padding?: number | 'small' | 'medium' | 'large' | 'none';
+    margin?: number | 'small' | 'medium' | 'large' | 'none';
+    borderRadius?: number;
+    backgroundColor?: string;
+    borderWidth?: number;
+    borderColor?: string;
+    flex?: number;
+    alignItems?: 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
+    justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly';
+    flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+}

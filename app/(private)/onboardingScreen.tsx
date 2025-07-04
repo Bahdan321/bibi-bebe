@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Animated, TextInput, KeyboardAvoidingView, Plat
 import React, { useEffect, useRef, useState } from 'react'
 import { useTheme } from '@/providers/ThemeProvider';
 import { useRouter } from 'expo-router';
-import Button from '@/components/Button';
+import { CustomButton } from '@/components/base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useAuth } from '@/providers/AuthProvider';
 
@@ -46,9 +46,9 @@ const OnboardingScreen = () => {
 
     const handleSubmit = async () => {
         console.log('Food preference submitted:', spaceName);
-        const result = await createUserSpace(spaceName)
+        const result = await createUserSpace(spaceName);
 
-        if (result.success) {
+        if (result && result.success) {
             router.replace('/(private)/home');
         }
     };
@@ -98,12 +98,13 @@ const OnboardingScreen = () => {
                             placeholderTextColor={theme.colors.background}
                         />
 
-                        <Button
+                        <CustomButton
+                            variant="primary"
+                            size="medium"
                             title="Отправить"
                             titleColor={theme.colors.text}
-                            buttonColor={theme.colors.primary}
                             onPress={handleSubmit}
-                            style={styles.button}
+                            style={{...styles.button, backgroundColor: theme.colors.primary}}
                         />
                     </Animated.View>
                 )}

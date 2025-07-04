@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, ScrollView, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
+import CustomText from './CustomText';
+import { CustomButton } from './base';
 
 // Интерфейс для пропсов
 interface TimePickerProps {
@@ -13,9 +15,9 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
     const [selectedDay, setSelectedDay] = useState('00');
     const [hours, setHours] = useState('00');
     const [minutes, setMinutes] = useState('00');
-    const daysRef = useRef(null);
-    const hoursRef = useRef(null);
-    const minutesRef = useRef(null);
+    const daysRef = useRef<ScrollView>(null);
+    const hoursRef = useRef<ScrollView>(null);
+    const minutesRef = useRef<ScrollView>(null);
 
     const daysArray = Array.from({ length: 31 }, (_, i) => (i).toString().padStart(2, '0')); // От "00" до "17"
     const hoursArray = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')); // От "00" до "23"
@@ -41,7 +43,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
         }
     }, [selectedDay, hours, minutes]);
 
-    const handleDaysScroll = (event) => {
+    const handleDaysScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < daysArray.length) {
@@ -49,7 +51,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
         }
     };
 
-    const handleHoursScroll = (event) => {
+    const handleHoursScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < hoursArray.length) {
@@ -57,7 +59,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
         }
     };
 
-    const handleMinutesScroll = (event) => {
+    const handleMinutesScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < minutesArray.length) {
@@ -81,11 +83,29 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
     return (
         <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <View style={styles.labelContainer}>
-                <Text style={[styles.label, { color: theme.colors.secondary }]}>Дни</Text>
-                <Text style={styles.labelSpacer} />
-                <Text style={[styles.label, { color: theme.colors.secondary }]}>Часы</Text>
-                <Text style={styles.labelSpacer} />
-                <Text style={[styles.label, { color: theme.colors.secondary }]}>Минуты</Text>
+                <CustomText 
+                    content="Дни" 
+                    size={16} 
+                    color={theme.colors.secondary} 
+                    weight="bold" 
+                    textCenter 
+                />
+                <View style={styles.labelSpacer} />
+                <CustomText 
+                    content="Часы" 
+                    size={16} 
+                    color={theme.colors.secondary} 
+                    weight="bold" 
+                    textCenter 
+                />
+                <View style={styles.labelSpacer} />
+                <CustomText 
+                    content="Минуты" 
+                    size={16} 
+                    color={theme.colors.secondary} 
+                    weight="bold" 
+                    textCenter 
+                />
             </View>
             <View style={styles.unifiedPicker}>
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>
@@ -103,24 +123,24 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                             const fontWeight = isSelected ? 'bold' : 'normal';
                             return (
                                 <View key={`day-${index}`} style={styles.item}>
-                                    <Text
-                                        style={[
-                                            styles.itemText,
-                                            {
-                                                color: isSelected ? theme.colors.secondary : theme.colors.text,
-                                                fontSize,
-                                                fontWeight,
-                                            },
-                                        ]}
-                                    >
-                                        {day}
-                                    </Text>
+                                    <CustomText
+                                        content={day}
+                                        size={fontSize}
+                                        color={isSelected ? theme.colors.secondary : theme.colors.text}
+                                        weight={fontWeight as 'normal' | 'bold'}
+                                        textCenter
+                                    />
                                 </View>
                             );
                         })}
                     </ScrollView>
                 </View>
-                <Text style={[styles.separator, { color: theme.colors.text }]}>:</Text>
+                <CustomText 
+                    content=":" 
+                    size={24} 
+                    color={theme.colors.text} 
+                    weight="normal" 
+                />
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>
                     <ScrollView
                         ref={hoursRef}
@@ -136,24 +156,24 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                             const fontWeight = isSelected ? 'bold' : 'normal';
                             return (
                                 <View key={`hour-${index}`} style={styles.item}>
-                                    <Text
-                                        style={[
-                                            styles.itemText,
-                                            {
-                                                color: isSelected ? theme.colors.secondary : theme.colors.text,
-                                                fontSize,
-                                                fontWeight,
-                                            },
-                                        ]}
-                                    >
-                                        {hour}
-                                    </Text>
+                                    <CustomText
+                                        content={hour}
+                                        size={fontSize}
+                                        color={isSelected ? theme.colors.secondary : theme.colors.text}
+                                        weight={fontWeight as 'normal' | 'bold'}
+                                        textCenter
+                                    />
                                 </View>
                             );
                         })}
                     </ScrollView>
                 </View>
-                <Text style={[styles.separator, { color: theme.colors.text }]}>:</Text>
+                <CustomText 
+                    content=":" 
+                    size={24} 
+                    color={theme.colors.text} 
+                    weight="normal" 
+                />
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>
                     <ScrollView
                         ref={minutesRef}
@@ -169,33 +189,34 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                             const fontWeight = isSelected ? 'bold' : 'normal';
                             return (
                                 <View key={`minute-${index}`} style={styles.item}>
-                                    <Text
-                                        style={[
-                                            styles.itemText,
-                                            {
-                                                color: isSelected ? theme.colors.secondary : theme.colors.text,
-                                                fontSize,
-                                                fontWeight,
-                                            },
-                                        ]}
-                                    >
-                                        {minute}
-                                    </Text>
+                                    <CustomText
+                                        content={minute}
+                                        size={fontSize}
+                                        color={isSelected ? theme.colors.secondary : theme.colors.text}
+                                        weight={fontWeight as 'normal' | 'bold'}
+                                        textCenter
+                                    />
                                 </View>
                             );
                         })}
                     </ScrollView>
                 </View>
             </View>
-            <Text style={[styles.selectedTime, { color: theme.colors.secondary }]}>
-                {selectedDay} at {hours}:{minutes}
-            </Text>
-            <TouchableOpacity
-                style={[styles.confirmButton, { backgroundColor: theme.colors.secondary }]}
+            <CustomText
+                content={`${selectedDay} at ${hours}:${minutes}`}
+                size={18}
+                color={theme.colors.text}
+                weight="normal"
+                textCenter
+                style={styles.selectedTime}
+            />
+            <CustomButton
+                variant="primary"
+                size="medium"
+                title="Подтвердить"
                 onPress={handleConfirm}
-            >
-                <Text style={[styles.confirmButtonText, { color: theme.colors.primary }]}>Подтвердить</Text>
-            </TouchableOpacity>
+                style={styles.confirmButton}
+            />
         </View>
     );
 };
@@ -247,28 +268,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
     },
-    itemText: {
-        color: '#fff',
-    },
-    separator: {
-        fontSize: 24,
-        marginHorizontal: 10,
-    },
     selectedTime: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        textAlign: 'center',
         marginTop: 10,
     },
     confirmButton: {
         marginTop: 20,
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-    },
-    confirmButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 });
 
