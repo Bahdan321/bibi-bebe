@@ -167,7 +167,7 @@ const Home = observer(() => {
                     onOpenKakoetoMenu={openKakoetoMenuBottomSheet}
                     onOpenGoals={openGoalsBottomSheet}
                 />
-                {/* <QuoteModal visible={showQuote} onClose={closeQuoteModal} /> */}
+                <QuoteModal visible={showQuote} onClose={closeQuoteModal} />
 
                 {/* BottomSheet для Settings */}
                 <BottomSheet

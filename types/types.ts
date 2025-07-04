@@ -103,9 +103,9 @@ export interface TaskMenuProps {
 
 export type CustomTextProps = {
     content: string;
-    size: number;
-    color: string;
-    weight: 'normal' | 'bold' | '600' | '700' | '400';
+    size?: number;
+    color?: string;
+    weight?: 'normal' | 'bold' | '600' | '700' | '400';
     lineThrough?: boolean;
     opacity?: number;
     borderRadius?: number;
@@ -114,6 +114,7 @@ export type CustomTextProps = {
     backgroundColor?: string;
     paddingHorizontal?: number;
     textCenter?: boolean;
+    style?: ViewStyle;
 }
 
 // Типы для базовых компонентов

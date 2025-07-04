@@ -223,7 +223,7 @@ const createStyles = (theme: Theme) =>
     },
     headerText: {
       color: theme.colors.text,
-      fontSize: 18,
+      fontSize: 24,
       fontWeight: 'bold',
     },
     daysOfWeekContainer: {

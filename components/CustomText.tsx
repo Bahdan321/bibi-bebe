@@ -5,12 +5,12 @@ import { FONT_SIZES, FONT_WEIGHTS, SPACING, BORDER_RADIUS } from '@/constants/de
 
 const CustomText: React.FC<CustomTextProps> = ({
     content,
-    size = FONT_SIZES.medium,
+    size = FONT_SIZES.md,
     color,
     weight = 'normal',
     lineThrough = false,
     opacity = 1,
-    borderRadius = BORDER_RADIUS.small,
+    borderRadius = BORDER_RADIUS.sm,
     borderColor,
     borderWidth,
     backgroundColor,
@@ -19,7 +19,7 @@ const CustomText: React.FC<CustomTextProps> = ({
     style,
 }) => {
     const validatedOpacity = Math.min(Math.max(opacity, 0), 1);
-    
+
     const textStyle: TextStyle = {
         fontSize: size,
         color: color,
@@ -35,7 +35,7 @@ const CustomText: React.FC<CustomTextProps> = ({
         borderWidth: borderWidth,
         borderColor: borderColor,
         borderRadius: borderRadius,
-        padding: borderWidth ? SPACING.xs : SPACING.xxs,
+        padding: borderWidth ? SPACING.xs : 0,
         alignSelf: textCenter ? 'center' : 'flex-start',
         opacity: validatedOpacity,
     };

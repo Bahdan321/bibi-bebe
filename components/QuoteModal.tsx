@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { Modal, View, StyleSheet, Animated, StatusBar } from 'react-native';
 import { quotes } from '@/constants/quotes';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Theme } from '@/theme/types';
-import { Ionicons } from '@expo/vector-icons'; // Для иконки крестика
+import CustomButton from './base/CustomButton';
+import CustomText from './CustomText';
 
 interface QuoteModalProps {
     visible: boolean;
@@ -19,6 +20,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ visible, onClose }) => {
 
     useEffect(() => {
         if (visible) {
+            StatusBar.setBackgroundColor(theme.colors.third, true);
             Animated.timing(fadeAnim, {
                 toValue: 1,
                 duration: 500,
@@ -57,17 +59,43 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ visible, onClose }) => {
         >
             <View style={styles.centeredView}>
                 <Animated.View style={[styles.modalView, { opacity: fadeAnim }]}>
-                    <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
-                        <Ionicons name="close" size={24} color={theme.colors.text} />
-                    </TouchableOpacity>
-                    <Text style={styles.titleText}>Ежедневная цитата</Text>
-                    <Animated.Text style={[styles.modalText, { opacity: quoteAnim }]}>
-                        {getRandomQuote()}
-                    </Animated.Text>
+                    <CustomButton
+                        variant='round'
+                        icon='close'
+                        onPress={onClose}
+                        style={styles.closeIcon}
+                        buttonColor="transparent"
+                        iconColor={theme.colors.text}
+                    />
+                    <Animated.View style={{ opacity: fadeAnim }}>
+                        <CustomText
+                            content='Ежедневная цитата'
+                            size={26}
+                            weight='bold'
+                            color={theme.colors.text}
+                            style={{ marginBottom: 20 }}
+                            textCenter={true}
+                        />
+                    </Animated.View>
+                    <Animated.View style={{ opacity: quoteAnim }}>
+                        <CustomText
+                            content={getRandomQuote()}
+                            size={20}
+                            color={theme.colors.text}
+                            textCenter
+                            style={{ marginBottom: 40 }}
+                            textCenter={true}
+                        />
+                    </Animated.View>
                     <Animated.View style={{ opacity: buttonAnim }}>
-                        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                            <Text style={styles.closeButtonText}>Закрыть</Text>
-                        </TouchableOpacity>
+                        <CustomButton
+                            variant='primary'
+                            title='Закрыть'
+                            onPress={onClose}
+                            style={styles.closeButton}
+                            buttonColor={theme.colors.button}
+                            titleColor={theme.colors.primary}
+                        />
                     </Animated.View>
                 </Animated.View>
             </View>
@@ -92,31 +120,17 @@ const createStyles = (theme: Theme) => StyleSheet.create({
         borderRadius: 20,
         position: 'relative',
     },
-    titleText: {
-        fontSize: 26,
-        fontWeight: 'bold',
-        color: theme.colors.text,
-        marginBottom: 20,
-    },
-    modalText: {
-        textAlign: 'center',
-        fontSize: 20,
-        color: theme.colors.text,
-        marginBottom: 40,
-    },
+
     closeButton: {
         backgroundColor: theme.colors.button,
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 10,
     },
-    closeButtonText: {
-        fontSize: 18,
-        color: theme.colors.primary,
-    },
+
     closeIcon: {
         position: 'absolute',
-        top: -250,
+        top: -40,
         right: 10,
     },
 });

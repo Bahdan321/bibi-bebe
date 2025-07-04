@@ -1,30 +1,32 @@
 import React from "react";
-import { TouchableOpacity, ViewStyle, StyleSheet,Text } from "react-native";
+import { ViewStyle, StyleSheet } from "react-native";
+import CustomButton from "./base/CustomButton";
 
 type TextProps = {
     title: string;
     titleColor: string;
     onPress: () => void;
-    style?: ViewStyle; 
+    style?: ViewStyle;
 }
 
-const ClickableText: React.FC<TextProps> = ({title,titleColor,onPress,style}) => {
-    return(
-        <TouchableOpacity
+const ClickableText: React.FC<TextProps> = ({ title, titleColor, onPress, style }) => {
+    return (
+        <CustomButton
+            variant="text"
+            title={title}
+            titleColor={titleColor}
             onPress={onPress}
-        >
-            <Text style={[styles.text,{color:titleColor}]}>
-                {title}
-            </Text>
-        </TouchableOpacity>
+            size="small"
+            style={style ? { ...styles.button, ...style } : styles.button}
+        />
     )
 }
 
 const styles = StyleSheet.create({
-    text:{
-        fontSize: 14,
+    button: {
+        padding: 0, // Убираем дефолтный padding CustomButton
     }
-}) 
+})
 export default ClickableText
 
 
