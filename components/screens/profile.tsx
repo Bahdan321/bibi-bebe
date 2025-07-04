@@ -12,7 +12,7 @@ import {
 import { useTheme } from "@/providers/ThemeProvider";
 import CustomText from "@/components/CustomText";
 
-const ProfileScreen = () => {
+export default function Profile() {
     const { theme } = useTheme();
 
     // Заглушечные данные пользователя
@@ -141,4 +141,3 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProfileScreen;

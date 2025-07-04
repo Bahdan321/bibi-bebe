@@ -3,7 +3,7 @@ import { View, Text, ImageBackground } from 'react-native'
 import React from 'react'
 import { useTheme } from '@/providers/ThemeProvider';
 
-const kakoetoMenu = () => {
+export default function KakoetoMenu() {
     const { theme } = useTheme();
 
     return (
@@ -25,5 +25,3 @@ const kakoetoMenu = () => {
         </ImageBackground >
     )
 }
-
-export default kakoetoMenu

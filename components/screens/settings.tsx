@@ -10,7 +10,7 @@ import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { BlurView } from 'expo-blur';
 
-const settings = () => {
+export default function Settings() {
 
     const { toggleTheme, theme } = useTheme();
 
@@ -86,5 +86,3 @@ const settings = () => {
         </ImageBackground >
     );
 };
-
-export default settings

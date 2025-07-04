@@ -44,7 +44,7 @@ const SPACES: Space[] = [
     },
 ];
 
-const SpacesScreen = () => {
+export default function Spaces() {
     const { theme } = useTheme();
 
     const handleSelect = (space: Space) => {
@@ -131,4 +131,3 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SpacesScreen;
