@@ -10,6 +10,11 @@ export type NavigatePanelProps = {
     goToNextYear?: () => void;
     isMonthView?: boolean;
     toggleView?: () => void;
+    onOpenSettings?: () => void;
+    onOpenProfile?: () => void;
+    onOpenSpaces?: () => void;
+    onOpenKakoetoMenu?: () => void;
+    onOpenGoals?: () => void;
 }
 
 

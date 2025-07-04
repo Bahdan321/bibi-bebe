@@ -15,7 +15,7 @@ import RoundedCard from "@/components/RoundedCard";
 
 const YEARS: number[] = [2025, 2026,];
 
-const GoalsScreen = () => {
+export default function Goals() {
     const { theme } = useTheme();
 
     const handleSelect = (year: number) => {
@@ -25,7 +25,7 @@ const GoalsScreen = () => {
     return (
         <ImageBackground
             source={require("../../assets/images/gradients/PinkVioletGradient.png")}
-            style={{ flex: 1, backgroundColor: theme.colors.settingsBackground }}
+            style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground }}
             resizeMode="cover"
         >
             <ScrollView style={{ padding: hp("2") }}>
@@ -53,5 +53,3 @@ const GoalsScreen = () => {
         </ImageBackground>
     );
 };
-
-export default GoalsScreen;

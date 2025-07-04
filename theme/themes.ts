@@ -37,7 +37,7 @@ export const darkTheme: Theme = {
     error: 'red',
     icon: 'black',
     button: 'white',
-    settingsBackground: "black",
+    settingsBackground: "#1C2526",
   },
   spacing: {
     xs: 4,

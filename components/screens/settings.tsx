@@ -10,7 +10,7 @@ import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { BlurView } from 'expo-blur';
 
-const settings = () => {
+export default function Settings() {
 
     const { toggleTheme, theme } = useTheme();
 
@@ -63,19 +63,21 @@ const settings = () => {
             // source={require('../../assets/images/gradients/PinkOrangeGradient.png')}
             // source={require('../../assets/images/gradients/PinkVioletGradient.png')}
 
-            style={{ flex: 1, backgroundColor: theme.colors.settingsBackground }}
+            style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground }}
             resizeMode="cover"
         >
             <View style={{ margin: hp("3") }}>
                 {settingsItems.map((item, index) => (
                     <React.Fragment key={index}>
-                        <SettingsRow
-                            label={item.label}
-                            value={item.value}
-                            leftIcon={item.leftIcon}
-                            onPress={item.onPress}
-                        />
-                        {index < settingsItems.length - 1 && (
+                        {item.label && (
+                            <SettingsRow
+                                label={item.label}
+                                value={item.value}
+                                leftIcon={item.leftIcon}
+                                onPress={item.onPress || (() => {})}
+                            />
+                        )}
+                        {index < settingsItems.length - 1 && item.label && (
                             <View style={{ marginVertical: hp("2.2") }}>
                                 <Gigabar color="gray" size={4} />
                             </View>
@@ -86,5 +88,3 @@ const settings = () => {
         </ImageBackground >
     );
 };
-
-export default settings

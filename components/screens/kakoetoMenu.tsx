@@ -3,7 +3,7 @@ import { View, Text, ImageBackground } from 'react-native'
 import React from 'react'
 import { useTheme } from '@/providers/ThemeProvider';
 
-const kakoetoMenu = () => {
+export default function KakoetoMenu() {
     const { theme } = useTheme();
 
     return (
@@ -18,12 +18,10 @@ const kakoetoMenu = () => {
             source={require('../../assets/images/gradients/PinkOrangeGradient.png')}
             // source={require('../../assets/images/gradients/PinkVioletGradient.png')}
 
-            style={{ flex: 1, backgroundColor: theme.colors.settingsBackground }}
+            style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground }}
             resizeMode="cover"
         >
 
         </ImageBackground >
     )
 }
-
-export default kakoetoMenu

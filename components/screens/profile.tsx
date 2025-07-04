@@ -12,7 +12,7 @@ import {
 import { useTheme } from "@/providers/ThemeProvider";
 import CustomText from "@/components/CustomText";
 
-const ProfileScreen = () => {
+export default function Profile() {
     const { theme } = useTheme();
 
     // Заглушечные данные пользователя
@@ -23,7 +23,7 @@ const ProfileScreen = () => {
     return (
         <ImageBackground
             source={require("../../assets/images/gradients/OrangeBlueGradient2.png")}
-            style={{ flex: 1, backgroundColor: theme.colors.settingsBackground, paddingBottom: hp('4') }}
+            style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground, paddingBottom: hp('4') }}
             resizeMode="cover"
         >
             <ScrollView style={{ padding: hp("2") }}>
@@ -105,7 +105,7 @@ const ProfileScreen = () => {
                             borderColor: theme.colors.secondary,
                             borderWidth: 1,
                             justifyContent: "center",
-                            alignItems: "left",
+                            alignItems: "flex-start",
                         },
                     ]}
                 >
@@ -141,4 +141,3 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProfileScreen;

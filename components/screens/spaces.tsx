@@ -44,7 +44,7 @@ const SPACES: Space[] = [
     },
 ];
 
-const SpacesScreen = () => {
+export default function Spaces() {
     const { theme } = useTheme();
 
     const handleSelect = (space: Space) => {
@@ -54,7 +54,7 @@ const SpacesScreen = () => {
     return (
         <ImageBackground
             source={require('../../assets/images/gradients/GreenYellowGradient.png')}
-            style={{ flex: 1, backgroundColor: theme.colors.settingsBackground }}
+            style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground }}
             resizeMode="cover"
         >
 
@@ -131,4 +131,3 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SpacesScreen;
