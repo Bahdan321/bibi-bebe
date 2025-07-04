@@ -76,9 +76,8 @@ export default function Spaces() {
                 {SPACES.map((space, index) => {
                     const isFullWidth = index % 3 === 2;
                     return (
-                        <View style={[styles.cardBase, isFullWidth ? styles.cardFull : styles.cardHalf, { backgroundColor: theme.colors.primary }]}>
+                        <View key={space.id} style={[styles.cardBase, isFullWidth ? styles.cardFull : styles.cardHalf, { backgroundColor: theme.colors.primary }]}>
                             <RoundedCard
-                                key={space.id}
                                 title={space.name}
                                 image={require("../../assets/images/gradients/OrangeBlueGradient.png")}
                                 onPress={() => handleSelect(space)}

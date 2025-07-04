@@ -3,15 +3,14 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   Alert,
   Animated,
 } from 'react-native';
+import { CustomButton } from './base';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
-import Feather from '@expo/vector-icons/Feather';
 import { Task, TaskMenuProps } from '@/types/types';
 import {
   toggleTaskRemove,
@@ -83,7 +82,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   // Элементы меню повторения
   const repeatMenuItems = daysOfWeek.map((day) => ({
     text: day.text,
-    icon: selectedDays.includes(day.value) ? 'checkmark' : 'square-outline',
+    icon: selectedDays.includes(day.value) ? 'checkmark' : 'square-outline' as keyof typeof Ionicons.glyphMap,
     onPress: () => toggleDay(day.value),
   }));
 
@@ -145,6 +144,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
+      if (!task.due_date) {
+        setTimeLeft('Дата не установлена');
+        return;
+      }
       const due = new Date(task.due_date);
       if (isNaN(due.getTime())) {
         setTimeLeft('Некорректная дата');
@@ -203,10 +206,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.repeat_interval,
       task.planning_period,
       task.is_urgent,
-      task.is_important,
-      task.is_anime_task,
-      task.id,
-      subtasks,
+      task.is_important
     );
     onClose();
   };
@@ -240,7 +240,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const closeEisenhowerMatrixDropdown = () => setIsEisenhowerMatrixDropdownVisible(false);
 
   const handleChangeDate = (task: Task, newDate?: Date) => {
-    let dateToUse = newDate || new Date(task.display_date);
+    let dateToUse = newDate || new Date(task.display_date || new Date());
     dateToUse.setDate(dateToUse.getDate() + 1);
 
     const newDisplayDate = `${dateToUse.getFullYear()}-${String(
@@ -262,7 +262,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       icon: 'pencil' as keyof typeof Ionicons.glyphMap,
       text: 'На неделю',
       onPress: () => {
-        const nextWeekDate = new Date(task.display_date);
+        const nextWeekDate = new Date(task.display_date || new Date());
         if (!isNaN(nextWeekDate.getTime())) {
           nextWeekDate.setDate(nextWeekDate.getDate() + 7);
           handleChangeDate(task, nextWeekDate);
@@ -285,25 +285,25 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     {
       text: 'Срочно и Важно',
       color: theme.eisenhowerMatrix.urgentImportant,
-      icon: 'alert-circle',
+      icon: 'alert-circle' as keyof typeof Ionicons.glyphMap,
       onPress: () => changeEisenhowerMatrixStatus(task.id, true, true),
     },
     {
       text: 'Важно, не срочно',
       color: theme.eisenhowerMatrix.notUrgentImportant,
-      icon: 'checkmark-circle',
+      icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap,
       onPress: () => changeEisenhowerMatrixStatus(task.id, false, true),
     },
     {
       text: 'Срочно, не важно',
       color: theme.eisenhowerMatrix.urgentNotImportant,
-      icon: 'time',
+      icon: 'time' as keyof typeof Ionicons.glyphMap,
       onPress: () => changeEisenhowerMatrixStatus(task.id, true, false),
     },
     {
       text: 'Не срочно и не важно',
       color: theme.eisenhowerMatrix.notUrgentNotImportant,
-      icon: 'heart-circle',
+      icon: 'heart-circle' as keyof typeof Ionicons.glyphMap,
       onPress: () => changeEisenhowerMatrixStatus(task.id, false, false),
     },
   ];
@@ -326,16 +326,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       null,
       null,
       false,
-      false,
-      null,
-      false,
+      false
     );
   };
 
   const handleSubtaskToggle = (subtaskId: string) => toggleTaskCompletion(subtaskId);
 
   const handleAddReward = async () => {
-    const trimmed = rewardNameInput.trim();
+    const trimmed = rewardNameInput?.trim();
     if (!trimmed) return;
 
     try {
@@ -356,13 +354,23 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleDateChange} style={styles.dateContainer}>
-          <Ionicons name="calendar-outline" size={24} color={theme.colors.text} style={styles.icon} />
-          <Text style={[styles.dateText, { color: theme.colors.text }]}>{formattedDate}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onClose}>
-          <Ionicons name="close" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
+        <CustomButton
+          variant="text"
+          onPress={handleDateChange}
+          style={styles.dateContainer}
+          title={formattedDate}
+          icon="calendar-outline"
+          iconColor={theme.colors.text}
+          titleColor={theme.colors.text}
+          iconSize={24}
+        />
+        <CustomButton
+          variant="text"
+          onPress={onClose}
+          icon="close"
+          iconColor={theme.colors.text}
+          iconSize={24}
+        />
       </View>
 
       {/* Title */}
@@ -381,9 +389,13 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           placeholder="Название задачи"
           placeholderTextColor={theme.colors.secondary}
         />
-        <TouchableOpacity onPress={() => handleTaskToggle(task.id)}>
-          <Ionicons name="checkmark-outline" size={32} color={taskStatusColor} />
-        </TouchableOpacity>
+        <CustomButton
+          variant="text"
+          onPress={() => handleTaskToggle(task.id)}
+          icon="checkmark-outline"
+          iconColor={taskStatusColor}
+          iconSize={32}
+        />
       </View>
 
       {/* Description */}
@@ -427,7 +439,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       <View style={{ marginBottom: 20 }}>
         <Text style={[styles.rewardHeaderText, { color: theme.colors.text, marginBottom: 10 }]}>Награда</Text>
         <TextInput
-          value={rewardNameInput}
+          value={rewardNameInput || ''}
           onChangeText={setRewardNameInput}
           placeholder="Введите название награды"
           placeholderTextColor={theme.colors.secondary}
@@ -440,28 +452,30 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             },
           ]}
         />
-        <TouchableOpacity
+        <CustomButton
+          variant="primary"
           onPress={handleAddReward}
-          style={[
-            styles.addRewardButton,
-            { backgroundColor: theme.colors.button, borderRadius: 10 },
-          ]}
-        >
-          <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
-            {task.reward ? 'Изменить награду' : 'Добавить награду'}
-          </Text>
-        </TouchableOpacity>
+          style={{
+            ...styles.addRewardButton,
+            backgroundColor: theme.colors.button,
+            borderRadius: 10,
+          }}
+          title={task.reward ? 'Изменить награду' : 'Добавить награду'}
+          titleColor={theme.colors.primary}
+        />
       </View>
 
       {/* Actions */}
       <View style={styles.actions}>
         <View style={styles.ellipsisContainer}>
-          <TouchableOpacity
+          <CustomButton
+            variant="text"
             style={styles.actionButton}
             onPress={() => setIsRepeatMenuVisible(!isRepeatMenuVisible)}
-          >
-            <Ionicons name="repeat-outline" size={24} color={theme.colors.text} />
-          </TouchableOpacity>
+            icon="repeat-outline"
+            iconColor={theme.colors.text}
+            iconSize={24}
+          />
           <DropdownMenu
             items={repeatMenuItems}
             visible={isRepeatMenuVisible}
@@ -472,9 +486,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         </View>
 
         <View style={styles.ellipsisContainer}>
-          <TouchableOpacity onPress={handleChangeTaskColor} style={styles.actionButton}>
-            <Feather name="circle" size={24} color={theme.colors.text} />
-          </TouchableOpacity>
+          <CustomButton
+            variant="text"
+            onPress={handleChangeTaskColor}
+            style={styles.actionButton}
+            icon="ellipse-outline"
+            iconColor={theme.colors.text}
+            iconSize={24}
+          />
           <DropdownMenu
             items={eisenhowermatrixitems}
             visible={isEisenhowerMatrixDropdownVisible}
@@ -484,14 +503,24 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           />
         </View>
 
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="notifications-outline" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
+        <CustomButton
+          variant="text"
+          style={styles.actionButton}
+          onPress={() => {}}
+          icon="notifications-outline"
+          iconColor={theme.colors.text}
+          iconSize={24}
+        />
 
         <View style={styles.ellipsisContainer}>
-          <TouchableOpacity onPress={handleOpenMainMenu} style={styles.actionButton}>
-            <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text} />
-          </TouchableOpacity>
+          <CustomButton
+            variant="text"
+            onPress={handleOpenMainMenu}
+            style={styles.actionButton}
+            icon="ellipsis-horizontal"
+            iconColor={theme.colors.text}
+            iconSize={24}
+          />
           <DropdownMenu
             items={menuItems}
             visible={isMainDropdownVisible}
@@ -511,7 +540,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         visible={isCalendarVisible}
         onClose={() => setIsCalendarVisible(false)}
         onApply={handleCalendarApply}
-        initialDate={new Date(task.display_date || task.due_date)}
+        initialDate={new Date(task.display_date || task.due_date || new Date())}
       />
     </ScrollView>
   );
