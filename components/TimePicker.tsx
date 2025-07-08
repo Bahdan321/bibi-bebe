@@ -85,7 +85,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
             <View style={styles.labelContainer}>
                 <CustomText
                     content="Дни"
-                    size={16}
+                    size="md"
                     color={theme.colors.secondary}
                     weight="bold"
                     textCenter
@@ -93,7 +93,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                 <View style={styles.labelSpacer} />
                 <CustomText
                     content="Часы"
-                    size={16}
+                    size="md"
                     color={theme.colors.secondary}
                     weight="bold"
                     textCenter
@@ -101,7 +101,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                 <View style={styles.labelSpacer} />
                 <CustomText
                     content="Минуты"
-                    size={16}
+                    size="md"
                     color={theme.colors.secondary}
                     weight="bold"
                     textCenter
@@ -119,7 +119,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                     >
                         {daysArray.map((day, index) => {
                             const isSelected = index === selectedDayIndex;
-                            const fontSize = isSelected ? 30 : 18;
+                            const fontSize = isSelected ? "xxxl" : "lg";
                             const fontWeight = isSelected ? 'bold' : 'normal';
                             return (
                                 <View key={`day-${index}`} style={styles.item}>
@@ -137,7 +137,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                 </View>
                 <CustomText
                     content=":"
-                    size={24}
+                    size="xxl"
                     color={theme.colors.text}
                     weight="normal"
                 />
@@ -152,7 +152,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                     >
                         {hoursArray.map((hour, index) => {
                             const isSelected = index === selectedHourIndex;
-                            const fontSize = isSelected ? 30 : 18;
+                            const fontSize = isSelected ? "xxxl" : "lg";
                             const fontWeight = isSelected ? 'bold' : 'normal';
                             return (
                                 <View key={`hour-${index}`} style={styles.item}>
@@ -170,7 +170,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                 </View>
                 <CustomText
                     content=":"
-                    size={24}
+                    size="xxl"
                     color={theme.colors.text}
                     weight="normal"
                 />
@@ -185,7 +185,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                     >
                         {minutesArray.map((minute, index) => {
                             const isSelected = index === selectedMinuteIndex;
-                            const fontSize = isSelected ? 30 : 18;
+                            const fontSize = isSelected ? "xxxl" : "lg";
                             const fontWeight = isSelected ? 'bold' : 'normal';
                             return (
                                 <View key={`minute-${index}`} style={styles.item}>
@@ -204,7 +204,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
             </View>
             <CustomText
                 content={`${selectedDay} at ${hours}:${minutes}`}
-                size={18}
+                size="lg"
                 color={theme.colors.text}
                 weight="normal"
                 textCenter
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     label: {
-        fontSize: 16,
+        fontSize: 16, // md размер из theme.fontSize
         fontWeight: 'bold',
         width: 80,
         textAlign: 'center',

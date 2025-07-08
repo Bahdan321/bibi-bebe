@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import CustomText from '@/components/base/CustomText';
 import { useTheme } from '@/providers/ThemeProvider';
 import { DayInfoProps } from '@/types/types';
@@ -11,8 +10,8 @@ const DayInfo: React.FC<DayInfoProps> = ({ date, dayOfWeek }) => {
     const dateObj = new Date(date);
     return (
         <View style={styles.container}>
-            <CustomText content={getFormatedDate(date)} size={hp("2.5")} color={theme.colors.secondary} weight='bold' />
-            <CustomText content={truncateDayOfWeek(dayOfWeek)} size={hp("2.5")} color={theme.colors.secondary} weight='bold' />
+            <CustomText content={getFormatedDate(date)} size="sm" color={theme.colors.secondary} weight='bold' />
+            <CustomText content={truncateDayOfWeek(dayOfWeek)} size="sm" color={theme.colors.secondary} weight='bold' />
         </View>
     );
 

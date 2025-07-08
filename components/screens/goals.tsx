@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import {
     widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { useTheme } from "@/providers/ThemeProvider";
 import CustomText from "@/components/base/CustomText";
@@ -28,11 +27,11 @@ export default function Goals() {
             style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground }}
             resizeMode="cover"
         >
-            <ScrollView style={{ padding: hp("2") }}>
-                <View style={{ padding: hp("3") }}>
+            <ScrollView style={{ padding: 16 }}>
+                <View style={{ padding: 24 }}>
                     <CustomText
                         content="Цели"
-                        size={32}
+                        size="xxxl"
                         color={theme.colors.text}
                         weight="bold"
                         opacity={1}

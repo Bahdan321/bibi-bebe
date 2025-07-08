@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import {
     widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { useTheme } from "@/providers/ThemeProvider";
 import CustomText from "@/components/base/CustomText";
@@ -23,14 +22,14 @@ export default function Profile() {
     return (
         <ImageBackground
             source={require("../../assets/images/gradients/OrangeBlueGradient2.png")}
-            style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground, paddingBottom: hp('4') }}
+            style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground, paddingBottom: 32 }}
             resizeMode="cover"
         >
-            <ScrollView style={{ padding: hp("2") }}>
-                <View style={{ padding: hp("3") }}>
+            <ScrollView style={{ padding: 16 }}>
+                <View style={{ padding: 24 }}>
                     <CustomText
                         content="Профиль"
-                        size={32}
+                        size="xxxl"
                         color={theme.colors.text}
                         weight="bold"
                         opacity={1}
@@ -55,7 +54,7 @@ export default function Profile() {
                         <View style={{ flexDirection: "column", alignItems: "center", flex: 1 }}>
                             <CustomText
                                 content={username}
-                                size={28}
+                                size="xxxl"
                                 color={theme.colors.text}
                                 weight="bold"
                                 opacity={1}
@@ -65,7 +64,7 @@ export default function Profile() {
                             />
                             <CustomText
                                 content={title}
-                                size={18}
+                                size="lg"
                                 color={theme.colors.secondary}
                                 weight="normal"
                                 opacity={0.9}
@@ -87,7 +86,7 @@ export default function Profile() {
                                 style={{
                                     flex: 1,
                                     backgroundColor: theme.colors.settingsBackground,
-                                    padding: hp("6"),
+                                    padding: 48,
                                 }}
                                 resizeMode="cover"
                             >
@@ -112,7 +111,7 @@ export default function Profile() {
                     <View style={styles.emailWrapper}>
                         <CustomText
                             content={`Email: ${email}`}
-                            size={18}
+                            size="lg"
                             color={theme.colors.text}
                             weight="bold"
                             opacity={1}
@@ -133,7 +132,7 @@ const styles = StyleSheet.create({
     card: {
         width: "100%",
         borderRadius: 20,
-        padding: hp("1"),
+        padding: 8,
         marginBottom: 24,
     },
     emailWrapper: {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { TextInput, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Gigabar from './Gigabar';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useTheme } from '@/providers/ThemeProvider';
+import CustomTextInput from './base/CustomTextInput';
 
 interface NewSubtaskInputProps {
   parentTaskId: string;
@@ -25,8 +25,9 @@ const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId
 
   return (
     <View>
-      <TextInput
-        style={{ fontWeight: '700', fontSize: hp('2.2'), color: theme.colors.text }}
+      <CustomTextInput
+        variant="default"
+        style={{ fontWeight: '700', color: theme.colors.text }}
         value={inputValue}
         onChangeText={setInputValue}
         onSubmitEditing={handleSubmit}

@@ -176,7 +176,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
         const calendarDays = getMonthDays(monthDate);
 
         // Примерная высота одного месяца (заголовок + дни недели + календарь + отступы)
-        const MONTH_HEIGHT = hp('50'); // Приблизительная высота месяца
+        const MONTH_HEIGHT = 400; // Приблизительная высота месяца
         const monthOffset = monthIndex * MONTH_HEIGHT;
 
         const animatedStyle = useAnimatedStyle(() => {
@@ -214,7 +214,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                 <View style={styles.monthHeader}>
                     <CustomText
                         content={capitalizedMonthName}
-                        size={hp('4.8')}
+                        size="xxl"
                         color={theme.colors.text}
                         weight="700"
                     // textCenter
@@ -227,7 +227,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                         <View key={index} style={styles.weekDayContainer}>
                             <CustomText
                                 content={day}
-                                size={hp('2.6')}
+                                size="md"
                                 color={theme.colors.secondary}
                                 weight="600"
                                 textCenter
@@ -259,7 +259,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                             >
                                 <CustomText
                                     content={dayNumber.toString()}
-                                    size={hp('2.8')}
+                                    size="md"
                                     color={isTodayDay ? theme.colors.primary : theme.colors.text}
                                     weight={isTodayDay ? '700' : '400'}
                                     textCenter
@@ -291,7 +291,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: hp("2"),
+        paddingHorizontal: 16,
         paddingTop: 12,
     },
     monthContainer: {

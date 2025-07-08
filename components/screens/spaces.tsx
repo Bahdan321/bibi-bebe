@@ -11,7 +11,6 @@ import { useTheme } from '@/providers/ThemeProvider';
 import CustomText from '@/components/base/CustomText';
 import {
     widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import RoundedCard from '@/components/RoundedCard';
 
@@ -61,10 +60,10 @@ export default function Spaces() {
             <ScrollView
                 contentContainerStyle={styles.container}
             >
-                <View style={{ padding: hp("3") }}>
+                <View style={{ padding: 24 }}>
                     <CustomText
                         content='Мои пространства'
-                        size={32}
+                        size="xxxl"
                         color={theme.colors.text}
                         weight='bold'
                         opacity={1}
@@ -121,12 +120,8 @@ const styles = StyleSheet.create({
         borderRadius: 16,
     },
     titleWrapper: {
-        paddingHorizontal: hp("1"),
+        paddingHorizontal: 8,
     },
-    title: {
-        fontSize: hp("3.6"),
-        fontWeight: '900',
-        textAlign: 'center',
-    },
+
 });
 

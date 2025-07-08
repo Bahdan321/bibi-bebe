@@ -4,7 +4,6 @@ import SettingsRow from '@/components/SettingsRow'
 import { Ionicons } from '@expo/vector-icons';
 import {
     widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -22,14 +21,14 @@ export default function Settings() {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText
                         content="Русский"
-                        size={hp('2.2')}
+                        size="sm"
                         color={theme.colors.text}
                         weight="bold"
                         style={{ marginRight: 5 }}
                     />
                 </View>
             ),
-            leftIcon: <Ionicons name="earth" size={hp("2.8")} color={theme.colors.button} />,
+            leftIcon: <Ionicons name="earth" size={22} color={theme.colors.button} />,
             onPress: () => console.log('Language'),
         },
         {
@@ -37,13 +36,13 @@ export default function Settings() {
             value: (
                 <CustomText
                     content="Темная"
-                    size={hp('2.2')}
+                    size="sm"
                     color={theme.colors.text}
                     weight="bold"
                     style={{ marginRight: 5 }}
                 />
             ),
-            leftIcon: <Ionicons name="sunny-outline" size={hp("2.8")} color={theme.colors.button} />,
+            leftIcon: <Ionicons name="sunny-outline" size={22} color={theme.colors.button} />,
             onPress: toggleTheme,
         },
         {
@@ -51,13 +50,13 @@ export default function Settings() {
             value: (
                 <CustomText
                     content="Темная"
-                    size={hp('2.2')}
+                    size="sm"
                     color={theme.colors.text}
                     weight="bold"
                     style={{ marginRight: 5 }}
                 />
             ),
-            leftIcon: <Ionicons name="sunny-outline" size={hp("2.8")} color={theme.colors.button} />,
+            leftIcon: <Ionicons name="sunny-outline" size={22} color={theme.colors.button} />,
             onPress: toggleTheme,
         },
         {},
@@ -79,7 +78,7 @@ export default function Settings() {
             style={{ flex: 1, minHeight: '100%', backgroundColor: theme.colors.settingsBackground }}
             resizeMode="cover"
         >
-            <View style={{ margin: hp("3") }}>
+            <View style={{ margin: 24 }}>
                 {settingsItems.map((item, index) => (
                     <React.Fragment key={index}>
                         {item.label && (
@@ -91,7 +90,7 @@ export default function Settings() {
                             />
                         )}
                         {index < settingsItems.length - 1 && item.label && (
-                            <View style={{ marginVertical: hp("2.2") }}>
+                            <View style={{ marginVertical: 18 }}>
                                 <Gigabar color="gray" size={4} />
                             </View>
                         )}

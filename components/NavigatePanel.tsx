@@ -156,7 +156,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     <Animated.View style={monthAnimatedStyle}>
                                         <CustomText
                                             content={ShowCurrentMonth(currentDate)}
-                                            size={hp('2.8')}
+                                            size="md"
                                             color={theme.colors.text}
                                             weight="700"
                                         />
@@ -164,7 +164,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     <Animated.View style={yearAnimatedStyle}>
                                         <CustomText
                                             content={ShowCurrentYear(currentDate)}
-                                            size={hp('3.8')}
+                                            size="lg"
                                             color={theme.colors.text}
                                             weight="700"
                                         />
@@ -178,7 +178,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     icon="chevron-back-outline"
                                     iconColor={theme.colors.icon}
                                     onPress={navigation.onPrevious}
-                                    style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                    style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                                 />
                             </Animated.View>
                             <Animated.View style={navigationAnimatedStyle}>
@@ -188,7 +188,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     icon="chevron-forward-outline"
                                     iconColor={theme.colors.icon}
                                     onPress={navigation.onNext}
-                                    style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                    style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                                 />
                             </Animated.View>
                             <CustomButton
@@ -197,7 +197,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 icon="grid"
                                 iconColor={theme.colors.icon}
                                 onPress={slideLeft}
-                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
                         </View>
 
@@ -209,7 +209,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 icon="ellipse-sharp"
                                 iconColor={theme.colors.icon}
                                 onPress={onOpenSettings || (() => { })}
-                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
                             <CustomButton
                                 variant="round"
@@ -217,7 +217,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 icon="copy-outline"
                                 iconColor={theme.colors.icon}
                                 onPress={onOpenKakoetoMenu || (() => { })}
-                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
                             <CustomButton
                                 variant="round"
@@ -225,7 +225,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 icon="calendar-clear"
                                 iconColor={theme.colors.icon}
                                 onPress={onOpenGoals || (() => { })}
-                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
                             <CustomButton
                                 variant="round"
@@ -233,7 +233,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 icon="browsers-outline"
                                 iconColor={theme.colors.icon}
                                 onPress={onOpenSpaces || (() => { })}
-                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
                             <CustomButton
                                 variant="round"
@@ -241,7 +241,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 icon="person"
                                 iconColor={theme.colors.icon}
                                 onPress={onOpenProfile || (() => { })}
-                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
                             <CustomButton
                                 variant="round"
@@ -249,7 +249,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 icon="arrow-back"
                                 iconColor={theme.colors.icon}
                                 onPress={slideRight}
-                                style={{ backgroundColor: theme.colors.button, width: hp('6'), height: hp('6') }}
+                                style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
                         </View>
                     </Animated.View>
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
         position: 'relative',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        minHeight: hp('3.5'),
+        minHeight: 28,
     },
 
     /* Disabled state */

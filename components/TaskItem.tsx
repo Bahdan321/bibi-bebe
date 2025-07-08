@@ -83,9 +83,9 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
           <CustomText
             content={truncateTask(task.title)}
-            size={hp('2.2')}
+            size="sm"
             color={task.status ? theme.colors.secondary : theme.colors.text}
-            weight="700"
+            weight="bold"
             lineThrough={task.status}
             opacity={task.status ? 0.6 : 1}
             paddingHorizontal={2}
@@ -105,8 +105,8 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
             backgroundColor: theme.colors.primary,
             borderColor: task.status ? theme.colors.third : theme.colors.text,
             borderWidth: 1.5,
-            width: hp('3.5'),
-            height: hp('3.5')
+            width: 28,
+            height: 28
           }}
           hitSlop={10}
         />
@@ -118,7 +118,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
             animatedStyle,
             {
               position: 'absolute',
-              top: hp('1%'),
+              top: 8,
               left: wp("15%"),
               zIndex: 1000,
             },
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   rewardText: {
-    fontSize: 12,
+    fontSize: 12, // xs размер из theme.fontSize
     marginLeft: 4,
     fontWeight: '500',
   },

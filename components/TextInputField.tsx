@@ -20,11 +20,11 @@ const TextInputField: React.FC<TextInputFieldProps> = ({ label, labelColor, bord
         <View style={[styles.container, style, { borderColor }]}>
             <CustomText
                 content={label}
-                size={isFocused || value ? 12 : 16}
+                size={isFocused || value ? "xs" : "md"}
                 color={labelColor || '#B0B0B0'}
                 style={[styles.labelContainer, {
-                    top: isFocused || value ? 5 : 15, // Позиция лейбла
-                }]}
+                    top: isFocused || value ? 5 : 15,
+                } as any]}
             />
             <TextInput
                 style={[styles.input, { color: textColor }]}
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 40,
-        fontSize: 16,
+        fontSize: 16, // md размер из theme.fontSize
         paddingTop: 15, // Отступ для текста, чтобы не перекрывать лейбл
         paddingHorizontal: 10,
     },

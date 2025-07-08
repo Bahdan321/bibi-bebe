@@ -3,11 +3,11 @@ import {
     Pressable,
     StyleSheet,
     View,
-    Text,
     ImageBackground,
     GestureResponderEvent,
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
+import CustomText from './base/CustomText';
 
 interface RoundedCardProps {
     title: string;
@@ -46,17 +46,25 @@ const RoundedCard: React.FC<RoundedCardProps> = ({
                     resizeMode="cover"
                 >
                     <View style={styles.titleWrapper}>
-                        <Text style={[styles.title, { color: theme.colors.text }]}>
-                            {title}
-                        </Text>
+                        <CustomText
+                            content={title}
+                            size="xxxl"
+                            color={theme.colors.text}
+                            weight="bold"
+                            textCenter={true}
+                        />
                     </View>
                 </ImageBackground>
             ) : (
                 <View style={styles.image}>
                     <View style={styles.titleWrapper}>
-                        <Text style={[styles.title, { color: theme.colors.text }]}>
-                            {title}
-                        </Text>
+                        <CustomText
+                            content={title}
+                            size="xxxl"
+                            color={theme.colors.text}
+                            weight="bold"
+                            textCenter={true}
+                        />
                     </View>
                 </View>
             )}
@@ -86,11 +94,7 @@ const styles = StyleSheet.create({
     titleWrapper: {
         paddingHorizontal: 8,
     },
-    title: {
-        fontSize: 32,
-        fontWeight: '900',
-        textAlign: 'center',
-    },
+
 });
 
 export default RoundedCard;

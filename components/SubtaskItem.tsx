@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Task } from '@/types/types';
 import { updateTaskTitle } from '@/Supabase/utils/SupaLegend';
 import CustomText from './base/CustomText';
 import CustomTouchable from './base/CustomTouchable';
+import CustomTextInput from './base/CustomTextInput';
 
 interface SubtaskItemProps {
   subtask: Task;
@@ -40,10 +40,10 @@ const SubtaskItem: React.FC<SubtaskItemProps> = ({ subtask, onToggleSubtaskCompl
         />
       </CustomTouchable>
       {isEditing ? (
-        <TextInput
+        <CustomTextInput
+          variant="default"
           style={{
             color: theme.colors.text,
-            fontSize: hp('2'),
             marginLeft: 10,
             flex: 1,
             flexWrap: 'wrap', // Для переноса текста
@@ -65,7 +65,7 @@ const SubtaskItem: React.FC<SubtaskItemProps> = ({ subtask, onToggleSubtaskCompl
         >
           <CustomText
             content={subtask.title}
-            size={hp('2')}
+            size="xs"
             color={subtask.status ? theme.colors.secondary : theme.colors.text}
             lineThrough={subtask.status}
             style={{

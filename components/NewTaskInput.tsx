@@ -1,9 +1,9 @@
 import React from "react";
 import { useState } from "react";
-import { TextInput, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Gigabar from "./Gigabar";
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useTheme } from '@/providers/ThemeProvider';
+import CustomTextInput from './base/CustomTextInput';
 
 // const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
 const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
@@ -20,8 +20,9 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
 
     return (
         <View>
-            <TextInput
-                style={{ fontWeight: '700', fontSize: hp("2.2"), color: theme.colors.text }}
+            <CustomTextInput
+                variant="default"
+                style={{ fontWeight: '700', color: theme.colors.text }}
                 value={inputValue}
                 onChangeText={setInputValue}
                 onSubmitEditing={handleSubmit}
