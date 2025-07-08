@@ -214,9 +214,9 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                 <View style={styles.monthHeader}>
                     <CustomText
                         content={capitalizedMonthName}
-                        size="xxl"
+                        size="xxxl"
                         color={theme.colors.text}
-                        weight="700"
+                        weight="bold"
                     // textCenter
                     />
                 </View>

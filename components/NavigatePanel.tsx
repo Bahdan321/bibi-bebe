@@ -154,15 +154,15 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                             content={ShowCurrentMonth(currentDate)}
                                             size="xl"
                                             color={theme.colors.text}
-                                            weight="700"
+                                            weight="bold"
                                         />
                                     </Animated.View>
                                     <Animated.View style={yearAnimatedStyle}>
                                         <CustomText
                                             content={ShowCurrentYear(currentDate)}
-                                            size="lg"
+                                            size="xxxl"
                                             color={theme.colors.text}
-                                            weight="700"
+                                            weight="bold"
                                         />
                                     </Animated.View>
                                 </View>
