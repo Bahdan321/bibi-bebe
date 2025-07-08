@@ -32,10 +32,10 @@ export default function SignIn() {
     return (
         <View style={styles.container}>
             <View style={styles.tabContainer}>
-                <CustomText content="Login" size={18} color="#FFFFFF" weight="500" />
-                <CustomText content="◆" size={18} color="#FFFFFF" style={styles.tabSeparatorContainer} />
+                <CustomText content="Sign in" size="md" color="#FFFFFF" weight="500" />
+                <CustomText content="◆" size="md" color="#FFFFFF" style={styles.tabSeparatorContainer} />
                 <CustomTouchable onPress={() => router.push('/(public)/signUp')}>
-                    <CustomText content="Sign up" size={18} color="#8A8A8A" weight="500" />
+                    <CustomText content="Sign up" size="md" color="#8A8A8A" weight="500" />
                 </CustomTouchable>
             </View>
             <TextInputField

@@ -46,7 +46,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /*
                     >
                         <CustomText
                             content={item.text}
-                            size="md"
+                            size="sm"
                             color={theme.colors.text}
                             style={styles.menuTextContainer}
                         />

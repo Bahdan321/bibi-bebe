@@ -55,21 +55,21 @@ export default function SignUp() {
             <View style={styles.tabContainer}>
                 <CustomTouchable onPress={() => router.push('/(public)/signIn')}>
                     <CustomText
-                        content="Login"
-                        size={18}
+                        content="Sign in"
+                        size="md"
                         color="#8A8A8A"
                         weight="500"
                     />
                 </CustomTouchable>
                 <CustomText
                     content="◆"
-                    size={18}
+                    size="md"
                     color="#FFFFFF"
                     style={styles.tabSeparatorContainer}
                 />
                 <CustomText
                     content="Sign up"
-                    size={18}
+                    size="md"
                     color="#FFFFFF"
                     weight="500"
                 />
@@ -125,7 +125,7 @@ export default function SignUp() {
                     />
                     <CustomText
                         content="или"
-                        size={16}
+                        size="md"
                         color="#FFFFFF"
                         style={styles.orTextContainer}
                         textCenter
@@ -198,15 +198,15 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
-        marginBottom: 10,
     },
     socialButton: {
-        marginBottom: 10,
+        marginBottom: 14,
         alignSelf: 'center',
         width: '70%',
     },
     orTextContainer: {
-        marginVertical: 10,
+        textAlign: 'center',
+        marginVertical: 14,
     },
     loader: {
         marginVertical: 10,
