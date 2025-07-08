@@ -3,7 +3,7 @@ import { Modal, View, StyleSheet } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Theme } from '@/theme/themes';
 import { Ionicons } from '@expo/vector-icons';
-import CustomText from './CustomText';
+import CustomText from './base/CustomText';
 import CustomTouchable from './base/CustomTouchable';
 
 interface ICalendarState {

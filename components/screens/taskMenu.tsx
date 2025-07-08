@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native'
-import CustomText from '@/components/CustomText'
+import CustomText from '@/components/base/CustomText'
 import CustomTouchable from '@/components/base/CustomTouchable'
 import React, { useCallback, useState } from 'react'
 import TaskMenu from '@/components/TaskMenu'
@@ -65,7 +65,7 @@ export default function taskMenu() {
             <TaskMenu
                 task={parsedTask}
                 visible={true}
-                onClose={handleClose} // Вызываем сохранение при закрытии через крестик
+                onClose={handleClose}
                 date={dateString}
                 title={title}
                 setTitle={setTitle}

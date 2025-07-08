@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
-import CustomText from './CustomText';
+import CustomText from './base/CustomText';
 import CustomButton from './base/CustomButton';
 
 // Интерфейс для пропсов
@@ -83,28 +83,28 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
     return (
         <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <View style={styles.labelContainer}>
-                <CustomText 
-                    content="Дни" 
-                    size={16} 
-                    color={theme.colors.secondary} 
-                    weight="bold" 
-                    textCenter 
+                <CustomText
+                    content="Дни"
+                    size={16}
+                    color={theme.colors.secondary}
+                    weight="bold"
+                    textCenter
                 />
                 <View style={styles.labelSpacer} />
-                <CustomText 
-                    content="Часы" 
-                    size={16} 
-                    color={theme.colors.secondary} 
-                    weight="bold" 
-                    textCenter 
+                <CustomText
+                    content="Часы"
+                    size={16}
+                    color={theme.colors.secondary}
+                    weight="bold"
+                    textCenter
                 />
                 <View style={styles.labelSpacer} />
-                <CustomText 
-                    content="Минуты" 
-                    size={16} 
-                    color={theme.colors.secondary} 
-                    weight="bold" 
-                    textCenter 
+                <CustomText
+                    content="Минуты"
+                    size={16}
+                    color={theme.colors.secondary}
+                    weight="bold"
+                    textCenter
                 />
             </View>
             <View style={styles.unifiedPicker}>
@@ -135,11 +135,11 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                         })}
                     </ScrollView>
                 </View>
-                <CustomText 
-                    content=":" 
-                    size={24} 
-                    color={theme.colors.text} 
-                    weight="normal" 
+                <CustomText
+                    content=":"
+                    size={24}
+                    color={theme.colors.text}
+                    weight="normal"
                 />
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>
                     <ScrollView
@@ -168,11 +168,11 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                         })}
                     </ScrollView>
                 </View>
-                <CustomText 
-                    content=":" 
-                    size={24} 
-                    color={theme.colors.text} 
-                    weight="normal" 
+                <CustomText
+                    content=":"
+                    size={24}
+                    color={theme.colors.text}
+                    weight="normal"
                 />
                 <View style={[styles.wheelWrapper, { height: WHEEL_HEIGHT }]}>
                     <ScrollView

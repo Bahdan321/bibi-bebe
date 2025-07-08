@@ -4,7 +4,7 @@ import { quotes } from '@/constants/quotes';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Theme } from '@/theme/types';
 import CustomButton from './base/CustomButton';
-import CustomText from './CustomText';
+import CustomText from './base/CustomText';
 
 interface QuoteModalProps {
     visible: boolean;

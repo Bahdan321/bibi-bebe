@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, TextInput, StyleSheet, Alert } from 'react-native';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 import CustomButton from '@/components/base/CustomButton';
 import { useTheme } from '@/providers/ThemeProvider';
 

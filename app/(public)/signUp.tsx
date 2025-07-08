@@ -5,7 +5,7 @@ import TextInputField from '@/components/TextInputField';
 
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 import CustomButton from '@/components/base/CustomButton';
 import CustomTouchable from '@/components/base/CustomTouchable';
 

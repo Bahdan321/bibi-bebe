@@ -3,7 +3,7 @@ import { View, StyleSheet, Image } from 'react-native';
 import CustomTouchable from './base/CustomTouchable';
 import Gigabar from './Gigabar';
 import CustomButton from './base/CustomButton';
-import CustomText from './CustomText';
+import CustomText from './base/CustomText';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';

@@ -1,4 +1,5 @@
 import { Theme } from '@/theme/types';
+import { SPACING, FONT_SIZES, FONT_WEIGHTS, BORDER_RADIUS, COLORS } from '@/constants/design';
 
 export const lightTheme: Theme = {
   colors: {
@@ -12,13 +13,11 @@ export const lightTheme: Theme = {
     button: 'black',
     settingsBackground: "white",
   },
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-  },
+  spacing: SPACING,
+  fontSize: FONT_SIZES,
+  fontWeight: FONT_WEIGHTS,
+  borderRadius: BORDER_RADIUS,
+  designColors: COLORS,
   eisenhowerMatrix: {
     urgentImportant: 'red',
     urgentNotImportant: 'orange',
@@ -39,13 +38,11 @@ export const darkTheme: Theme = {
     button: 'white',
     settingsBackground: "#1C2526",
   },
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-  },
+  spacing: SPACING,
+  fontSize: FONT_SIZES,
+  fontWeight: FONT_WEIGHTS,
+  borderRadius: BORDER_RADIUS,
+  designColors: COLORS,
   eisenhowerMatrix: {
     urgentImportant: 'red',
     urgentNotImportant: 'orange',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 import { useTheme } from '@/providers/ThemeProvider';
 import { DayInfoProps } from '@/types/types';
 import { getFormatedDate, truncateDayOfWeek } from '@/utils/DateUtils';

@@ -10,7 +10,7 @@ import {
     heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { useTheme } from "@/providers/ThemeProvider";
-import CustomText from "@/components/CustomText";
+import CustomText from "@/components/base/CustomText";
 
 export default function Profile() {
     const { theme } = useTheme();

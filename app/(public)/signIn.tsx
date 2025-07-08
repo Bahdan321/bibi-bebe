@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomButton, CustomTouchable } from '@/components/base';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');

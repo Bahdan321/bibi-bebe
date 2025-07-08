@@ -12,7 +12,7 @@ import { tasks$ } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
 import { Task } from '@/types/types';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 import CustomTouchable from '@/components/base/CustomTouchable';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, subDays, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
 import { ru } from 'date-fns/locale';

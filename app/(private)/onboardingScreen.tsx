@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import CustomButton from '@/components/base/CustomButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useAuth } from '@/providers/AuthProvider';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 
 const OnboardingScreen = () => {
     const { theme } = useTheme();
@@ -110,7 +110,7 @@ const OnboardingScreen = () => {
                             title="Отправить"
                             titleColor={theme.colors.text}
                             onPress={handleSubmit}
-                            style={{...styles.button, backgroundColor: theme.colors.primary}}
+                            style={{ ...styles.button, backgroundColor: theme.colors.primary }}
                         />
                     </Animated.View>
                 )}

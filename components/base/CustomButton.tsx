@@ -1,8 +1,9 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, ViewStyle, TextStyle, GestureResponderEvent, ActivityIndicator, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import CustomText from '../CustomText';
+import CustomText from './CustomText';
 import { heightPercentageToDP as hpd } from 'react-native-responsive-screen';
+import { useTheme } from '@/providers/ThemeProvider';
 
 interface CustomButtonProps {
   variant: 'primary' | 'secondary' | 'service' | 'round' | 'text' | 'reverse';
@@ -44,27 +45,29 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   activeOpacity = 0.7,
   isVisible,
 }) => {
+  const { theme } = useTheme();
+  
   // Определяем размеры в зависимости от size
   const getSizeStyles = () => {
     switch (size) {
       case 'small':
         return {
-          padding: 8,
-          fontSize: 14,
+          padding: theme.spacing.sm,
+          fontSize: theme.fontSize.sm,
           iconSize: iconSize || 16,
           roundSize: hpd('4'),
         };
       case 'large':
         return {
-          padding: 16,
-          fontSize: 18,
+          padding: theme.spacing.md,
+          fontSize: theme.fontSize.lg,
           iconSize: iconSize || 28,
           roundSize: hpd('8'),
         };
       default: // medium
         return {
-          padding: 10,
-          fontSize: 16,
+          padding: theme.spacing.sm,
+          fontSize: theme.fontSize.md,
           iconSize: iconSize || 24,
           roundSize: hpd('6'),
         };
@@ -72,6 +75,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   };
 
   const sizeStyles = getSizeStyles();
+  const styles = createStyles(theme);
 
   // Определяем стили в зависимости от варианта
   const getVariantStyles = (): { buttonStyle: ViewStyle; textStyle?: TextStyle } => {
@@ -264,23 +268,24 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+// Создаем функцию для стилей, чтобы использовать тему
+const createStyles = (theme: any) => StyleSheet.create({
   primaryButton: {
-    borderRadius: 5,
+    borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: theme.spacing.sm,
   },
   secondaryButton: {
-    borderRadius: 5,
+    borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: theme.spacing.sm,
   },
   serviceButton: {
-    borderRadius: 5,
+    borderRadius: theme.borderRadius.sm,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -291,14 +296,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   serviceIcon: {
-    marginHorizontal: 10,
+    marginHorizontal: theme.spacing.sm,
   },
   roundButton: {
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.3,
-    marginHorizontal: 5,
+    marginHorizontal: theme.spacing.xs,
   },
   textButton: {
     alignItems: 'center',

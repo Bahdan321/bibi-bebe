@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Task } from '@/types/types';
 import { updateTaskTitle } from '@/Supabase/utils/SupaLegend';
-import CustomText from './CustomText';
+import CustomText from './base/CustomText';
 import CustomTouchable from './base/CustomTouchable';
 
 interface SubtaskItemProps {

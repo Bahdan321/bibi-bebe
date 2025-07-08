@@ -8,7 +8,7 @@ import {
     View,
 } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,

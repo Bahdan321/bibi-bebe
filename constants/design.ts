@@ -10,13 +10,13 @@ export const SPACING = {
 } as const;
 
 export const FONT_SIZES = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
+  xs: 44,
+  sm: 44,
+  md: 44,
+  lg: 44,
+  xl: 44,
+  xxl: 44,
+  xxxl: 44,
 } as const;
 
 export const FONT_WEIGHTS = {

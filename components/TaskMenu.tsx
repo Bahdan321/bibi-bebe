@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
-  Text,
-  TextInput,
   StyleSheet,
   ScrollView,
   Alert,
   Animated,
 } from 'react-native';
 import CustomButton from './base/CustomButton';
+import CustomText from './base/CustomText';
+import CustomTextInput from './base/CustomTextInput';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, TaskMenuProps } from '@/types/types';
@@ -24,7 +24,7 @@ import {
 } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
 import DropdownMenu from './DropdownMenu';
 import CalendarModal from './CalendarModal';
 import { router } from 'expo-router';
@@ -188,7 +188,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   };
 
   const handleDuplicate = () => {
-    console.log("123123122312312312313213123123123123", task.space_id)
+    console.log("123123122312312312313213123123123123", task.space_id || '')
     toggleDublicateTask(
       task.title,
       task.space_id || '',
@@ -311,7 +311,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const handleAddSubtask = async (subtaskTitle: string) => {
     await addTask(
       subtaskTitle,
-      task.space_id,
+      task.space_id || '',
       task.user_id,
       task.due_date,
       task.display_date,
@@ -375,9 +375,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
       {/* Title */}
       <View style={styles.titleSection}>
-        <TextInput
+        <CustomTextInput
+          variant="title"
           style={[
-            styles.titleInput,
+            { flex: 1 },
             {
               color: taskStatusCopy ? theme.colors.secondary : theme.colors.text,
               opacity: taskStatusCopy ? 0.6 : 1,
@@ -387,7 +388,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           value={title}
           onChangeText={setTitle}
           placeholder="Название задачи"
-          placeholderTextColor={theme.colors.secondary}
         />
         <CustomButton
           variant="text"
@@ -399,19 +399,19 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       </View>
 
       {/* Description */}
-      <TextInput
-        style={[styles.descriptionInput, { color: theme.colors.text }, { lineHeight: 20 }]}
+      <CustomTextInput
+        variant="description"
+        style={{ marginBottom: 20 }}
         value={description}
         onChangeText={setDescription}
         placeholder="Добавьте описание"
-        placeholderTextColor={theme.colors.secondary}
         multiline
         maxLength={150}
       />
 
       {/* Subtasks */}
       <View style={styles.subtasksSection}>
-        <Text style={[styles.subtasksTitle, { color: theme.colors.text }]}>Подзадачи</Text>
+        <CustomText variant="subtitle" content="Подзадачи" style={{ marginBottom: 10 }} />
         {subtasks.map((subtask, index) => (
           <React.Fragment key={subtask.id}>
             <SubtaskItem
@@ -428,7 +428,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         ))}
         <NewSubtaskInput
           parentTaskId={task.id}
-          spaceId={task.space_id}
+          spaceId={task.space_id || ''}
           userId={task.user_id}
           date={date}
           onAddSubtask={handleAddSubtask}
@@ -437,20 +437,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
       {/* Reward block */}
       <View style={{ marginBottom: 20 }}>
-        <Text style={[styles.rewardHeaderText, { color: theme.colors.text, marginBottom: 10 }]}>Награда</Text>
-        <TextInput
+        <CustomText content="Награда" style={{ marginBottom: 10 }} />
+        <CustomTextInput
+          style={{ marginBottom: 10 }}
           value={rewardNameInput || ''}
           onChangeText={setRewardNameInput}
           placeholder="Введите название награды"
-          placeholderTextColor={theme.colors.secondary}
-          style={[
-            styles.titleInput,
-            {
-              fontSize: 18,
-              marginBottom: 10,
-              color: theme.colors.text,
-            },
-          ]}
         />
         <CustomButton
           variant="primary"
@@ -498,7 +490,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             items={eisenhowermatrixitems}
             visible={isEisenhowerMatrixDropdownVisible}
             onClose={closeEisenhowerMatrixDropdown}
-            layout="vertical"
+
             containerStyle={styles.eisenhowerDropdownMenu}
           />
         </View>
@@ -558,25 +550,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  dateText: {
-    fontSize: 16,
-  },
   titleSection: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  titleInput: {
-    flex: 1,
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginRight: 10,
-  },
-  descriptionInput: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlignVertical: 'top',
-    minHeight: 100,
   },
   actions: {
     flexDirection: 'row',
@@ -619,11 +596,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  subtasksTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
+
   arrowContainer: {
     alignItems: 'center',
     marginVertical: 0,
@@ -634,18 +607,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     marginBottom: 12
   },
-  rewardHeaderText: {
-    fontSize: hp('1.8%'),
-    fontWeight: 'bold',
-  },
-  rewardName: {
-    fontSize: hp('2%'),
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  rewardDescription: {
-    fontSize: hp('1.8%'),
-  },
+
+
   addRewardButton: {
     alignItems: 'center',
     paddingVertical: 10,

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TextInput, StyleSheet, View, ViewStyle } from 'react-native';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 
 type TextInputFieldProps = {
     label: string;

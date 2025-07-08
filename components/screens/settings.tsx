@@ -9,7 +9,7 @@ import {
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { BlurView } from 'expo-blur';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 
 export default function Settings() {
 
@@ -87,7 +87,7 @@ export default function Settings() {
                                 label={item.label}
                                 value={item.value}
                                 leftIcon={item.leftIcon}
-                                onPress={item.onPress || (() => {})}
+                                onPress={item.onPress || (() => { })}
                             />
                         )}
                         {index < settingsItems.length - 1 && item.label && (

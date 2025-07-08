@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import TimePicker from './TimePicker';
 import { useTheme } from '@/providers/ThemeProvider';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 import CustomButton from '@/components/base/CustomButton';
 
 // Интерфейс для пропсов

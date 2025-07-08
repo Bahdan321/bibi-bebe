@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, ViewStyle, GestureResponderEvent, StyleSheet } from 'react-native';
+import { useTheme } from '@/providers/ThemeProvider';
 
 interface CustomTouchableProps {
   onPress: (event?: GestureResponderEvent) => void;
@@ -44,15 +45,17 @@ const CustomTouchable: React.FC<CustomTouchableProps> = ({
   justifyContent,
   flexDirection,
 }) => {
+  const { theme } = useTheme();
+  
   // Функция для получения числового значения отступов
   const getSpacingValue = (spacing: number | string | undefined): number | undefined => {
     if (spacing === undefined) return undefined;
     if (typeof spacing === 'number') return spacing;
     
     switch (spacing) {
-      case 'small': return 8;
-      case 'medium': return 16;
-      case 'large': return 24;
+      case 'small': return theme.spacing.sm;
+      case 'medium': return theme.spacing.md;
+      case 'large': return theme.spacing.lg;
       case 'none': return 0;
       default: return undefined;
     }

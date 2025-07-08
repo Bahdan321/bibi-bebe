@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ViewStyle, StyleSheet } from 'react-native';
+import { useTheme } from '@/providers/ThemeProvider';
 
 interface CustomViewProps {
   variant?: 'card' | 'container' | 'row' | 'column' | 'center' | 'flex';
@@ -34,16 +35,18 @@ const CustomView: React.FC<CustomViewProps> = ({
   style,
   children,
 }) => {
+  const { theme } = useTheme();
+  
   // Функция для получения числового значения отступов
   const getSpacingValue = (spacing: number | string): number => {
     if (typeof spacing === 'number') return spacing;
     
     switch (spacing) {
-      case 'small': return 8;
-      case 'medium': return 16;
-      case 'large': return 24;
+      case 'small': return theme.spacing.sm;
+      case 'medium': return theme.spacing.md;
+      case 'large': return theme.spacing.lg;
       case 'none': return 0;
-      default: return 16;
+      default: return theme.spacing.md;
     }
   };
 
@@ -52,10 +55,10 @@ const CustomView: React.FC<CustomViewProps> = ({
     if (typeof radius === 'number') return radius;
     
     switch (radius) {
-      case 'small': return 4;
-      case 'medium': return 8;
-      case 'large': return 16;
-      default: return 8;
+      case 'small': return theme.borderRadius.sm;
+      case 'medium': return theme.borderRadius.md;
+      case 'large': return theme.borderRadius.lg;
+      default: return theme.borderRadius.md;
     }
   };
 

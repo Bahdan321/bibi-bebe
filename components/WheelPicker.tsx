@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-    import { View, ScrollView, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-    import CustomText from '@/components/CustomText';
+import { View, ScrollView, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import CustomText from '@/components/base/CustomText';
 
-    const TimePicker = () => {
+const TimePicker = () => {
     const [selectedDay, setSelectedDay] = useState('Today');
     const [hours, setHours] = useState(12);
     const [minutes, setMinutes] = useState(0);
@@ -20,7 +20,7 @@ import React, { useState, useRef } from 'react';
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < daysArray.length) {
-        setSelectedDay(daysArray[selectedIndex]);
+            setSelectedDay(daysArray[selectedIndex]);
         }
     };
 
@@ -28,7 +28,7 @@ import React, { useState, useRef } from 'react';
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < hoursArray.length) {
-        setHours(hoursArray[selectedIndex]);
+            setHours(hoursArray[selectedIndex]);
         }
     };
 
@@ -36,88 +36,88 @@ import React, { useState, useRef } from 'react';
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < minutesArray.length) {
-        setMinutes(minutesArray[selectedIndex]);
+            setMinutes(minutesArray[selectedIndex]);
         }
     };
 
     return (
         <View style={styles.container}>
-        <View style={styles.wheelContainer}>
-            <ScrollView
-            ref={daysRef}
-            showsVerticalScrollIndicator={false}
-            decelerationRate="fast"
-            snapToInterval={ITEM_HEIGHT}
-            onMomentumScrollEnd={handleDaysScroll}
-            >
-            {daysArray.map((day) => (
-                <View key={day} style={styles.item}>
-                <CustomText
-                    content={day}
-                    size={18}
-                    weight={day === selectedDay ? 'bold' : 'normal'}
-                    style={styles.itemTextContainer}
-                />
-                </View>
-            ))}
-            </ScrollView>
-            <View style={styles.selectionLineTop} />
-            <View style={styles.selectionLineBottom} />
-        </View>
-        <View style={styles.wheelContainer}>
-            <ScrollView
-            ref={hoursRef}
-            showsVerticalScrollIndicator={false}
-            decelerationRate="fast"
-            snapToInterval={ITEM_HEIGHT}
-            onMomentumScrollEnd={handleHoursScroll}
-            >
-            {hoursArray.map((hour) => (
-                <View key={hour} style={styles.item}>
-                <CustomText
-                    content={hour.toString()}
-                    size={18}
-                    weight={hour === hours ? 'bold' : 'normal'}
-                    style={styles.itemTextContainer}
-                />
-                </View>
-            ))}
-            </ScrollView>
-            <View style={styles.selectionLineTop} />
-            <View style={styles.selectionLineBottom} />
-        </View>
-        <View style={styles.wheelContainer}>
-            <ScrollView
-            ref={minutesRef}
-            showsVerticalScrollIndicator={false}
-            decelerationRate="fast"
-            snapToInterval={ITEM_HEIGHT}
-            onMomentumScrollEnd={handleMinutesScroll}
-            >
-            {minutesArray.map((minute) => (
-                <View key={minute} style={styles.item}>
-                <CustomText
-                    content={minute < 10 ? '0' + minute : minute.toString()}
-                    size={18}
-                    weight={minute === minutes ? 'bold' : 'normal'}
-                    style={styles.itemTextContainer}
-                />
-                </View>
-            ))}
-            </ScrollView>
-            <View style={styles.selectionLineTop} />
-            <View style={styles.selectionLineBottom} />
-        </View>
-        <CustomText
-            content={`Выбрано: ${selectedDay} ${hours}:${minutes < 10 ? '0' + minutes : minutes}`}
-            size={16}
-            style={styles.selectedTextContainer}
-        />
+            <View style={styles.wheelContainer}>
+                <ScrollView
+                    ref={daysRef}
+                    showsVerticalScrollIndicator={false}
+                    decelerationRate="fast"
+                    snapToInterval={ITEM_HEIGHT}
+                    onMomentumScrollEnd={handleDaysScroll}
+                >
+                    {daysArray.map((day) => (
+                        <View key={day} style={styles.item}>
+                            <CustomText
+                                content={day}
+                                size={18}
+                                weight={day === selectedDay ? 'bold' : 'normal'}
+                                style={styles.itemTextContainer}
+                            />
+                        </View>
+                    ))}
+                </ScrollView>
+                <View style={styles.selectionLineTop} />
+                <View style={styles.selectionLineBottom} />
+            </View>
+            <View style={styles.wheelContainer}>
+                <ScrollView
+                    ref={hoursRef}
+                    showsVerticalScrollIndicator={false}
+                    decelerationRate="fast"
+                    snapToInterval={ITEM_HEIGHT}
+                    onMomentumScrollEnd={handleHoursScroll}
+                >
+                    {hoursArray.map((hour) => (
+                        <View key={hour} style={styles.item}>
+                            <CustomText
+                                content={hour.toString()}
+                                size={18}
+                                weight={hour === hours ? 'bold' : 'normal'}
+                                style={styles.itemTextContainer}
+                            />
+                        </View>
+                    ))}
+                </ScrollView>
+                <View style={styles.selectionLineTop} />
+                <View style={styles.selectionLineBottom} />
+            </View>
+            <View style={styles.wheelContainer}>
+                <ScrollView
+                    ref={minutesRef}
+                    showsVerticalScrollIndicator={false}
+                    decelerationRate="fast"
+                    snapToInterval={ITEM_HEIGHT}
+                    onMomentumScrollEnd={handleMinutesScroll}
+                >
+                    {minutesArray.map((minute) => (
+                        <View key={minute} style={styles.item}>
+                            <CustomText
+                                content={minute < 10 ? '0' + minute : minute.toString()}
+                                size={18}
+                                weight={minute === minutes ? 'bold' : 'normal'}
+                                style={styles.itemTextContainer}
+                            />
+                        </View>
+                    ))}
+                </ScrollView>
+                <View style={styles.selectionLineTop} />
+                <View style={styles.selectionLineBottom} />
+            </View>
+            <CustomText
+                content={`Выбрано: ${selectedDay} ${hours}:${minutes < 10 ? '0' + minutes : minutes}`}
+                size={16}
+                style={styles.selectedTextContainer}
+            />
         </View>
     );
-    };
+};
 
-    const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -156,6 +156,6 @@ import React, { useState, useRef } from 'react';
         height: 1,
         backgroundColor: 'gray',
     },
-    });
+});
 
-    export default TimePicker;
+export default TimePicker;

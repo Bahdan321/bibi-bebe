@@ -16,7 +16,7 @@ import Animated, {
     withSequence,
 } from 'react-native-reanimated';
 import CustomButton from '@/components/base/CustomButton';
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/base/CustomText';
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,

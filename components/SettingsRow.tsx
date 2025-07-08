@@ -5,7 +5,7 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import CustomText from './CustomText';
+import CustomText from './base/CustomText';
 import CustomTouchable from './base/CustomTouchable';
 
 interface SettingsRowProps {

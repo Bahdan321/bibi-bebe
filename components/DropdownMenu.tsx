@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/providers/ThemeProvider';
 import Gigabar from './Gigabar'; // Импортируем Gigabar
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import CustomText from './CustomText';
+import CustomText from './base/CustomText';
 import CustomTouchable from './base/CustomTouchable';
 
 type MenuItem = {
@@ -46,7 +46,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /*
                     >
                         <CustomText
                             content={item.text}
-                            size={hp('2')}
+                            size={theme.fontSize.md}
                             color={theme.colors.text}
                             style={styles.menuTextContainer}
                         />

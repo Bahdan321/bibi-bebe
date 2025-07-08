@@ -1,3 +1,5 @@
+import { SPACING, FONT_SIZES, FONT_WEIGHTS, BORDER_RADIUS, COLORS } from '@/constants/design';
+
 export interface Theme {
   colors: {
     primary: string;
@@ -10,13 +12,11 @@ export interface Theme {
     button: string;
     settingsBackground: string;
   };
-  spacing: {
-    xs: number;
-    sm: number;
-    md: number;
-    lg: number;
-    xl: number;
-  };
+  spacing: typeof SPACING;
+  fontSize: typeof FONT_SIZES;
+  fontWeight: typeof FONT_WEIGHTS;
+  borderRadius: typeof BORDER_RADIUS;
+  designColors: typeof COLORS;
   eisenhowerMatrix: {
     urgentImportant: string;
     urgentNotImportant: string;
