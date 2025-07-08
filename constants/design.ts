@@ -1,4 +1,8 @@
 // Константы дизайн-системы для унификации стилей
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 export const SPACING = {
   xs: 4,
@@ -10,13 +14,13 @@ export const SPACING = {
 } as const;
 
 export const FONT_SIZES = {
-  xs: 44,
-  sm: 44,
-  md: 44,
-  lg: 44,
-  xl: 44,
-  xxl: 44,
-  xxxl: 44,
+  xs: hp('1.5'),   // ~12px на стандартном экране
+  sm: hp('2'),   // ~14px
+  md: hp('2.5'),   // ~16px
+  lg: hp('3'),   // ~18px
+  xl: hp('3.5'),   // ~20px
+  xxl: hp('4'),  // ~24px
+  xxxl: hp('4.5'), // ~30px
 } as const;
 
 export const FONT_WEIGHTS = {
@@ -160,19 +164,19 @@ export const BUTTON_SIZES = {
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
     fontSize: FONT_SIZES.sm,
-    iconSize: 16,
+    iconSize: hp('2.0%'), // ~16px
   },
   medium: {
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     fontSize: FONT_SIZES.md,
-    iconSize: 20,
+    iconSize: hp('2.5%'), // ~20px
   },
   large: {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     fontSize: FONT_SIZES.lg,
-    iconSize: 24,
+    iconSize: hp('3.0%'), // ~24px
   },
 } as const;
 

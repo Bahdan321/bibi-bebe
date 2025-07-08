@@ -111,7 +111,7 @@ export default function Profile() {
                     <View style={styles.emailWrapper}>
                         <CustomText
                             content={`Email: ${email}`}
-                            size="lg"
+                            size="md"
                             color={theme.colors.text}
                             weight="bold"
                             opacity={1}

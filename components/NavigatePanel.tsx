@@ -17,10 +17,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import CustomButton from '@/components/base/CustomButton';
 import CustomText from '@/components/base/CustomText';
-import {
-    widthPercentageToDP as wp,
-    heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
 import { useTheme } from '@/providers/ThemeProvider';
 import { NavigatePanelProps } from '@/types/types';
 import { ShowCurrentMonth, ShowCurrentYear } from '@/utils/DateUtils';
@@ -156,7 +152,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     <Animated.View style={monthAnimatedStyle}>
                                         <CustomText
                                             content={ShowCurrentMonth(currentDate)}
-                                            size="md"
+                                            size="xl"
                                             color={theme.colors.text}
                                             weight="700"
                                         />
@@ -211,7 +207,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 onPress={onOpenSettings || (() => { })}
                                 style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
-                            <CustomButton
+                            {/* <CustomButton
                                 variant="round"
                                 size="medium"
                                 icon="copy-outline"
@@ -234,7 +230,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 iconColor={theme.colors.icon}
                                 onPress={onOpenSpaces || (() => { })}
                                 style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
-                            />
+                            /> */}
                             <CustomButton
                                 variant="round"
                                 size="medium"

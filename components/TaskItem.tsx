@@ -83,7 +83,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
           <CustomText
             content={truncateTask(task.title)}
-            size="sm"
+            size="md"
             color={task.status ? theme.colors.secondary : theme.colors.text}
             weight="bold"
             lineThrough={task.status}

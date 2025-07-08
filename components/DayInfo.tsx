@@ -10,8 +10,8 @@ const DayInfo: React.FC<DayInfoProps> = ({ date, dayOfWeek }) => {
     const dateObj = new Date(date);
     return (
         <View style={styles.container}>
-            <CustomText content={getFormatedDate(date)} size="sm" color={theme.colors.secondary} weight='bold' />
-            <CustomText content={truncateDayOfWeek(dayOfWeek)} size="sm" color={theme.colors.secondary} weight='bold' />
+            <CustomText content={getFormatedDate(date)} size="md" color={theme.colors.secondary} weight='bold' />
+            <CustomText content={truncateDayOfWeek(dayOfWeek)} size="md" color={theme.colors.secondary} weight='bold' />
         </View>
     );
 
