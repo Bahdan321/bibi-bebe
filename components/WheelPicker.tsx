@@ -54,7 +54,7 @@ const TimePicker = () => {
                         <View key={day} style={styles.item}>
                             <CustomText
                                 content={day}
-                                size={18}
+                                size="lg"
                                 weight={day === selectedDay ? 'bold' : 'normal'}
                                 style={styles.itemTextContainer}
                             />
@@ -76,7 +76,7 @@ const TimePicker = () => {
                         <View key={hour} style={styles.item}>
                             <CustomText
                                 content={hour.toString()}
-                                size={18}
+                                size="lg"
                                 weight={hour === hours ? 'bold' : 'normal'}
                                 style={styles.itemTextContainer}
                             />
@@ -98,7 +98,7 @@ const TimePicker = () => {
                         <View key={minute} style={styles.item}>
                             <CustomText
                                 content={minute < 10 ? '0' + minute : minute.toString()}
-                                size={18}
+                                size="lg"
                                 weight={minute === minutes ? 'bold' : 'normal'}
                                 style={styles.itemTextContainer}
                             />
@@ -110,7 +110,7 @@ const TimePicker = () => {
             </View>
             <CustomText
                 content={`Выбрано: ${selectedDay} ${hours}:${minutes < 10 ? '0' + minutes : minutes}`}
-                size={16}
+                size="md"
                 style={styles.selectedTextContainer}
             />
         </View>

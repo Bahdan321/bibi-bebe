@@ -129,21 +129,21 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
             <CustomTouchable onPress={handlePrevMonth}>
               <CustomText
                 content="←"
-                size={24}
+                size="xxl"
                 color={theme.colors.text}
                 weight="bold"
               />
             </CustomTouchable>
             <CustomText
               content={`${capitalizedMonthName} ${currentYear}`}
-              size={24}
+              size="xxl"
               color={theme.colors.text}
               weight="bold"
             />
             <CustomTouchable onPress={handleNextMonth}>
               <CustomText
                 content="→"
-                size={24}
+                size="xxl"
                 color={theme.colors.text}
                 weight="bold"
               />
@@ -154,7 +154,7 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
               <CustomText
                 key={index}
                 content={day}
-                size={14}
+                size="sm"
                 color={theme.colors.text}
                 weight="bold"
                 style={styles.dayLabelContainer}
@@ -167,7 +167,7 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
               <View key={`prev-${index}`} style={styles.dayCell}>
                 <CustomText
                   content={day.toString()}
-                  size={16}
+                  size="md"
                   color={theme.colors.secondary}
                   style={styles.prevMonthDayTextContainer}
                   textCenter={true}
@@ -183,14 +183,14 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
               return (
                 <CustomTouchable
                   key={day}
-                  style={isSelected ? [styles.dayCell, styles.selectedDay] : styles.dayCell}
+                  style={isSelected ? [styles.dayCell, styles.selectedDay] as any : styles.dayCell}
                   onPress={() => handleDateSelect(day)}
                 >
                   <CustomText
                     content={day.toString()}
-                    size={16}
+                    size="md"
                     color={isSelected ? theme.colors.primary : theme.colors.text}
-                    weight={isSelected ? "bold" : "400"}
+                    weight={isSelected ? "bold" : "normal"}
                     textCenter={true}
                   />
                 </CustomTouchable>
@@ -200,7 +200,7 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
               <View key={`next-${index}`} style={styles.dayCell}>
                 <CustomText
                   content={day.toString()}
-                  size={16}
+                  size="md"
                   color={theme.colors.secondary}
                   style={styles.nextMonthDayTextContainer}
                   textCenter={true}
@@ -211,7 +211,7 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
           <CustomTouchable style={styles.applyButton} onPress={handleApply}>
             <CustomText
               content="Применить"
-              size={16}
+              size="md"
               color={theme.colors.primary}
               weight="bold"
               textCenter={true}

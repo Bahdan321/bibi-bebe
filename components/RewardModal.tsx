@@ -39,7 +39,7 @@ const RewardModal: React.FC<RewardModalProps> = ({
                 <View style={[styles.modalContent, { backgroundColor: theme.colors.third }]}>
                     <CustomText
                         content="Добавьте награду"
-                        size={18}
+                        size="lg"
                         color={theme.colors.text}
                         style={styles.modalTitleContainer}
                     />

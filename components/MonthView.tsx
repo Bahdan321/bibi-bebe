@@ -153,7 +153,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                 {taskCount > maxDots && (
                     <CustomText
                         content="+"
-                        size={8}
+                        size="xs"
                         color={theme.colors.text}
                         weight="bold"
                         style={styles.moreIndicatorContainer}

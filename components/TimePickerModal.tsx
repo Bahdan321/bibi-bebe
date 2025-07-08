@@ -29,12 +29,12 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({ visible, onClose, onT
                         onConfirm={onClose}
                     />
                     <CustomButton
-                        style={[styles.closeButton, { backgroundColor: theme.colors.secondary }]}
+                        style={[styles.closeButton, { backgroundColor: theme.colors.secondary }] as any}
                         onPress={onClose}
                     >
                         <CustomText
                             content="Закрыть"
-                            size={16}
+                            size="md"
                             color={theme.colors.primary}
                             weight="bold"
                         />

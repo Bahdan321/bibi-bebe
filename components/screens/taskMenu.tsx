@@ -55,7 +55,7 @@ export default function taskMenu() {
     if (!parsedTask) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomText content="Задача не найдена" size={16} color={theme.colors.text} />
+                <CustomText content="Задача не найдена" size="md" color={theme.colors.text} />
             </View>
         );
     }

@@ -70,7 +70,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ visible, onClose }) => {
                     <Animated.View style={{ opacity: fadeAnim }}>
                         <CustomText
                             content='Ежедневная цитата'
-                            size={26}
+                            size="xxl"
                             weight='bold'
                             color={theme.colors.text}
                             style={{ marginBottom: 20 }}
@@ -80,7 +80,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ visible, onClose }) => {
                     <Animated.View style={{ opacity: quoteAnim }}>
                         <CustomText
                             content={getRandomQuote()}
-                            size={20}
+                            size="xl"
                             color={theme.colors.text}
                             textCenter
                             style={{ marginBottom: 40 }}
