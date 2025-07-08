@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
 import { Task } from '@/types/types';
 
-// Очищаем AsyncStorage при необходимости (раскомментируйте для отладки)
 // useEffect(() => {
 //   AsyncStorage.clear();
 // }, []);

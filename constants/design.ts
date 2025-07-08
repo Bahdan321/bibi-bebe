@@ -44,7 +44,7 @@ export const COLORS = {
   warning: '#FF9500',
   error: '#FF3B30',
   info: '#5AC8FA',
-  
+
   // Нейтральные цвета
   white: '#FFFFFF',
   black: '#000000',
@@ -60,14 +60,14 @@ export const COLORS = {
     800: '#1F2937',
     900: '#111827',
   },
-  
+
   // Фоновые цвета
   background: {
     primary: '#FFFFFF',
     secondary: '#F9FAFB',
     tertiary: '#F3F4F6',
   },
-  
+
   // Цвета текста
   text: {
     primary: '#111827',
@@ -75,7 +75,7 @@ export const COLORS = {
     tertiary: '#9CA3AF',
     inverse: '#FFFFFF',
   },
-  
+
   // Цвета границ
   border: {
     light: '#E5E7EB',
