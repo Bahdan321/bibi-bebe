@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground } from 'react-native'
+import { View, ImageBackground } from 'react-native'
 import React from 'react'
 import SettingsRow from '@/components/SettingsRow'
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import {
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { BlurView } from 'expo-blur';
+import CustomText from '@/components/CustomText';
 
 export default function Settings() {
 
@@ -19,9 +20,13 @@ export default function Settings() {
             label: "Язык",
             value: (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={{ color: theme.colors.text, marginRight: 5, fontSize: hp('2.2'), fontWeight: 'bold' }}>
-                        Русский
-                    </Text>
+                    <CustomText
+                        content="Русский"
+                        size={hp('2.2')}
+                        color={theme.colors.text}
+                        weight="bold"
+                        style={{ marginRight: 5 }}
+                    />
                 </View>
             ),
             leftIcon: <Ionicons name="earth" size={hp("2.8")} color={theme.colors.button} />,
@@ -30,9 +35,13 @@ export default function Settings() {
         {
             label: "Тема",
             value: (
-                <Text style={{ color: theme.colors.text, marginRight: 5, fontSize: hp('2.2'), fontWeight: 'bold' }}>
-                    Темная
-                </Text>
+                <CustomText
+                    content="Темная"
+                    size={hp('2.2')}
+                    color={theme.colors.text}
+                    weight="bold"
+                    style={{ marginRight: 5 }}
+                />
             ),
             leftIcon: <Ionicons name="sunny-outline" size={hp("2.8")} color={theme.colors.button} />,
             onPress: toggleTheme,
@@ -40,9 +49,13 @@ export default function Settings() {
         {
             label: "Тема",
             value: (
-                <Text style={{ color: theme.colors.text, marginRight: 5, fontSize: hp('2.2'), fontWeight: 'bold' }}>
-                    Темная
-                </Text>
+                <CustomText
+                    content="Темная"
+                    size={hp('2.2')}
+                    color={theme.colors.text}
+                    weight="bold"
+                    style={{ marginRight: 5 }}
+                />
             ),
             leftIcon: <Ionicons name="sunny-outline" size={hp("2.8")} color={theme.colors.button} />,
             onPress: toggleTheme,

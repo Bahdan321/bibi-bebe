@@ -1,7 +1,9 @@
 import React from 'react';
-import { Modal, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
 import TimePicker from './TimePicker';
 import { useTheme } from '@/providers/ThemeProvider';
+import CustomText from '@/components/CustomText';
+import CustomButton from '@/components/base/CustomButton';
 
 // Интерфейс для пропсов
 interface TimePickerModalProps {
@@ -26,14 +28,17 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({ visible, onClose, onT
                         onTimeSelected={onTimeSelected}
                         onConfirm={onClose}
                     />
-                    <TouchableOpacity
+                    <CustomButton
                         style={[styles.closeButton, { backgroundColor: theme.colors.secondary }]}
                         onPress={onClose}
                     >
-                        <Text style={[styles.closeButtonText, { color: theme.colors.primary }]}>
-                            Закрыть
-                        </Text>
-                    </TouchableOpacity>
+                        <CustomText
+                            content="Закрыть"
+                            size={16}
+                            color={theme.colors.primary}
+                            weight="bold"
+                        />
+                    </CustomButton>
                 </View>
             </View>
         </Modal>
@@ -59,10 +64,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '50%',
     },
-    closeButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
+
 });
 
 export default TimePickerModal;

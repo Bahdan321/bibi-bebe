@@ -1,11 +1,13 @@
-import { View, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Platform } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
 import React, { useState } from 'react';
 
 import TextInputField from '@/components/TextInputField';
 
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
-import { CustomButton } from '@/components/base';
+import CustomText from '@/components/CustomText';
+import CustomButton from '@/components/base/CustomButton';
+import CustomTouchable from '@/components/base/CustomTouchable';
 
 export default function SignUp() {
     const [name, setName] = useState('');
@@ -51,11 +53,26 @@ export default function SignUp() {
     return (
         <View style={styles.container}>
             <View style={styles.tabContainer}>
-                <TouchableOpacity onPress={() => router.push('/(public)/signIn')}>
-                    <Text style={[styles.tabText, { color: '#8A8A8A' }]}>Login</Text>
-                </TouchableOpacity>
-                <Text style={styles.tabSeparator}>◆</Text>
-                <Text style={[styles.tabText, { color: '#FFFFFF' }]}>Sign up</Text>
+                <CustomTouchable onPress={() => router.push('/(public)/signIn')}>
+                    <CustomText
+                        content="Login"
+                        size={18}
+                        color="#8A8A8A"
+                        weight="500"
+                    />
+                </CustomTouchable>
+                <CustomText
+                    content="◆"
+                    size={18}
+                    color="#FFFFFF"
+                    style={styles.tabSeparatorContainer}
+                />
+                <CustomText
+                    content="Sign up"
+                    size={18}
+                    color="#FFFFFF"
+                    weight="500"
+                />
             </View>
             {/* <TextInputField
                 label="Name"
@@ -106,7 +123,13 @@ export default function SignUp() {
                         onPress={handleSignUp}
                         style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
                     />
-                    <Text style={styles.orText}>или</Text>
+                    <CustomText
+                        content="или"
+                        size={16}
+                        color="#FFFFFF"
+                        style={styles.orTextContainer}
+                        textCenter
+                    />
                     <CustomButton
                         variant="service"
                         size="medium"
@@ -147,13 +170,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 40,
     },
-    tabText: {
-        fontSize: 18,
-        fontWeight: '500',
-    },
-    tabSeparator: {
-        color: '#FFFFFF',
-        fontSize: 18,
+    tabSeparatorContainer: {
         marginHorizontal: 10,
     },
     input: {
@@ -188,9 +205,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: '70%',
     },
-    orText: {
-        color: '#FFFFFF',
-        textAlign: 'center',
+    orTextContainer: {
         marginVertical: 10,
     },
     loader: {

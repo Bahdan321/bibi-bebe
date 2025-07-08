@@ -1,4 +1,6 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
+import CustomText from '@/components/CustomText'
+import CustomTouchable from '@/components/base/CustomTouchable'
 import React, { useCallback, useState } from 'react'
 import TaskMenu from '@/components/TaskMenu'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -14,6 +16,7 @@ export default function taskMenu() {
 
     const { task, date } = useLocalSearchParams();
     const parsedTask: Task | null = task && typeof task === 'string' ? JSON.parse(task) : null;
+    const dateString = Array.isArray(date) ? date[0] : date;
     console.log('Parsed task:', parsedTask);
 
     // Состояние для редактируемых полей
@@ -49,13 +52,21 @@ export default function taskMenu() {
         }, [handleSaveChanges])
     );
 
+    if (!parsedTask) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <CustomText content="Задача не найдена" size={16} color={theme.colors.text} />
+            </View>
+        );
+    }
+
     return (
         <View style={{ flex: 1, flexDirection: 'column', }}>
             <TaskMenu
                 task={parsedTask}
                 visible={true}
                 onClose={handleClose} // Вызываем сохранение при закрытии через крестик
-                date={date}
+                date={dateString}
                 title={title}
                 setTitle={setTitle}
                 description={description}

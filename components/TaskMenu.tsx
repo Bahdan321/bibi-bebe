@@ -8,7 +8,7 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import { CustomButton } from './base';
+import CustomButton from './base/CustomButton';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, TaskMenuProps } from '@/types/types';
@@ -191,7 +191,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     console.log("123123122312312312313213123123123123", task.space_id)
     toggleDublicateTask(
       task.title,
-      task.space_id,
+      task.space_id || '',
       task.user_id,
       task.due_date,
       task.display_date,
@@ -224,7 +224,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.icon : theme.colors.text));
   };
 
-  const formattedDate = getFormatedDateOfYear(date);
+  const formattedDate = getFormatedDateOfYear(new Date(date || new Date()));
 
   const handleChangeTaskColor = () => {
     setIsEisenhowerMatrixDropdownVisible(!isEisenhowerMatrixDropdownVisible);
@@ -506,7 +506,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         <CustomButton
           variant="text"
           style={styles.actionButton}
-          onPress={() => {}}
+          onPress={() => { }}
           icon="notifications-outline"
           iconColor={theme.colors.text}
           iconSize={24}

@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
+import CustomTouchable from './base/CustomTouchable';
 import Gigabar from './Gigabar';
-import { CustomButton } from './base';
+import CustomButton from './base/CustomButton';
 import CustomText from './CustomText';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { TaskItemProps } from '@/types/types';
@@ -79,7 +80,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   return (
     <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
       <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-        <TouchableOpacity onPress={handleTextPress} style={{ flex: 1 }}>
+        <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
           <CustomText
             content={truncateTask(task.title)}
             size={hp('2.2')}
@@ -93,7 +94,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
             borderColor={taskBorderColor(task.is_urgent, task.is_important)}
             backgroundColor={taskBorderColor(task.is_urgent, task.is_important)}
           />
-        </TouchableOpacity>
+        </CustomTouchable>
         <CustomButton
           variant="round"
           size="small"

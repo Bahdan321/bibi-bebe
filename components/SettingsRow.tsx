@@ -1,10 +1,12 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import React from 'react'
 import { useTheme } from '@/providers/ThemeProvider';
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import CustomText from './CustomText';
+import CustomTouchable from './base/CustomTouchable';
 
 interface SettingsRowProps {
     label: string;
@@ -20,11 +22,17 @@ const SettingsRow: React.FC<SettingsRowProps> = ({ label, value, leftIcon, onPre
         <View style={styles.row}>
             <View style={styles.left}>
                 {leftIcon}
-                <Text style={[styles.label, { color: theme.colors.background }]}>{label}</Text>
+                <CustomText
+                    content={label}
+                    size={hp('2.2')}
+                    color={theme.colors.background}
+                    weight="bold"
+                    style={styles.labelContainer}
+                />
             </View>
-            <TouchableOpacity style={styles.right} onPress={onPress}>
+            <CustomTouchable style={styles.right} onPress={onPress}>
                 {value}
-            </TouchableOpacity>
+            </CustomTouchable>
         </View>
     );
 }
@@ -40,10 +48,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    label: {
+    labelContainer: {
         marginLeft: 10,
-        fontSize: hp('2.2'),
-        fontWeight: "bold"
     },
     right: {
         flexDirection: 'row',

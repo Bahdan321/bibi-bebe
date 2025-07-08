@@ -15,7 +15,7 @@ import Animated, {
     runOnJS,
     withSequence,
 } from 'react-native-reanimated';
-import { CustomButton } from '@/components/base';
+import CustomButton from '@/components/base/CustomButton';
 import CustomText from '@/components/CustomText';
 import {
     widthPercentageToDP as wp,

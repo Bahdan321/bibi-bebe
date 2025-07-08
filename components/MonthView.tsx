@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
     useSharedValue,
     useAnimatedScrollHandler,
@@ -12,7 +12,8 @@ import { tasks$ } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
 import { Task } from '@/types/types';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import CustomText from './CustomText';
+import CustomText from '@/components/CustomText';
+import CustomTouchable from '@/components/base/CustomTouchable';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, subDays, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Gigabar from './Gigabar';
@@ -150,7 +151,13 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                     />
                 ))}
                 {taskCount > maxDots && (
-                    <Text style={[styles.moreIndicator, { color: theme.colors.text }]}>+</Text>
+                    <CustomText
+                        content="+"
+                        size={8}
+                        color={theme.colors.text}
+                        weight="bold"
+                        style={styles.moreIndicatorContainer}
+                    />
                 )}
             </Animated.View>
         );
@@ -240,7 +247,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                         const hasTasks = hasTasksForDay(date);
 
                         return (
-                            <TouchableOpacity
+                            <CustomTouchable
                                 key={index}
                                 style={[
                                     styles.dayContainer,
@@ -258,7 +265,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
                                     textCenter
                                 />
                                 {renderTaskIndicators(date)}
-                            </TouchableOpacity>
+                            </CustomTouchable>
                         );
                     })}
                 </View>
@@ -335,9 +342,7 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginHorizontal: 1,
     },
-    moreIndicator: {
-        fontSize: 8,
-        fontWeight: 'bold',
+    moreIndicatorContainer: {
         marginLeft: 2,
     },
 });

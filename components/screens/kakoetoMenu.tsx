@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground } from 'react-native'
+import { View, ImageBackground } from 'react-native'
 
 import React from 'react'
 import { useTheme } from '@/providers/ThemeProvider';

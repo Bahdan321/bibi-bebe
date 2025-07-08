@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, TextInput } from 'react-native';
+import { View, StyleSheet, TextInput } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Task } from '@/types/types';
 import { updateTaskTitle } from '@/Supabase/utils/SupaLegend';
+import CustomText from './CustomText';
+import CustomTouchable from './base/CustomTouchable';
 
 interface SubtaskItemProps {
   subtask: Task;
@@ -30,13 +32,13 @@ const SubtaskItem: React.FC<SubtaskItemProps> = ({ subtask, onToggleSubtaskCompl
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => onToggleSubtaskCompletion(subtask.id)} style={styles.checkbox}>
+      <CustomTouchable onPress={() => onToggleSubtaskCompletion(subtask.id)} style={styles.checkbox}>
         <Ionicons
           name={subtask.status ? 'checkmark-circle' : 'ellipse-outline'}
           size={24}
           color={subtask.status ? theme.colors.icon : theme.colors.text}
         />
-      </TouchableOpacity>
+      </CustomTouchable>
       {isEditing ? (
         <TextInput
           style={{
@@ -54,24 +56,27 @@ const SubtaskItem: React.FC<SubtaskItemProps> = ({ subtask, onToggleSubtaskCompl
           multiline // Разрешаем многострочный ввод
         />
       ) : (
-        <Text
+        <CustomTouchable
+          onPress={handleEditStart}
           style={{
-            color: subtask.status ? theme.colors.secondary : theme.colors.text,
-            textDecorationLine: subtask.status ? 'line-through' : 'none',
-            fontSize: hp('2'),
             marginLeft: 10,
             flex: 1,
-            flexWrap: 'wrap', // Для переноса текста
           }}
-          onPress={handleEditStart}
-          numberOfLines={0} // Разрешаем неограниченное количество строк
         >
-          {subtask.title}
-        </Text>
+          <CustomText
+            content={subtask.title}
+            size={hp('2')}
+            color={subtask.status ? theme.colors.secondary : theme.colors.text}
+            lineThrough={subtask.status}
+            style={{
+              flexWrap: 'wrap', // Для переноса текста
+            }}
+          />
+        </CustomTouchable>
       )}
-      <TouchableOpacity onPress={() => onDeleteSubtask(subtask.id)} style={styles.deleteButton}>
+      <CustomTouchable onPress={() => onDeleteSubtask(subtask.id)} style={styles.deleteButton}>
         <Ionicons name="close-circle" size={24} color={theme.colors.text} />
-      </TouchableOpacity>
+      </CustomTouchable>
     </View>
   );
 };

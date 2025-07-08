@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { TextInput, StyleSheet, View, Text, ViewStyle } from 'react-native';
+import { TextInput, StyleSheet, View, ViewStyle } from 'react-native';
+import CustomText from '@/components/CustomText';
 
 type TextInputFieldProps = {
     label: string;
@@ -17,13 +18,14 @@ const TextInputField: React.FC<TextInputFieldProps> = ({ label, labelColor, bord
 
     return (
         <View style={[styles.container, style, { borderColor }]}>
-            <Text style={[styles.label, {
-                color: labelColor || '#B0B0B0',
-                top: isFocused || value ? 5 : 15, // Позиция лейбла
-                fontSize: isFocused || value ? 12 : 16, // Размер текста
-            }]}>
-                {label}
-            </Text>
+            <CustomText
+                content={label}
+                size={isFocused || value ? 12 : 16}
+                color={labelColor || '#B0B0B0'}
+                style={[styles.labelContainer, {
+                    top: isFocused || value ? 5 : 15, // Позиция лейбла
+                }]}
+            />
             <TextInput
                 style={[styles.input, { color: textColor }]}
                 value={value}
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#2A2A2A',
         marginBottom: 15,
     },
-    label: {
+    labelContainer: {
         position: 'absolute',
         left: 10,
     },

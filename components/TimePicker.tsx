@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import CustomText from './CustomText';
-import { CustomButton } from './base';
+import CustomButton from './base/CustomButton';
 
 // Интерфейс для пропсов
 interface TimePickerProps {

@@ -1,5 +1,6 @@
-    import React, { useState, useRef } from 'react';
-    import { View, ScrollView, Text, StyleSheet } from 'react-native';
+import React, { useState, useRef } from 'react';
+    import { View, ScrollView, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+    import CustomText from '@/components/CustomText';
 
     const TimePicker = () => {
     const [selectedDay, setSelectedDay] = useState('Today');
@@ -15,7 +16,7 @@
 
     const ITEM_HEIGHT = 40;
 
-    const handleDaysScroll = (event) => {
+    const handleDaysScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < daysArray.length) {
@@ -23,7 +24,7 @@
         }
     };
 
-    const handleHoursScroll = (event) => {
+    const handleHoursScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < hoursArray.length) {
@@ -31,7 +32,7 @@
         }
     };
 
-    const handleMinutesScroll = (event) => {
+    const handleMinutesScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetY = event.nativeEvent.contentOffset.y;
         const selectedIndex = Math.round(offsetY / ITEM_HEIGHT);
         if (selectedIndex >= 0 && selectedIndex < minutesArray.length) {
@@ -51,7 +52,12 @@
             >
             {daysArray.map((day) => (
                 <View key={day} style={styles.item}>
-                <Text style={[styles.itemText, day === selectedDay && styles.selectedItem]}>{day}</Text>
+                <CustomText
+                    content={day}
+                    size={18}
+                    weight={day === selectedDay ? 'bold' : 'normal'}
+                    style={styles.itemTextContainer}
+                />
                 </View>
             ))}
             </ScrollView>
@@ -68,7 +74,12 @@
             >
             {hoursArray.map((hour) => (
                 <View key={hour} style={styles.item}>
-                <Text style={[styles.itemText, hour === hours && styles.selectedItem]}>{hour}</Text>
+                <CustomText
+                    content={hour.toString()}
+                    size={18}
+                    weight={hour === hours ? 'bold' : 'normal'}
+                    style={styles.itemTextContainer}
+                />
                 </View>
             ))}
             </ScrollView>
@@ -85,16 +96,23 @@
             >
             {minutesArray.map((minute) => (
                 <View key={minute} style={styles.item}>
-                <Text style={[styles.itemText, minute === minutes && styles.selectedItem]}>
-                    {minute < 10 ? '0' + minute : minute}
-                </Text>
+                <CustomText
+                    content={minute < 10 ? '0' + minute : minute.toString()}
+                    size={18}
+                    weight={minute === minutes ? 'bold' : 'normal'}
+                    style={styles.itemTextContainer}
+                />
                 </View>
             ))}
             </ScrollView>
             <View style={styles.selectionLineTop} />
             <View style={styles.selectionLineBottom} />
         </View>
-        <Text>Выбрано: {selectedDay} {hours}:{minutes < 10 ? '0' + minutes : minutes}</Text>
+        <CustomText
+            content={`Выбрано: ${selectedDay} ${hours}:${minutes < 10 ? '0' + minutes : minutes}`}
+            size={16}
+            style={styles.selectedTextContainer}
+        />
         </View>
     );
     };
@@ -116,11 +134,11 @@
         justifyContent: 'center',
         alignItems: 'center',
     },
-    itemText: {
-        fontSize: 18,
+    itemTextContainer: {
+        // стили для контейнера текста элемента
     },
-    selectedItem: {
-        fontWeight: 'bold',
+    selectedTextContainer: {
+        marginTop: 10,
     },
     selectionLineTop: {
         position: 'absolute',

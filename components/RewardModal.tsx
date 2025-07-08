@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { Modal, View, TextInput, StyleSheet, Alert } from 'react-native';
+import CustomText from '@/components/CustomText';
+import CustomButton from '@/components/base/CustomButton';
 import { useTheme } from '@/providers/ThemeProvider';
 
 interface RewardModalProps {
@@ -35,9 +37,12 @@ const RewardModal: React.FC<RewardModalProps> = ({
         <Modal visible={visible} animationType="slide" transparent={true}>
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, { backgroundColor: theme.colors.third }]}>
-                    <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
-                        Добавьте награду
-                    </Text>
+                    <CustomText
+                        content="Добавьте награду"
+                        size={18}
+                        color={theme.colors.text}
+                        style={styles.modalTitleContainer}
+                    />
                     <TextInput
                         style={[styles.input, { color: theme.colors.text, borderColor: theme.colors.background }]}
                         value={rewardName}
@@ -54,8 +59,8 @@ const RewardModal: React.FC<RewardModalProps> = ({
                         multiline
                     />
                     <View style={styles.buttonContainer}>
-                        <Button title="Отмена" onPress={onClose} color={theme.colors.button} />
-                        <Button title="Подтвердить" onPress={handleSave} color={theme.colors.button} />
+                        <CustomButton title="Отмена" onPress={onClose} />
+                        <CustomButton title="Подтвердить" onPress={handleSave} />
                     </View>
                 </View>
             </View>
@@ -75,8 +80,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 10,
     },
-    modalTitle: {
-        fontSize: 18,
+    modalTitleContainer: {
         marginBottom: 10,
     },
     input: {

@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, Animated, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, StyleSheet, Animated, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTheme } from '@/providers/ThemeProvider';
 import { useRouter } from 'expo-router';
-import { CustomButton } from '@/components/base';
+import CustomButton from '@/components/base/CustomButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useAuth } from '@/providers/AuthProvider';
+import CustomText from '@/components/CustomText';
 
 const OnboardingScreen = () => {
     const { theme } = useTheme();
@@ -83,9 +84,14 @@ const OnboardingScreen = () => {
                             }
                         ]}
                     >
-                        <Text style={[styles.questionText, { color: theme.colors.text }]}>
-                            Какая ваша любимая еда?
-                        </Text>
+                        <CustomText
+                            content="Какая ваша любимая еда?"
+                            size={22}
+                            color={theme.colors.text}
+                            weight="bold"
+                            style={styles.questionTextContainer}
+                            textCenter
+                        />
 
                         <TextInput
                             style={[styles.input, {
@@ -137,11 +143,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    questionText: {
-        fontSize: 22,
-        fontWeight: 'bold',
+    questionTextContainer: {
         marginBottom: 20,
-        textAlign: 'center',
     },
     input: {
         width: '100%',

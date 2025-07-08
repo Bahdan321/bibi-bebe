@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import React, { useCallback, useState } from 'react'
 import TaskMenu from '@/components/TaskMenu'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';

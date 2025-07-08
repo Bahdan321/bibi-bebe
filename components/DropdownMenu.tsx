@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/providers/ThemeProvider';
 import Gigabar from './Gigabar'; // Импортируем Gigabar
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import CustomText from './CustomText';
+import CustomTouchable from './base/CustomTouchable';
 
 type MenuItem = {
     icon: keyof typeof Ionicons.glyphMap;
@@ -35,16 +37,21 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /*
         >
             {items.map((item, index) => (
                 <React.Fragment key={index}>
-                    <TouchableOpacity
+                    <CustomTouchable
                         style={styles.menuItem}
                         onPress={() => {
                             item.onPress();
                             if (closeOnSelect) onClose();
                         }}
                     >
-                        <Text style={[styles.menuText, { color: theme.colors.text }]}>{item.text}</Text>
+                        <CustomText
+                            content={item.text}
+                            size={hp('2')}
+                            color={theme.colors.text}
+                            style={styles.menuTextContainer}
+                        />
                         <Ionicons name={item.icon} size={20} color={theme.colors.text} style={styles.icon} />
-                    </TouchableOpacity>
+                    </CustomTouchable>
                     {index < items.length - 1 && (
                         <Gigabar color={theme.colors.button || 'grey'} size={1} marginHorizontal={10} />
                     )}
@@ -79,8 +86,7 @@ const styles = StyleSheet.create({
         // marginRight: 10, // Убираем отступ справа у иконки
         marginLeft: 10, // Добавляем отступ слева у иконки
     },
-    menuText: {
-        fontSize: hp('2'),
+    menuTextContainer: {
         flex: 1, // Позволяем тексту занимать доступное пространство
     },
 });
