@@ -228,16 +228,25 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
   const handleChangeTaskColor = () => {
     setIsEisenhowerMatrixDropdownVisible(!isEisenhowerMatrixDropdownVisible);
+    setIsRepeatMenuVisible(false);
     setIsMainDropdownVisible(false);
   };
 
   const handleOpenMainMenu = () => {
     setIsMainDropdownVisible(!isMainDropdownVisible);
+    setIsRepeatMenuVisible(false);
     setIsEisenhowerMatrixDropdownVisible(false);
   };
 
+  const handleOpenRepeatMenu = () => {
+    setIsRepeatMenuVisible(!isRepeatMenuVisible)
+    setIsMainDropdownVisible(false);
+    setIsEisenhowerMatrixDropdownVisible(false);
+  }
+
   const closeMainDropdown = () => setIsMainDropdownVisible(false);
   const closeEisenhowerMatrixDropdown = () => setIsEisenhowerMatrixDropdownVisible(false);
+  const closeRepeatMenu = () => setIsRepeatMenuVisible(false)
 
   const handleChangeDate = (task: Task, newDate?: Date) => {
     let dateToUse = newDate || new Date(task.display_date || new Date());
@@ -460,10 +469,11 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       {/* Actions */}
       <View style={styles.actions}>
         <View style={styles.ellipsisContainer}>
+          // Повторяющиеся задачи
           <CustomButton
             variant="text"
             style={styles.actionButton}
-            onPress={() => setIsRepeatMenuVisible(!isRepeatMenuVisible)}
+            onPress={handleOpenRepeatMenu}
             icon="repeat-outline"
             iconColor={theme.colors.text}
             iconSize={24}
@@ -471,13 +481,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           <DropdownMenu
             items={repeatMenuItems}
             visible={isRepeatMenuVisible}
-            onClose={() => setIsRepeatMenuVisible(false)}
+            onClose={closeRepeatMenu}
             closeOnSelect={false} // Не закрываем после выбора
             containerStyle={styles.repeatDropdownMenu}
           />
         </View>
 
         <View style={styles.ellipsisContainer}>
+          // Матрица эйзенхаура
           <CustomButton
             variant="text"
             onPress={handleChangeTaskColor}
@@ -490,11 +501,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             items={eisenhowermatrixitems}
             visible={isEisenhowerMatrixDropdownVisible}
             onClose={closeEisenhowerMatrixDropdown}
-
             containerStyle={styles.eisenhowerDropdownMenu}
           />
         </View>
-
+        // Уведомления
         <CustomButton
           variant="text"
           style={styles.actionButton}
@@ -503,8 +513,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           iconColor={theme.colors.text}
           iconSize={24}
         />
-
         <View style={styles.ellipsisContainer}>
+          // Действия
           <CustomButton
             variant="text"
             onPress={handleOpenMainMenu}
