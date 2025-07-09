@@ -10,6 +10,8 @@ export interface Theme {
     error: string;
     icon: string;
     button: string;
+    finishedTask: string;
+    unfinishedTask: string;
     settingsBackground: string;
   };
   spacing: typeof SPACING;

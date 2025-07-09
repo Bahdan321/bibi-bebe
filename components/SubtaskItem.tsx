@@ -36,7 +36,7 @@ const SubtaskItem: React.FC<SubtaskItemProps> = ({ subtask, onToggleSubtaskCompl
         <Ionicons
           name={subtask.status ? 'checkmark-circle' : 'ellipse-outline'}
           size={24}
-          color={subtask.status ? theme.colors.icon : theme.colors.text}
+          color={subtask.status ? theme.colors.finishedTask : theme.colors.unfinishedTask}
         />
       </CustomTouchable>
       {isEditing ? (
@@ -65,9 +65,10 @@ const SubtaskItem: React.FC<SubtaskItemProps> = ({ subtask, onToggleSubtaskCompl
         >
           <CustomText
             content={subtask.title}
-            size="xs"
+            size="sm"
             color={subtask.status ? theme.colors.secondary : theme.colors.text}
             lineThrough={subtask.status}
+            opacity={subtask.status ? 0.6 : 1}
             style={{
               flexWrap: 'wrap', // Для переноса текста
             }}

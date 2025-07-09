@@ -54,7 +54,7 @@ const CustomText: React.FC<CustomTextProps> = ({
 
     return (
         <View style={combinedViewStyle}>
-            <Text maxFontSizeMultiplier={1.2} style={textStyle}>{content}</Text>
+            <Text style={textStyle}>{content}</Text>
         </View>
     )
 };

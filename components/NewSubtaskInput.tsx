@@ -27,7 +27,7 @@ const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId
     <View>
       <CustomTextInput
         variant="default"
-        style={{ fontWeight: '700', color: theme.colors.text }}
+        style={{ fontWeight: '400', color: theme.colors.text }}
         value={inputValue}
         onChangeText={setInputValue}
         onSubmitEditing={handleSubmit}
@@ -35,7 +35,7 @@ const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId
         placeholderTextColor={theme.colors.background}
         underlineColorAndroid="transparent"
       />
-      <Gigabar color={theme.colors.background} size={1} marginHorizontal={6} />
+      {/* <Gigabar color={theme.colors.background} size={1} marginHorizontal={6} /> */}
     </View>
   );
 };

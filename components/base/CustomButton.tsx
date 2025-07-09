@@ -46,7 +46,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   isVisible,
 }) => {
   const { theme } = useTheme();
-  
+
   // Определяем размеры в зависимости от size
   const getSizeStyles = () => {
     switch (size) {
@@ -301,8 +301,8 @@ const createStyles = (theme: any) => StyleSheet.create({
   roundButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
+    // shadowColor: '#000',
+    // shadowOpacity: 0.3,
     marginHorizontal: theme.spacing.xs,
   },
   textButton: {

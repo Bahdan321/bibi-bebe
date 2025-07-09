@@ -221,7 +221,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     const currentStatus = taskStatusCopy;
     toggleTaskCompletion(taskId);
     setTaskStatusCopy((prev) => !prev);
-    setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.icon : theme.colors.text));
+    setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.secondary : theme.colors.unfinishedTask));
   };
 
   const formattedDate = getFormatedDateOfYear(new Date(date || new Date()));
@@ -360,7 +360,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   if (!visible) return null;
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.third, borderRadius: 30 }]}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.primary, borderRadius: 30 }]}>
       {/* Header */}
       <View style={styles.header}>
         <CustomButton
@@ -420,7 +420,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
       {/* Subtasks */}
       <View style={styles.subtasksSection}>
-        <CustomText variant="subtitle" content="Подзадачи" style={{ marginBottom: 10 }} />
+        <CustomText content="Подзадачи" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
         {subtasks.map((subtask, index) => (
           <React.Fragment key={subtask.id}>
             <SubtaskItem
@@ -446,9 +446,9 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
       {/* Reward block */}
       <View style={{ marginBottom: 20 }}>
-        <CustomText content="Награда" style={{ marginBottom: 10 }} />
+        <CustomText content="Награда" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
         <CustomTextInput
-          style={{ marginBottom: 10 }}
+          style={{ marginBottom: 10 }} placeholderTextColor={theme.colors.background}
           value={rewardNameInput || ''}
           onChangeText={setRewardNameInput}
           placeholder="Введите название награды"

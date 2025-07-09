@@ -172,7 +172,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     variant="round"
                                     size="medium"
                                     icon="chevron-back-outline"
-                                    iconColor={theme.colors.icon}
+                                    iconColor={theme.colors.primary}
                                     onPress={navigation.onPrevious}
                                     style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                                 />
@@ -182,7 +182,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                     variant="round"
                                     size="medium"
                                     icon="chevron-forward-outline"
-                                    iconColor={theme.colors.icon}
+                                    iconColor={theme.colors.primary}
                                     onPress={navigation.onNext}
                                     style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                                 />
@@ -191,7 +191,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 variant="round"
                                 size="medium"
                                 icon="grid"
-                                iconColor={theme.colors.icon}
+                                iconColor={theme.colors.primary}
                                 onPress={slideLeft}
                                 style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
@@ -203,7 +203,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 variant="round"
                                 size="medium"
                                 icon="ellipse-sharp"
-                                iconColor={theme.colors.icon}
+                                iconColor={theme.colors.primary}
                                 onPress={onOpenSettings || (() => { })}
                                 style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
@@ -235,7 +235,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 variant="round"
                                 size="medium"
                                 icon="person"
-                                iconColor={theme.colors.icon}
+                                iconColor={theme.colors.primary}
                                 onPress={onOpenProfile || (() => { })}
                                 style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
@@ -243,7 +243,7 @@ const NavigatePanel: React.FC<NavigatePanelProps> = observer(
                                 variant="round"
                                 size="medium"
                                 icon="arrow-back"
-                                iconColor={theme.colors.icon}
+                                iconColor={theme.colors.primary}
                                 onPress={slideRight}
                                 style={{ backgroundColor: theme.colors.button, width: 48, height: 48 }}
                             />
