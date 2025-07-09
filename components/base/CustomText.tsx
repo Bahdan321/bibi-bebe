@@ -23,10 +23,10 @@ const CustomText: React.FC<CustomTextProps> = ({
 
     // Resolve size value
     const fontSize = typeof size === 'number' ? size : theme.fontSize[size];
-    
+
     // Resolve borderRadius value
     const resolvedBorderRadius = typeof borderRadius === 'number' ? borderRadius : theme.borderRadius[borderRadius];
-    
+
     // Resolve fontWeight value
     const fontWeight = theme.fontWeight[weight];
 
@@ -54,7 +54,7 @@ const CustomText: React.FC<CustomTextProps> = ({
 
     return (
         <View style={combinedViewStyle}>
-            <Text style={textStyle}>{content}</Text>
+            <Text maxFontSizeMultiplier={1.2} style={textStyle}>{content}</Text>
         </View>
     )
 };

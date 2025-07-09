@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     ImageBackground,
     ScrollView,
@@ -10,14 +10,32 @@ import {
 } from "react-native-responsive-screen";
 import { useTheme } from "@/providers/ThemeProvider";
 import CustomText from "@/components/base/CustomText";
+import { Ionicons } from "@expo/vector-icons";
+import CustomButton from "@/components/base/CustomButton";
+import ChangeProfile from "@/components/ChangeProfile";
 
 export default function Profile() {
     const { theme } = useTheme();
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
     // Заглушечные данные пользователя
     const username = "Олег Мангол";
     const title = "Ценитель шашлыков";
     const email = "olegmangol@gmail.com";
+
+    const openEditModal = () => {
+        setIsEditModalVisible(true);
+    };
+
+    const closeEditModal = () => {
+        setIsEditModalVisible(false);
+    };
+
+    const handleProfileUpdate = (newUsername: string) => {
+        // Здесь будет логика обновления профиля в базе данных
+        console.log("Профиль обновлен:", newUsername);
+        closeEditModal();
+    };
 
     return (
         <ImageBackground
@@ -26,7 +44,7 @@ export default function Profile() {
             resizeMode="cover"
         >
             <ScrollView style={{ padding: 16 }}>
-                <View style={{ padding: 24 }}>
+                <View style={{ padding: 24, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                     <CustomText
                         content="Профиль"
                         size="xxxl"
@@ -36,6 +54,13 @@ export default function Profile() {
                         borderWidth={0}
                         paddingHorizontal={0}
                         textCenter={false}
+                    />
+                    <CustomButton
+                        variant="text"
+                        icon="pencil"
+                        iconColor={theme.colors.text}
+                        iconSize={24}
+                        onPress={openEditModal}
                     />
                 </View>
 
@@ -122,11 +147,17 @@ export default function Profile() {
                     </View>
                 </View>
             </ScrollView>
+
+            {/* Модальное окно редактирования профиля */}
+            <ChangeProfile
+                visible={isEditModalVisible}
+                onClose={closeEditModal}
+                onSave={handleProfileUpdate}
+                initialUsername={username}
+            />
         </ImageBackground>
     );
-};
-
-const CARD_SIZE = wp("90%");
+}
 
 const styles = StyleSheet.create({
     card: {
