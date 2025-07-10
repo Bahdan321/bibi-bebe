@@ -19,10 +19,10 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
     };
 
     return (
-        <View style={{ paddingVertical: 10, paddingLeft: 10, }}>
+        <View>
             <CustomTextInput
                 variant="default"
-                style={{ fontWeight: '700', color: theme.colors.text }}
+                style={{ fontWeight: '700', color: theme.colors.text, paddingVertical: 10, paddingLeft: 10, }}
                 value={inputValue}
                 onChangeText={setInputValue}
                 onSubmitEditing={handleSubmit}

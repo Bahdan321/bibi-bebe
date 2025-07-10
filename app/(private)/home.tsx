@@ -4,7 +4,7 @@ import NavigatePanel from '@/components/NavigatePanel';
 import MainComponent from '@/components/MainComponent';
 import MonthView from '@/components/MonthView';
 import { observer } from '@legendapp/state/react';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import TaskMenu from '@/components/TaskMenu';
 import { useAuth } from '@/providers/AuthProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -30,6 +30,19 @@ const Home = observer(() => {
     const spacesBottomSheetRef = useRef<BottomSheet>(null);
     const kakoetoMenuBottomSheetRef = useRef<BottomSheet>(null);
     const goalsBottomSheetRef = useRef<BottomSheet>(null);
+
+    const renderBackdrop = useCallback(
+        (props: any) => (
+            <BottomSheetBackdrop
+                {...props}
+                disappearsOnIndex={-1} // скрывать Backdrop при закрытом состоянии
+                appearsOnIndex={0}     // показывать Backdrop при открытом состоянии
+                pressBehavior="close"  // при нажатии закрывать Bottom Sheet
+                style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+            />
+        ),
+        []
+    );
 
     const snapPoints = useMemo(() => ["25%", "50%"], []);
 
@@ -177,6 +190,8 @@ const Home = observer(() => {
                     enablePanDownToClose={true}
                     handleIndicatorStyle={{ backgroundColor: theme.colors.text, width: '20%' }}
                     backgroundStyle={{ backgroundColor: theme.colors.primary }}
+                    enableOverDrag={false}
+                    backdropComponent={renderBackdrop}
                 >
                     <BottomSheetView style={{ flex: 1 }}>
                         <Settings />
@@ -191,6 +206,8 @@ const Home = observer(() => {
                     enablePanDownToClose={true}
                     handleIndicatorStyle={{ backgroundColor: theme.colors.text, width: '20%' }}
                     backgroundStyle={{ backgroundColor: theme.colors.primary }}
+                    enableOverDrag={false}
+                    backdropComponent={renderBackdrop}
                 >
                     <BottomSheetView style={{ flex: 1 }}>
                         <Profile />
@@ -198,46 +215,52 @@ const Home = observer(() => {
                 </BottomSheet>
 
                 {/* BottomSheet для Spaces */}
-                <BottomSheet
+                {/* <BottomSheet
                     ref={spacesBottomSheetRef}
                     index={-1}
                     snapPoints={snapPoints}
                     enablePanDownToClose={true}
                     handleIndicatorStyle={{ backgroundColor: theme.colors.text, width: '20%' }}
                     backgroundStyle={{ backgroundColor: theme.colors.primary }}
+                    enableOverDrag={false}
+                    backdropComponent={renderBackdrop}
                 >
                     <BottomSheetView style={{ flex: 1 }}>
                         <Spaces />
                     </BottomSheetView>
-                </BottomSheet>
+                </BottomSheet> */}
 
                 {/* BottomSheet для KakoetoMenu */}
-                <BottomSheet
+                {/* <BottomSheet
                     ref={kakoetoMenuBottomSheetRef}
                     index={-1}
                     snapPoints={snapPoints}
                     enablePanDownToClose={true}
                     handleIndicatorStyle={{ backgroundColor: theme.colors.text, width: '20%' }}
                     backgroundStyle={{ backgroundColor: theme.colors.primary }}
+                    enableOverDrag={false}
+                    backdropComponent={renderBackdrop}
                 >
                     <BottomSheetView style={{ flex: 1 }}>
                         <KakoetoMenu />
                     </BottomSheetView>
-                </BottomSheet>
+                </BottomSheet> */}
 
                 {/* BottomSheet для Goals */}
-                <BottomSheet
+                {/* <BottomSheet
                     ref={goalsBottomSheetRef}
                     index={-1}
                     snapPoints={snapPoints}
                     enablePanDownToClose={true}
                     handleIndicatorStyle={{ backgroundColor: theme.colors.text, width: '20%' }}
                     backgroundStyle={{ backgroundColor: theme.colors.primary }}
+                    enableOverDrag={false}
+                    backdropComponent={renderBackdrop}
                 >
                     <BottomSheetView style={{ flex: 1 }}>
                         <Goals />
                     </BottomSheetView>
-                </BottomSheet>
+                </BottomSheet> */}
             </View>
         </GestureHandlerRootView>
     )
