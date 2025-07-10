@@ -19,6 +19,7 @@ interface CustomButtonProps {
   titleColor?: string;
   buttonColor?: string;
   borderColor?: string;
+  opacity?: number;
   borderWidth?: number;
   hitSlop?: number;
   activeOpacity?: number;
@@ -40,6 +41,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   titleColor,
   buttonColor,
   borderColor,
+  opacity,
   borderWidth = 0,
   hitSlop = 0,
   activeOpacity = 0.7,

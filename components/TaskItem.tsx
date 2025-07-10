@@ -102,6 +102,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
           iconColor={task.status ? theme.colors.finishedTask : theme.colors.unfinishedTask}
           onPress={handleToggleCompletion}
           style={{
+            opacity: task.status ? 0.5 : 1,
             backgroundColor: theme.colors.primary,
             borderColor: task.status ? theme.colors.finishedTask : theme.colors.unfinishedTask,
             borderWidth: 1.5,
@@ -111,7 +112,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
           hitSlop={10}
         />
       </View>
-      <Gigabar color={theme.colors.text} size={1} />
+      <Gigabar color={task.status ? theme.colors.finishedTask : theme.colors.unfinishedTask} size={1} />
       {showAnimation && (
         <Animated.View
           style={[

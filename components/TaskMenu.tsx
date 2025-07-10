@@ -404,6 +404,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           icon="checkmark-outline"
           iconColor={taskStatusColor}
           iconSize={32}
+          style={{ opacity: taskStatusCopy ? 0.5 : 1 }}
         />
       </View>
 

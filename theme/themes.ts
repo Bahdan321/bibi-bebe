@@ -38,7 +38,7 @@ export const darkTheme: Theme = {
     error: 'red',
     icon: 'black',
     button: 'white',
-    finishedTask: 'gray',
+    finishedTask: 'white',
     unfinishedTask: 'white',
     settingsBackground: "#1C2526",
   },
