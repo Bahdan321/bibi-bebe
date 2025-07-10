@@ -190,15 +190,15 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const handleDuplicate = () => {
     console.log("123123122312312312313213123123123123", task.space_id || '')
     toggleDublicateTask(
-      task.title,
+      task.title || '',
       task.space_id || '',
       task.user_id,
       task.due_date,
       task.display_date,
-      task.reward,
+      task.reward || '',
       task.status,
-      task.description,
-      task.parent_task_id,
+      task.description || '',
+      task.parent_task_id || '',
       task.created_at,
       task.updated_at,
       task.completion_date,
@@ -324,7 +324,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.user_id,
       task.due_date,
       task.display_date,
-      task.reward,
+      '', // No reward for subtask initially
       false,
       '',
       task.id,
@@ -470,7 +470,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       {/* Actions */}
       <View style={styles.actions}>
         <View style={styles.ellipsisContainer}>
-          // Повторяющиеся задачи
+          {/* Повторяющиеся задачи */}
           <CustomButton
             variant="text"
             style={styles.actionButton}
@@ -489,7 +489,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         </View>
 
         <View style={styles.ellipsisContainer}>
-          // Матрица эйзенхаура
+          {/* Матрица эйзенхаура */}
           <CustomButton
             variant="text"
             onPress={handleChangeTaskColor}
@@ -505,7 +505,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             containerStyle={styles.eisenhowerDropdownMenu}
           />
         </View>
-        // Уведомления
+        {/* Уведомления */}
         <CustomButton
           variant="text"
           style={styles.actionButton}
@@ -515,7 +515,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           iconSize={24}
         />
         <View style={styles.ellipsisContainer}>
-          // Действия
+          {/* Действия */}
           <CustomButton
             variant="text"
             onPress={handleOpenMainMenu}

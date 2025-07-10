@@ -19,7 +19,7 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
     };
 
     return (
-        <View>
+        <View style={{ paddingVertical: 10, paddingLeft: 10, }}>
             <CustomTextInput
                 variant="default"
                 style={{ fontWeight: '700', color: theme.colors.text }}
