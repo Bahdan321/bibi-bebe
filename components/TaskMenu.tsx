@@ -47,7 +47,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
   const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
   const [taskStatusColor, setTaskStatusColor] = useState(
-    task.status ? theme.colors.icon : theme.colors.text,
+    task.status ? theme.colors.finishedTask : theme.colors.unfinishedTask,
   );
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
