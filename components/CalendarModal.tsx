@@ -232,7 +232,7 @@ const createStyles = (theme: Theme) =>
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     calendarContainer: {
-      backgroundColor: theme.colors.third,
+      backgroundColor: theme.colors.primary,
       borderRadius: 30,
       padding: theme.spacing.lg,
       width: '90%',

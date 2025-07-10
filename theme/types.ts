@@ -12,6 +12,7 @@ export interface Theme {
     button: string;
     finishedTask: string;
     unfinishedTask: string;
+    currentDay: string;
     settingsBackground: string;
   };
   spacing: typeof SPACING;

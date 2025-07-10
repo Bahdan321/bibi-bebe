@@ -42,7 +42,7 @@ const ChangeProfile: React.FC<ChangeProfileProps> = ({
             onRequestClose={onClose}
         >
             <View style={styles.modalContainer}>
-                <View style={[styles.modalContent, { backgroundColor: theme.colors.third }]}>
+                <View style={[styles.modalContent, { backgroundColor: theme.colors.primary }]}>
                     <TouchableOpacity
                         style={styles.closeButton}
                         onPress={onClose}

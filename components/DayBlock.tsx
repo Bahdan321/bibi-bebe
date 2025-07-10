@@ -11,6 +11,9 @@ import { DayBlockProps, Task } from '@/types/types';
 const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const todos = tasks$.get();
     const { theme } = useTheme();
+    const today = new Date();
+    const isToday = new Date(date).toDateString() === today.toDateString();
+
 
     // Фильтрация задач по display_date, с учетом повторяющихся задач
     const tasksForDay = Object.values(todos || {}).filter((task: Task) => {
@@ -61,7 +64,7 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     return (
         <View style={{ marginBottom: 48 }}>
             <DayInfo date={date} dayOfWeek={dayOfWeek} />
-            <Gigabar color={theme.colors.secondary} size={2} />
+            <Gigabar color={isToday ? theme.colors.currentDay : theme.colors.secondary} size={2} />
             <TaskList
                 tasks={tasksForDay}
                 onAddTask={(text) => addTask(
