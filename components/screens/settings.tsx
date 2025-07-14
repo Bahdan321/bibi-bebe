@@ -1,5 +1,5 @@
-import { View, ImageBackground } from 'react-native'
-import React from 'react'
+import { View, ImageBackground, Animated } from 'react-native'
+import React, { useRef, useEffect } from 'react'
 import SettingsRow from '@/components/SettingsRow'
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -11,8 +11,22 @@ import { BlurView } from 'expo-blur';
 import CustomText from '@/components/base/CustomText';
 
 export default function Settings() {
+    const { toggleTheme, theme, isDark } = useTheme();
+    const rotateAnim = useRef(new Animated.Value(0)).current;
 
-    const { toggleTheme, theme } = useTheme();
+    // Animation effect when theme changes
+    useEffect(() => {
+        Animated.timing(rotateAnim, {
+            toValue: isDark ? 1 : 0,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    }, [isDark]);
+
+    const spin = rotateAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg']
+    });
 
     const settingsItems = [
         {
@@ -35,32 +49,25 @@ export default function Settings() {
             label: "Тема",
             value: (
                 <CustomText
-                    content="Темная"
+                    content={isDark ? "Темная" : "Светлая"}
                     size="sm"
                     color={theme.colors.text}
                     weight="bold"
                     style={{ marginRight: 5 }}
                 />
             ),
-            leftIcon: <Ionicons name="sunny-outline" size={22} color={theme.colors.button} />,
-            onPress: toggleTheme,
-        },
-        {
-            label: "Тема",
-            value: (
-                <CustomText
-                    content="Темная"
-                    size="sm"
-                    color={theme.colors.text}
-                    weight="bold"
-                    style={{ marginRight: 5 }}
-                />
+            leftIcon: (
+                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                    <Ionicons
+                        name={isDark ? "moon" : "sunny"}
+                        size={22}
+                        color={theme.colors.button}
+                    />
+                </Animated.View>
             ),
-            leftIcon: <Ionicons name="sunny-outline" size={22} color={theme.colors.button} />,
             onPress: toggleTheme,
         },
         {},
-
     ];
 
     return (
