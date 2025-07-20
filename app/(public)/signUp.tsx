@@ -1,4 +1,4 @@
-import { View, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Alert, Platform, TextInput } from 'react-native';
 import React, { useState } from 'react';
 
 import TextInputField from '@/components/TextInputField';
@@ -15,20 +15,25 @@ export default function SignUp() {
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [showOtpForm, setShowOtpForm] = useState(false);
+    const [otp, setOtp] = useState('');
     const router = useRouter();
-    const { signUp } = useAuth();
+    const { signUp, signInWithGoogle, verifySignupOtp, resendSignupOtp } = useAuth();
 
     const handleSignUp = async () => {
         if (!email || !password || !name) {
             Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
             return;
         }
-
         setIsLoading(true);
         try {
             const result = await signUp(name, email, password);
             if (result.success) {
-                router.replace('/(private)/onboardingScreen');
+                if (result.requiresConfirmation) {
+                    setShowOtpForm(true);
+                } else {
+                    router.replace('/(private)/onboardingScreen');
+                }
             } else {
                 Alert.alert('Ошибка регистрации', result.error || 'Неверное имя пользователя или пароль');
             }
@@ -40,14 +45,61 @@ export default function SignUp() {
         }
     };
 
-    const handleGoogleSignUp = () => {
-        Alert.alert('Внимание', 'Регистрация через Google пока не реализована');
+    const handleGoogleSignUp = async () => {
+        setIsLoading(true);
+        try {
+            const result = await signInWithGoogle();
+            if (result.success) {
+                router.replace('/(private)/onboardingScreen');
+            } else {
+                Alert.alert('Ошибка', result.error || 'Ошибка регистрации через Google');
+            }
+        } catch (error) {
+            console.error('Error signing up with Google:', error);
+            Alert.alert('Ошибка', 'Произошла ошибка при регистрации через Google');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleAppleSignUp = () => {
         Alert
 
             .alert('Внимание', 'Регистрация через Apple пока не реализована');
+    };
+
+    const handleVerifyOtp = async () => {
+        setIsLoading(true);
+        try {
+            const result = await verifySignupOtp(email, otp);
+            if (result.success) {
+                console.log('OTP верифицирован успешно, перенаправление на домашнюю страницу');
+                router.replace('/(private)/home');
+            } else {
+                Alert.alert('Ошибка', result.error || 'Неверный OTP код');
+            }
+        } catch (error) {
+            console.error('Ошибка при верификации OTP:', error);
+            Alert.alert('Ошибка', 'Произошла ошибка при верификации OTP');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        setIsLoading(true);
+        try {
+            const result = await resendSignupOtp(email);
+            if (result.success) {
+                Alert.alert('Успех', 'OTP код отправлен повторно');
+            } else {
+                Alert.alert('Ошибка', result.error || 'Ошибка при повторной отправке OTP');
+            }
+        } catch (error) {
+            Alert.alert('Ошибка', 'Произошла ошибка при повторной отправке OTP');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -58,7 +110,7 @@ export default function SignUp() {
                         content="Sign in"
                         size="md"
                         color="#8A8A8A"
-                        weight="500"
+                        weight="medium"
                     />
                 </CustomTouchable>
                 <CustomText
@@ -71,86 +123,123 @@ export default function SignUp() {
                     content="Sign up"
                     size="md"
                     color="#FFFFFF"
-                    weight="500"
+                    weight="medium"
                 />
             </View>
-            {/* <TextInputField
-                label="Name"
-                labelColor="#B0B0B0"
-                borderColor="#4A4A4A"
-                textColor="#FFFFFF"
-                value={name}
-                onChangeText={setName}
-                style={styles.input}
-            /> */}
-            <TextInputField
-                label="Email"
-                labelColor="#B0B0B0"
-                borderColor="#4A4A4A"
-                textColor="#FFFFFF"
-                value={email}
-                onChangeText={setEmail}
-                style={styles.input}
-            />
-            <View style={styles.passwordContainer}>
-                <TextInputField
-                    label="Password"
-                    labelColor="#B0B0B0"
-                    borderColor="#4A4A4A"
-                    textColor="#FFFFFF"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!isPasswordVisible}
-                    style={[styles.input, { paddingRight: 40 }]}
-                />
-                <CustomButton
-                    variant="reverse"
-                    size="small"
-                    isVisible={isPasswordVisible}
-                    onPress={() => setIsPasswordVisible(prev => !prev)}
-                    style={styles.reverseButton}
-                />
-            </View>
-            {isLoading ? (
-                <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
+            {!showOtpForm ? (
+                <>
+                    <TextInputField
+                        label="Name"
+                        labelColor="#B0B0B0"
+                        borderColor="#4A4A4A"
+                        textColor="#FFFFFF"
+                        value={name}
+                        onChangeText={setName}
+                        style={styles.input}
+                    />
+                    <TextInputField
+                        label="Email"
+                        labelColor="#B0B0B0"
+                        borderColor="#4A4A4A"
+                        textColor="#FFFFFF"
+                        value={email}
+                        onChangeText={setEmail}
+                        style={styles.input}
+                    />
+                    <View style={styles.passwordContainer}>
+                        <TextInputField
+                            label="Password"
+                            labelColor="#B0B0B0"
+                            borderColor="#4A4A4A"
+                            textColor="#FFFFFF"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!isPasswordVisible}
+                            style={[styles.input, { paddingRight: 40 }]}
+                        />
+                        <CustomButton
+                            variant="reverse"
+                            size="small"
+                            isVisible={isPasswordVisible}
+                            onPress={() => setIsPasswordVisible(prev => !prev)}
+                            style={styles.reverseButton}
+                        />
+                    </View>
+                    {isLoading ? (
+                        <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
+                    ) : (
+                        <>
+                            <CustomButton
+                                variant="primary"
+                                size="medium"
+                                title="Зарегистрироваться"
+                                titleColor="#1C2526"
+                                onPress={handleSignUp}
+                                style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                            />
+                            <CustomText
+                                content="или"
+                                size="md"
+                                color="#FFFFFF"
+                                style={styles.orTextContainer}
+                                textCenter
+                            />
+                            <CustomButton
+                                variant="service"
+                                size="medium"
+                                title="Google"
+                                onPress={handleGoogleSignUp}
+                                style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
+                                icon="logo-google"
+                                iconColor="#FFFFFF"
+                                titleColor="#FFFFFF"
+                            />
+                            {Platform.OS === 'ios' && (
+                                <CustomButton
+                                    variant="service"
+                                    size="medium"
+                                    title="Apple"
+                                    onPress={handleAppleSignUp}
+                                    style={{ ...styles.socialButton, backgroundColor: '#000000' }}
+                                    icon="logo-apple"
+                                    iconColor="#FFFFFF"
+                                    titleColor="#FFFFFF"
+                                />
+                            )}
+                        </>
+                    )}
+                </>
             ) : (
                 <>
-                    <CustomButton
-                        variant="primary"
-                        size="medium"
-                        title="Зарегистрироваться"
-                        titleColor="#1C2526"
-                        onPress={handleSignUp}
-                        style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                    <TextInputField
+                        label="OTP Code"
+                        labelColor="#B0B0B0"
+                        borderColor="#4A4A4A"
+                        textColor="#FFFFFF"
+                        value={otp}
+                        onChangeText={setOtp}
+                        style={styles.input}
                     />
-                    <CustomText
-                        content="или"
-                        size="md"
-                        color="#FFFFFF"
-                        style={styles.orTextContainer}
-                        textCenter
-                    />
-                    <CustomButton
-                        variant="service"
-                        size="medium"
-                        title="Google"
-                        onPress={handleGoogleSignUp}
-                        style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
-                        icon="logo-google"
-                        iconColor="#FFFFFF"
-                        titleColor="#FFFFFF"
-                    />
-                    {Platform.OS === 'ios' && (
-                        <CustomButton
-                            variant="service"
-                            size="medium"
-                            title="Apple"
-                            onPress={handleAppleSignUp}
-                            style={{ ...styles.socialButton, backgroundColor: '#000000' }}
-                            icon="logo-apple"
-                            iconColor="#FFFFFF"
-                            titleColor="#FFFFFF"
-                        />
+                    {isLoading ? (
+                        <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
+                    ) : (
+                        <>
+                            <CustomButton
+                                variant="primary"
+                                size="medium"
+                                title="Подтвердить OTP"
+                                titleColor="#1C2526"
+                                onPress={handleVerifyOtp}
+                                style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                            />
+                            <CustomButton
+                                variant="secondary"
+                                size="medium"
+                                title="Повторить отправку OTP"
+                                onPress={handleResendOtp}
+                                style={styles.button}
+                            />
+                        </>
                     )}
                 </>
             )}

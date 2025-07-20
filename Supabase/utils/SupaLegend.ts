@@ -10,15 +10,54 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
 import { Task } from '@/types/types';
+import { Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+
 
 // useEffect(() => {
 //   AsyncStorage.clear();
 // }, []);
 
-export const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL,
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseServiceRoleKey = process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+
+// Создаем кастомное хранилище для токенов
+const ExpoSecureStoreAdapter = {
+  getItem: (key: string) => {
+    if (Platform.OS === 'web') {
+      // Для веб используем localStorage
+      return Promise.resolve(localStorage.getItem(key));
+    }
+    return SecureStore.getItemAsync(key);
+  },
+  setItem: (key: string, value: string) => {
+    if (Platform.OS === 'web') {
+      // Для веб используем localStorage
+      localStorage.setItem(key, value);
+      return Promise.resolve();
+    }
+    return SecureStore.setItemAsync(key, value);
+  },
+  removeItem: (key: string) => {
+    if (Platform.OS === 'web') {
+      // Для веб используем localStorage
+      localStorage.removeItem(key);
+      return Promise.resolve();
+    }
+    return SecureStore.deleteItemAsync(key);
+  },
+};
+
+// Создаем клиент Supabase
+export const supabase = createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+  auth: {
+    storage: ExpoSecureStoreAdapter,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
 
 const generateId = () => uuidv4();
 

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BibiBebe",
-    "slug": "bibiBebe",
+    "slug": "bibibebe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,14 +10,49 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.buhdunchik.bibiBebe"
+      "bundleIdentifier": "com.shulikotwo.bibibebe",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "bibibebe",
+            "CFBundleURLSchemes": [
+              "bibibebe"
+            ]
+          },
+          {
+            "CFBundleURLName": "bibibebe",
+            "CFBundleURLSchemes": [
+              "bibibebe"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.buhdunchik.bibiBebe"
+      "blockedPermissions": [
+        "android.permission.ACTIVITY_RECOGNITION"
+      ],
+      "edgeToEdgeEnabled": true,
+      "package": "com.shulikotwo.bibibebe",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "bibibebe"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -50,6 +85,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "328bdeb0-090a-42de-a1a2-c81ff230ac35"
+      }
     }
   }
 }

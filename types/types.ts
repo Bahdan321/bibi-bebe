@@ -75,12 +75,14 @@ export interface User {
 export interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
-    user: User;
+    user: User | null;
     signIn: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
-    signUp: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    signUp: (username: string, email: string, password: string) => Promise<{ success: boolean; requiresConfirmation?: boolean; error?: string }>;
     signOut: () => Promise<void>;
-    // getUserInfo: () => Promise<void>;
-    createUserSpace(spaceName: string): () => Promise<void>;
+    createUserSpace: (spaceName: string) => Promise<{ success: boolean; error?: string }>;
+    signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+    verifySignupOtp: (email: string, token: string) => Promise<{ success: boolean; error?: string }>;
+    resendSignupOtp: (email: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export interface Space {

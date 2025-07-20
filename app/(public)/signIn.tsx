@@ -15,14 +15,45 @@ export default function SignIn() {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { signIn } = useAuth();
+    const { signIn, signInWithGoogle } = useAuth();
 
     const handleSignIn = async () => {
-        router.replace('/(private)/home');
+        if (!email || !password) {
+            Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const result = await signIn(email, password);
+            if (result.success) {
+                router.replace('/(private)/home');
+            } else {
+                Alert.alert('Ошибка входа', result.error || 'Неверный email или пароль');
+            }
+        } catch (error) {
+            console.error('Error signing in:', error);
+            Alert.alert('Ошибка', 'Произошла ошибка при входе в аккаунт');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleGoogleSignIn = () => {
-        Alert.alert('Внимание', 'Авторизация через Google пока не реализована');
+    const handleGoogleSignIn = async () => {
+        setIsLoading(true);
+        try {
+            const result = await signInWithGoogle();
+            if (result.success) {
+                router.replace('/(private)/home');
+            } else {
+                Alert.alert('Ошибка', result.error || 'Ошибка авторизации через Google');
+            }
+        } catch (error) {
+            console.error('Error signing in with Google:', error);
+            Alert.alert('Ошибка', 'Произошла ошибка при авторизации через Google');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleAppleSignIn = () => {
@@ -32,10 +63,10 @@ export default function SignIn() {
     return (
         <View style={styles.container}>
             <View style={styles.tabContainer}>
-                <CustomText content="Sign in" size="md" color="#FFFFFF" weight="500" />
+                <CustomText content="Sign in" size="md" color="#FFFFFF" weight="medium" />
                 <CustomText content="◆" size="md" color="#FFFFFF" style={styles.tabSeparatorContainer} />
                 <CustomTouchable onPress={() => router.push('/(public)/signUp')}>
-                    <CustomText content="Sign up" size="md" color="#8A8A8A" weight="500" />
+                    <CustomText content="Sign up" size="md" color="#8A8A8A" weight="medium" />
                 </CustomTouchable>
             </View>
             <TextInputField
