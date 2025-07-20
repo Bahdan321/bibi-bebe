@@ -36,20 +36,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const setupAuth = async () => {
             try {
                 console.log('Настройка аутентификации...');
-                
+
                 // Настройка обработчика событий аутентификации
                 const { data: { subscription } } = supabase.auth.onAuthStateChange(
                     async (event, session) => {
                         console.log('Изменение состояния аутентификации:', event);
-                        
+
                         if (event === 'SIGNED_IN' && session) {
                             console.log('Пользователь вошел в систему, сохраняем токены...');
-                            
+
                             // Проверка формата токенов перед сохранением
                             const accessTokenParts = session.access_token.split('.');
-                            
+
                             let validTokens = true;
-                            
+
                             // Проверяем только access token на соответствие формату JWT
                             if (accessTokenParts.length !== 3) {
                                 console.error('Неверный формат access token при входе в систему:', session.access_token.substring(0, 20) + '...');
@@ -57,12 +57,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             } else {
                                 await saveAccessToken(session.access_token);
                             }
-                            
+
                             // Refresh token от Supabase может иметь формат, отличный от JWT
                             // Поэтому мы не проверяем его формат, а просто сохраняем
                             console.log('Сохраняем refresh token:', session.refresh_token.substring(0, 20) + '...');
                             await saveRefreshToken(session.refresh_token);
-                            
+
                             if (validTokens) {
                                 setUser(session.user as unknown as User);
                                 setIsAuthenticated(true);
@@ -78,12 +78,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             setIsAuthenticated(false);
                         } else if (event === 'TOKEN_REFRESHED' && session) {
                             console.log('Токен обновлен, сохраняем новые токены...');
-                            
+
                             // Проверка формата токенов перед сохранением
                             const accessTokenParts = session.access_token.split('.');
-                            
+
                             let validTokens = true;
-                            
+
                             // Проверяем только access token на соответствие формату JWT
                             if (accessTokenParts.length !== 3) {
                                 console.error('Неверный формат access token при обновлении токенов:', session.access_token.substring(0, 20) + '...');
@@ -91,12 +91,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             } else {
                                 await saveAccessToken(session.access_token);
                             }
-                            
+
                             // Refresh token от Supabase может иметь формат, отличный от JWT
                             // Поэтому мы не проверяем его формат, а просто сохраняем
                             console.log('Сохраняем обновленный refresh token:', session.refresh_token.substring(0, 20) + '...');
                             await saveRefreshToken(session.refresh_token);
-                            
+
                             if (!validTokens) {
                                 console.error('Не удалось сохранить обновленные токены из-за неверного формата');
                                 // Не устанавливаем пользователя и не аутентифицируем, если токены неверного формата
@@ -107,22 +107,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             }
                         } else if (event === 'INITIAL_SESSION' && session) {
                             console.log('Начальная сессия обнаружена, проверяем токены...');
-                            
+
                             // Проверка формата токенов перед использованием
                             const accessTokenParts = session.access_token.split('.');
-                            
+
                             let validTokens = true;
-                            
+
                             // Проверяем только access token на соответствие формату JWT
                             if (accessTokenParts.length !== 3) {
                                 console.error('Неверный формат access token при начальной сессии:', session.access_token.substring(0, 20) + '...');
                                 validTokens = false;
                             }
-                            
+
                             // Refresh token от Supabase может иметь формат, отличный от JWT
                             // Поэтому мы не проверяем его формат
                             console.log('Refresh token начальной сессии:', session.refresh_token.substring(0, 20) + '...');
-                            
+
                             if (!validTokens) {
                                 console.error('Access token начальной сессии имеет неверный формат, очищаем...');
                                 await SecureStore.deleteItemAsync('access_token');
@@ -130,10 +130,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 setUser(null);
                                 setIsAuthenticated(false);
                             } else {
-                                 // Не сохраняем токены здесь, так как они уже должны быть сохранены
-                                 // Просто проверяем состояние аутентификации
-                                 await checkAuth();
-                             }
+                                // Не сохраняем токены здесь, так как они уже должны быть сохранены
+                                // Просто проверяем состояние аутентификации
+                                await checkAuth();
+                            }
                         } else if (event === 'INITIAL_SESSION') {
                             console.log('Начальная сессия обнаружена без токенов, проверяем сохраненные токены...');
                             // Просто проверяем состояние аутентификации
@@ -155,11 +155,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const checkAuth = async () => {
             try {
                 console.log('Проверка аутентификации...');
-                
+
                 // Получаем токены
                 const accessToken = await getAccessToken();
                 const refreshToken = await getRefreshToken();
-                
+
                 // Дополнительная проверка формата токенов
                 if (accessToken) {
                     const accessTokenParts = accessToken.split('.');
@@ -169,7 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         // Продолжаем выполнение, так как getAccessToken уже должен был обработать неверный формат
                     }
                 }
-                
+
                 // Refresh token от Supabase может иметь формат, отличный от JWT
                 // Поэтому мы не проверяем его формат
                 if (refreshToken) {
@@ -179,10 +179,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Сначала пробуем использовать существующий accessToken
                 if (accessToken && refreshToken) {
                     console.log('Токены найдены, проверяем пользователя через Supabase...');
-                    
+
                     // Получаем информацию о пользователе через Supabase
                     const { data, error } = await supabase.auth.getUser(accessToken);
-                    
+
                     if (error) {
                         console.error('Ошибка при получении пользователя:', error.message);
                         // Пробуем обновить токен
@@ -256,37 +256,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     // Отдельный эффект для навигации, который будет выполняться после монтирования и изменения состояния аутентификации
-    useEffect(() => {
-        // Пропускаем первый рендер, когда isLoading = true
-        if (!isLoading) {
-            if (isAuthenticated) {
-                router.replace('/(private)/home');
-            } else {
-                router.replace('/(public)/signIn');
-            }
-        }
-    }, [isAuthenticated, isLoading]);
+    // useEffect(() => {
+    //     // Пропускаем первый рендер, когда isLoading = true
+    //     if (!isLoading) {
+    //         // Проверяем текущий URL, чтобы не перенаправлять с OTP-верификации
+    //         const currentUrl = getCurrentUrl();
+    //         const isOnOtpVerification = currentUrl.includes('otpVerification');
+
+    //         if (isAuthenticated) {
+    //             router.replace('/(private)/home');
+    //         } else if (!isOnOtpVerification) {
+    //             // Перенаправляем на signIn только если пользователь не на странице OTP-верификации
+    //             router.replace('/(public)/signIn');
+    //         }
+    //     }
+    // }, [isAuthenticated, isLoading]);
 
     // Функция для входа в аккаунт
     const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
         try {
             setIsLoading(true);
             console.log('Выполняется вход...');
-            
+
             const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
                 console.error('Ошибка при входе:', error.message);
                 throw error;
             }
-            
+
             if (data.session) {
                 console.log('Сессия создана успешно, сохраняем токены...');
-                
+
                 // Проверка формата токенов перед сохранением
                 const accessTokenParts = data.session.access_token.split('.');
-                
+
                 let validTokens = true;
-                
+
                 // Проверяем только access token на соответствие формату JWT
                 if (accessTokenParts.length !== 3) {
                     console.error('Неверный формат access token при входе:', data.session.access_token.substring(0, 20) + '...');
@@ -294,12 +299,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 } else {
                     await saveAccessToken(data.session.access_token);
                 }
-                
+
                 // Refresh token от Supabase может иметь формат, отличный от JWT
                 // Поэтому мы не проверяем его формат, а просто сохраняем
                 console.log('Сохраняем refresh token:', data.session.refresh_token.substring(0, 20) + '...');
                 await saveRefreshToken(data.session.refresh_token);
-                
+
                 if (validTokens) {
                     // Устанавливаем пользователя и состояние аутентификации
                     setUser(data.user as unknown as User);
@@ -312,7 +317,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     return { success: false, error: 'Неверный формат токенов' };
                 }
             }
-            
+
             console.error('Не удалось создать сессию');
             return { success: false, error: 'Не удалось создать сессию' };
         } catch (error) {
@@ -330,25 +335,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
-                options: { 
+                options: {
                     data: { username },
                     emailRedirectTo: 'exp://localhost:8081/--/home'
                 }
             });
             if (error) throw error;
-            
+
             // Проверяем, требуется ли подтверждение по email
             // Если data.session равен null, это означает, что требуется подтверждение
             const requiresConfirmation = !data.session;
-            
+
             if (data.session) {
                 // Если сессия создана сразу (без подтверждения email)
-                
+
                 // Проверка формата токенов перед сохранением
                 const accessTokenParts = data.session.access_token.split('.');
-                
+
                 let validTokens = true;
-                
+
                 // Проверяем только access token на соответствие формату JWT
                 if (accessTokenParts.length !== 3) {
                     console.error('Неверный формат access token при регистрации:', data.session.access_token.substring(0, 20) + '...');
@@ -356,12 +361,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 } else {
                     await saveAccessToken(data.session.access_token);
                 }
-                
+
                 // Refresh token от Supabase может иметь формат, отличный от JWT
                 // Поэтому мы не проверяем его формат, а просто сохраняем
                 console.log('Сохраняем refresh token:', data.session.refresh_token.substring(0, 20) + '...');
                 await saveRefreshToken(data.session.refresh_token);
-                
+
                 if (validTokens) {
                     setUser(data.user as unknown as User);
                     setIsAuthenticated(true);
@@ -389,7 +394,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             setIsLoading(true);
             console.log('Выполняется выход из аккаунта...');
-            
+
             // Выход из Supabase
             const { error } = await supabase.auth.signOut();
             if (error) {
@@ -397,15 +402,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Не выбрасываем ошибку, чтобы продолжить выполнение функции
                 // и очистить локальное состояние в любом случае
             }
-            
+
             // Удаляем токены из хранилища
             await SecureStore.deleteItemAsync('access_token');
             await SecureStore.deleteItemAsync('refresh_token');
-            
+
             // Сбрасываем состояние аутентификации
             setUser(null);
             setIsAuthenticated(false);
-            
+
+            router.replace("/(public)/signIn")
             console.log('Выход выполнен успешно');
         } catch (error) {
             console.error('Ошибка при выходе:', error);
@@ -509,7 +515,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const params = new URLSearchParams(url.split('#')[1]);
                 const accessToken = params.get('access_token');
                 const refreshToken = params.get('refresh_token');
-                
+
                 // Проверяем формат токенов перед использованием
                 if (accessToken) {
                     // Проверка формата access token
@@ -518,7 +524,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         console.error('Неверный формат access token при входе через Google:', accessToken.substring(0, 20) + '...');
                         return { success: false, error: 'Неверный формат токена доступа' };
                     }
-                    
+
                     // Проверка формата refresh token, если он есть
                     if (refreshToken) {
                         const refreshTokenParts = refreshToken.split('.');
@@ -528,41 +534,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         }
                     }
                     console.log('Access token получен, устанавливаем сессию в Supabase...');
-                    
+
                     // Устанавливаем сессию в Supabase с полученными токенами
                     const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
                         access_token: accessToken,
                         refresh_token: refreshToken || ''
                     });
-                    
+
                     if (sessionError) {
                         console.error('Ошибка при установке сессии:', sessionError.message);
                         throw sessionError;
                     }
-                    
+
                     if (sessionData.session) {
                         console.log('Сессия установлена успешно, сохраняем токены...');
-                        
+
                         // Проверка формата токенов перед сохранением
                         const accessTokenParts = sessionData.session.access_token.split('.');
                         const refreshTokenParts = sessionData.session.refresh_token.split('.');
-                        
+
                         let validTokens = true;
-                        
+
                         if (accessTokenParts.length !== 3) {
                             console.error('Неверный формат access token при входе через Google (сессия):', sessionData.session.access_token.substring(0, 20) + '...');
                             validTokens = false;
                         } else {
                             await saveAccessToken(sessionData.session.access_token);
                         }
-                        
+
                         if (refreshTokenParts.length !== 3) {
                             console.error('Неверный формат refresh token при входе через Google (сессия):', sessionData.session.refresh_token.substring(0, 20) + '...');
                             validTokens = false;
                         } else {
                             await saveRefreshToken(sessionData.session.refresh_token);
                         }
-                        
+
                         if (validTokens) {
                             setUser(sessionData.user as unknown as User);
                             setIsAuthenticated(true);
@@ -588,40 +594,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             setIsLoading(true);
             console.log('Верификация OTP-кода для регистрации...');
-            
+
             const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'signup' });
             if (error) {
                 console.error('Ошибка при верификации OTP:', error.message);
                 throw error;
             }
-            
+
             if (data.session) {
                 console.log('OTP верифицирован успешно, сохраняем токены...');
                 // Проверка формата токенов перед сохранением
                 const accessTokenParts = data.session.access_token.split('.');
-                const refreshTokenParts = data.session.refresh_token.split('.');
-                
+
                 let validTokens = true;
-                
+
                 if (accessTokenParts.length !== 3) {
                     console.error('Неверный формат access token при верификации OTP:', data.session.access_token.substring(0, 20) + '...');
                     validTokens = false;
                 } else {
                     await saveAccessToken(data.session.access_token);
                 }
-                
-                if (refreshTokenParts.length !== 3) {
-                    console.error('Неверный формат refresh token при верификации OTP:', data.session.refresh_token.substring(0, 20) + '...');
-                    validTokens = false;
-                } else {
-                    await saveRefreshToken(data.session.refresh_token);
-                }
-                
+
+                // Refresh token от Supabase может иметь формат, отличный от JWT
+                // Поэтому мы не проверяем его формат, а просто сохраняем
+                console.log('Сохраняем refresh token при верификации OTP:', data.session.refresh_token.substring(0, 20) + '...');
+                await saveRefreshToken(data.session.refresh_token);
+
                 if (validTokens) {
                     // Устанавливаем пользователя и состояние аутентификации
                     setUser(data.user as unknown as User);
                     setIsAuthenticated(true);
-                    
+
                     console.log('Регистрация завершена успешно');
                     return { success: true };
                 } else {

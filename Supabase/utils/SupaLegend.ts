@@ -16,7 +16,10 @@ import * as SecureStore from 'expo-secure-store';
 
 // useEffect(() => {
 //   AsyncStorage.clear();
+//   SecureStore.deleteItemAsync('access_token');
+//   SecureStore.deleteItemAsync('refresh_token');
 // }, []);
+
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;

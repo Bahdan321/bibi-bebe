@@ -10,6 +10,7 @@ export default function PublicLayout() {
                 <Stack
                     screenOptions={{
                         headerShown: false,
+                        animation: 'fade'
                     }}
                 >
                     <Stack.Screen
@@ -17,6 +18,9 @@ export default function PublicLayout() {
                     />
                     <Stack.Screen
                         name="signUp"
+                    />
+                    <Stack.Screen
+                        name="otpVerification"
                     />
                 </Stack>
             </View>

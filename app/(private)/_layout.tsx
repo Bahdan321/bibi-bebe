@@ -13,6 +13,7 @@ export default function PrivateLayout() {
                 <Stack
                     screenOptions={{
                         headerShown: false,
+                        animation: 'fade'
                     }}
                 >
                     <Stack.Screen

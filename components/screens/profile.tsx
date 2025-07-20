@@ -13,9 +13,11 @@ import CustomText from "@/components/base/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "@/components/base/CustomButton";
 import ChangeProfile from "@/components/ChangeProfile";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function Profile() {
     const { theme } = useTheme();
+    const { signOut } = useAuth();
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
     // Заглушечные данные пользователя
@@ -35,6 +37,15 @@ export default function Profile() {
         // Здесь будет логика обновления профиля в базе данных
         console.log("Профиль обновлен:", newUsername);
         closeEditModal();
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await signOut();
+            console.log("Выход из аккаунта выполнен успешно");
+        } catch (error) {
+            console.error("Ошибка при выходе из аккаунта:", error);
+        }
     };
 
     return (
@@ -146,6 +157,19 @@ export default function Profile() {
                         />
                     </View>
                 </View>
+
+                {/* Кнопка выхода из аккаунта */}
+                <View style={styles.logoutButtonContainer}>
+                    <CustomButton
+                        variant="primary"
+                        title="Выйти из аккаунта"
+                        icon="log-out-outline"
+                        onPress={handleSignOut}
+                        buttonColor={theme.colors.error}
+                        size="medium"
+                        style={styles.logoutButton}
+                    />
+                </View>
             </ScrollView>
 
             {/* Модальное окно редактирования профиля */}
@@ -168,6 +192,13 @@ const styles = StyleSheet.create({
     },
     emailWrapper: {
         marginTop: 8,
+    },
+    logoutButtonContainer: {
+        marginTop: 16,
+        alignItems: "center",
+    },
+    logoutButton: {
+        width: "80%",
     },
 });
 
