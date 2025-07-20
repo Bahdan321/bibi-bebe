@@ -14,16 +14,33 @@ import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "@/components/base/CustomButton";
 import ChangeProfile from "@/components/ChangeProfile";
 import { useAuth } from "@/providers/AuthProvider";
+import { getAdaptiveTextSize } from "@/utils/textUtils";
 
 export default function Profile() {
     const { theme } = useTheme();
-    const { signOut } = useAuth();
+    const { signOut, user, isLoading } = useAuth();
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
-    // Заглушечные данные пользователя
-    const username = "Олег Мангол";
-    const title = "Ценитель шашлыков";
-    const email = "olegmangol@gmail.com";
+    console.log(user)
+
+    // Данные пользователя из AuthProvider
+    const username = user?.username;
+    const title = user?.title;
+    const email = user?.email;
+
+    // Показываем индикатор загрузки, если данные еще загружаются
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+                <CustomText
+                    content="Загрузка профиля..."
+                    size="lg"
+                    color={theme.colors.text}
+                    weight="normal"
+                />
+            </View>
+        );
+    }
 
     const openEditModal = () => {
         setIsEditModalVisible(true);
@@ -90,7 +107,7 @@ export default function Profile() {
                         <View style={{ flexDirection: "column", alignItems: "center", flex: 1 }}>
                             <CustomText
                                 content={username}
-                                size="xxxl"
+                                size={getAdaptiveTextSize(username, 'username')}
                                 color={theme.colors.text}
                                 weight="bold"
                                 opacity={1}
@@ -100,7 +117,7 @@ export default function Profile() {
                             />
                             <CustomText
                                 content={title}
-                                size="lg"
+                                size={getAdaptiveTextSize(title, 'title')}
                                 color={theme.colors.secondary}
                                 weight="normal"
                                 opacity={0.9}
@@ -118,7 +135,11 @@ export default function Profile() {
                             }}
                         >
                             <ImageBackground
-                                source={require("../../assets/images/memes/meme10.jpg")}
+                                source={
+                                    user?.avatar_url
+                                        ? { uri: user.avatar_url }
+                                        : require("../../assets/images/memes/meme10.jpg")
+                                }
                                 style={{
                                     flex: 1,
                                     backgroundColor: theme.colors.settingsBackground,
@@ -131,7 +152,7 @@ export default function Profile() {
                     </View>
                 </View>
 
-                {/* Почта */}
+                {/* Информация о пользователе */}
                 <View
                     style={[
                         styles.card,
@@ -144,16 +165,17 @@ export default function Profile() {
                         },
                     ]}
                 >
-                    <View style={styles.emailWrapper}>
+                    <View style={styles.infoWrapper}>
                         <CustomText
                             content={`Email: ${email}`}
-                            size="md"
+                            size={getAdaptiveTextSize(email, 'email')}
                             color={theme.colors.text}
                             weight="bold"
                             opacity={1}
                             borderWidth={0}
                             paddingHorizontal={0}
-                            textCenter={true}
+                            textCenter={false}
+                            style={{ marginBottom: 8 }}
                         />
                     </View>
                 </View>
@@ -165,7 +187,7 @@ export default function Profile() {
                         title="Выйти из аккаунта"
                         icon="log-out-outline"
                         onPress={handleSignOut}
-                        buttonColor={theme.colors.error}
+                        buttonColor={theme.colors.primary}
                         size="medium"
                         style={styles.logoutButton}
                     />
@@ -190,7 +212,7 @@ const styles = StyleSheet.create({
         padding: 8,
         marginBottom: 24,
     },
-    emailWrapper: {
+    infoWrapper: {
         marginTop: 8,
     },
     logoutButtonContainer: {

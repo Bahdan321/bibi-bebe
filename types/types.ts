@@ -68,8 +68,9 @@ export interface User {
     user_id: string
     username: string
     email: string
-    avatar_url: string
-    displayed_title_id: string
+    avatar_url: string | null
+    displayed_title_id: string | null
+    title?: string // Название титула для отображения
 }
 
 export interface AuthContextType {

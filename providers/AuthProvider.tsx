@@ -40,6 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Настройка обработчика событий аутентификации
                 const { data: { subscription } } = supabase.auth.onAuthStateChange(
                     async (event, session) => {
+                        console.log(session?.user)
                         console.log('Изменение состояния аутентификации:', event);
 
                         if (event === 'SIGNED_IN' && session) {
@@ -181,34 +182,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     console.log('Токены найдены, проверяем пользователя через Supabase...');
 
                     // Получаем информацию о пользователе через Supabase
-                    const { data, error } = await supabase.auth.getUser(accessToken);
+                const { data, error } = await supabase.auth.getUser(accessToken);
 
-                    if (error) {
-                        console.error('Ошибка при получении пользователя:', error.message);
-                        // Пробуем обновить токен
-                        const newToken = await refreshAccessToken();
-                        if (newToken) {
-                            // Если токен обновлен успешно, повторно проверяем пользователя
-                            const { data: refreshData, error: refreshError } = await supabase.auth.getUser(newToken);
-                            if (!refreshError && refreshData.user) {
+                if (error) {
+                    console.error('Ошибка при получении пользователя:', error.message);
+                    // Пробуем обновить токен
+                    const newToken = await refreshAccessToken();
+                    if (newToken) {
+                        // Если токен обновлен успешно, повторно проверяем пользователя
+                        const { data: refreshData, error: refreshError } = await supabase.auth.getUser(newToken);
+                        if (!refreshError && refreshData.user) {
+                            // Получаем данные профиля пользователя из базы данных
+                            const profile = await getUserProfile(refreshData.user.id);
+                            
+                            if (profile) {
+                                // Создаем объект пользователя с данными из профиля
+                                const userWithProfile: User = {
+                                    user_id: profile.user_id,
+                                    username: profile.username,
+                                    email: refreshData.user.email!,
+                                    avatar_url: profile.avatar_url,
+                                    displayed_title_id: profile.displayed_title_id,
+                                    title: profile.title
+                                };
+                                setUser(userWithProfile);
+                            } else {
+                                // Если профиль не найден, используем базовые данные
                                 setUser(refreshData.user as unknown as User);
-                                setIsAuthenticated(true);
-                                console.log('Аутентификация успешна после обновления токена');
-                                return;
                             }
+                            
+                            setIsAuthenticated(true);
+                            console.log('Аутентификация успешна после обновления токена');
+                            return;
                         }
-                        // Если обновление не помогло, очищаем токены
-                        console.log('Не удалось восстановить аутентификацию, очищаем токены');
-                        await SecureStore.deleteItemAsync('access_token');
-                        await SecureStore.deleteItemAsync('refresh_token');
-                        setIsAuthenticated(false);
-                    } else if (data.user) {
-                        // Пользователь найден, устанавливаем состояние
-                        setUser(data.user as unknown as User);
-                        setIsAuthenticated(true);
-                        console.log('Аутентификация успешна');
-                        return;
                     }
+                    // Если обновление не помогло, очищаем токены
+                    console.log('Не удалось восстановить аутентификацию, очищаем токены');
+                    await SecureStore.deleteItemAsync('access_token');
+                    await SecureStore.deleteItemAsync('refresh_token');
+                    setIsAuthenticated(false);
+                } else if (data.user) {
+                    // Пользователь найден, устанавливаем состояние
+                    if (data.user) {
+                        // Получаем данные профиля пользователя из базы данных
+                        const profile = await getUserProfile(data.user.id);
+                        
+                        if (profile) {
+                            // Создаем объект пользователя с данными из профиля
+                            const userWithProfile: User = {
+                                user_id: profile.user_id,
+                                username: profile.username,
+                                email: data.user.email!,
+                                avatar_url: profile.avatar_url,
+                                displayed_title_id: profile.displayed_title_id,
+                                title: profile.title
+                            };
+                            setUser(userWithProfile);
+                        } else {
+                            // Если профиль не найден, используем базовые данные
+                            setUser(data.user as unknown as User);
+                        }
+                    }
+                    
+                    setIsAuthenticated(true);
+                    console.log('Аутентификация успешна');
+                    return;
+                }
                 }
 
                 // Если нет accessToken, но есть refreshToken, пробуем обновить
@@ -219,7 +258,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         if (newAccessToken) {
                             const { data } = await supabase.auth.getUser(newAccessToken);
                             if (data.user) {
-                                setUser(data.user as unknown as User);
+                                // Получаем данные профиля пользователя из базы данных
+                                const profile = await getUserProfile(data.user.id);
+                                
+                                if (profile) {
+                                    // Создаем объект пользователя с данными из профиля
+                                    const userWithProfile: User = {
+                                        user_id: profile.user_id,
+                                        username: profile.username,
+                                        email: data.user.email!,
+                                        avatar_url: profile.avatar_url,
+                                        displayed_title_id: profile.displayed_title_id,
+                                        title: profile.title
+                                    };
+                                    setUser(userWithProfile);
+                                } else {
+                                    // Если профиль не найден, используем базовые данные
+                                    setUser(data.user as unknown as User);
+                                }
+                                
                                 setIsAuthenticated(true);
                                 console.log('Аутентификация успешна после обновления токена');
                                 return;
@@ -306,8 +363,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await saveRefreshToken(data.session.refresh_token);
 
                 if (validTokens) {
-                    // Устанавливаем пользователя и состояние аутентификации
-                    setUser(data.user as unknown as User);
+                    // Получаем данные профиля пользователя из базы данных
+                    const profile = await getUserProfile(data.user.id);
+                    
+                    if (profile) {
+                        // Создаем объект пользователя с данными из профиля
+                        const userWithProfile: User = {
+                            user_id: profile.user_id,
+                            username: profile.username,
+                            email: data.user.email!,
+                            avatar_url: profile.avatar_url,
+                            displayed_title_id: profile.displayed_title_id,
+                            title: profile.title
+                        };
+                        setUser(userWithProfile);
+                    } else {
+                        // Если профиль не найден, используем базовые данные
+                        setUser(data.user as unknown as User);
+                    }
+                    
                     setIsAuthenticated(true);
                     console.log('Вход выполнен успешно');
                     return { success: true };
@@ -325,6 +399,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return { success: false, error: (error as Error).message || 'Ошибка авторизации' };
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    // Функция для получения профиля пользователя из базы данных
+    const getUserProfile = async (userId: string) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select(`
+                    user_id,
+                    username,
+                    avatar_url,
+                    displayed_title_id,
+                    titles!displayed_title_id (
+                        title_name
+                    )
+                `)
+                .eq('user_id', userId)
+                .single();
+
+            if (error) {
+                console.error('Ошибка при получении профиля:', error);
+                return null;
+            }
+
+            if (!data) {
+                return null;
+            }
+
+            return {
+                user_id: (data as any).user_id,
+                username: (data as any).username,
+                avatar_url: (data as any).avatar_url,
+                displayed_title_id: (data as any).displayed_title_id,
+                title: (data as any).titles?.title_name || null
+            };
+        } catch (error) {
+            console.error('Ошибка при получении профиля пользователя:', error);
+            return null;
         }
     };
 
@@ -368,7 +481,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await saveRefreshToken(data.session.refresh_token);
 
                 if (validTokens) {
-                    setUser(data.user as unknown as User);
+                    // Получаем данные профиля пользователя из базы данных
+                    const profile = await getUserProfile(data.user.id);
+                    
+                    if (profile) {
+                        // Создаем объект пользователя с данными из профиля
+                        const userWithProfile: User = {
+                            user_id: profile.user_id,
+                            username: profile.username,
+                            email: data.user.email!,
+                            avatar_url: profile.avatar_url,
+                            displayed_title_id: profile.displayed_title_id,
+                            title: profile.title
+                        };
+                        setUser(userWithProfile);
+                    } else {
+                        // Если профиль не найден, используем базовые данные
+                        setUser(data.user as unknown as User);
+                    }
+                    
                     setIsAuthenticated(true);
                     return { success: true, requiresConfirmation: false };
                 } else {
