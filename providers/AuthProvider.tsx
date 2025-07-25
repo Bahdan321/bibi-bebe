@@ -982,8 +982,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const updateUserProfile = async (username: string): Promise<{ success: boolean; error?: string }> => {
+        try {
+            if (!user) {
+                return { success: false, error: 'Пользователь не аутентифицирован' };
+            }
+
+            setIsLoading(true);
+
+            // Update profile in Supabase
+            const { error } = await supabase
+                .from('profiles')
+                .update({ username })
+                .eq('user_id', user.user_id);
+
+            if (error) {
+                console.error('Ошибка при обновлении профиля:', error);
+                return { success: false, error: 'Не удалось обновить профиль' };
+            }
+
+            // Update local user state
+            setUser(prevUser => {
+                if (prevUser) {
+                    return { ...prevUser, username };
+                }
+                return prevUser;
+            });
+
+            return { success: true };
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            return { success: false, error: (error as Error).message || 'Произошла ошибка при обновлении профиля' };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, signIn, signUp, signOut, createUserSpace, signInWithGoogle, verifySignupOtp, resendSignupOtp }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, signIn, signUp, signOut, createUserSpace, signInWithGoogle, verifySignupOtp, resendSignupOtp, updateUserProfile }}>
             {children}
         </AuthContext.Provider>
     );

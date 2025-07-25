@@ -85,6 +85,7 @@ export interface AuthContextType {
     signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
     verifySignupOtp: (email: string, token: string) => Promise<{ success: boolean; error?: string }>;
     resendSignupOtp: (email: string) => Promise<{ success: boolean; error?: string }>;
+    updateUserProfile: (username: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export interface Space {

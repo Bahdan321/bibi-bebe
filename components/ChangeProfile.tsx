@@ -1,37 +1,56 @@
 import React, { useState } from 'react';
-import { Modal, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Modal, View, StyleSheet, TouchableOpacity, ActivityIndicator, ToastAndroid, Platform, Alert } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import CustomText from './base/CustomText';
 import CustomButton from './base/CustomButton';
 import CustomTextInput from './base/CustomTextInput';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface ChangeProfileProps {
     visible: boolean;
     onClose: () => void;
-    onSave: (username: string) => void;
     initialUsername: string;
 }
 
 const ChangeProfile: React.FC<ChangeProfileProps> = ({
     visible,
     onClose,
-    onSave,
-    initialUsername
+    initialUsername,
 }) => {
     const { theme } = useTheme();
+    const { updateUserProfile, isLoading } = useAuth();
     const [username, setUsername] = useState(initialUsername);
-    const [avatarSource, setAvatarSource] = useState(null); // Заглушка для аватарки
+    const [error, setError] = useState('');
 
-    const handleSave = () => {
-        if (username.trim()) {
-            onSave(username);
+    // Function to show toast notification
+    const showSuccessMessage = () => {
+        if (Platform.OS === 'android') {
+            ToastAndroid.show('Профиль успешно обновлен!', ToastAndroid.SHORT);
+        } else {
+            // For iOS or other platforms
+            Alert.alert('Успех', 'Профиль успешно обновлен!', [{ text: 'OK' }], { cancelable: true });
         }
     };
 
-    const handleSelectAvatar = () => {
-        // Заглушка для выбора аватарки
-        console.log('Выбор аватарки (заглушка)');
+    const handleSave = async () => {
+        if (!username.trim()) {
+            setError('Имя пользователя не может быть пустым');
+            return;
+        }
+
+        setError('');
+
+        const result = await updateUserProfile(username);
+
+        if (result.success) {
+            // Close modal immediately
+            onClose();
+            // Show toast notification
+            showSuccessMessage();
+        } else {
+            setError(result.error || 'Произошла ошибка при обновлении профиля');
+        }
     };
 
     return (
@@ -60,12 +79,11 @@ const ChangeProfile: React.FC<ChangeProfileProps> = ({
                     </View>
 
                     <View style={styles.avatarContainer}>
-                        <TouchableOpacity
+                        <View
                             style={[styles.avatarPlaceholder, { backgroundColor: theme.colors.secondary }]}
-                            onPress={handleSelectAvatar}
                         >
                             <Ionicons name="person" size={60} color={theme.colors.primary} />
-                        </TouchableOpacity>
+                        </View>
                     </View>
 
                     <View style={styles.inputContainer}>
@@ -91,14 +109,32 @@ const ChangeProfile: React.FC<ChangeProfileProps> = ({
                         />
                     </View>
 
+                    {error ? (
+                        <CustomText
+                            content={error}
+                            size="sm"
+                            color="red"
+                            style={{ marginBottom: 10, textAlign: 'center' }}
+                        />
+                    ) : null}
+
                     <CustomButton
                         variant="primary"
-                        title="Сохранить"
+                        title={isLoading ? "Сохранение..." : "Сохранить"}
                         titleColor={theme.colors.primary}
                         buttonColor={theme.colors.button}
                         onPress={handleSave}
                         style={styles.saveButton}
+                        disabled={isLoading}
                     />
+
+                    {isLoading && (
+                        <ActivityIndicator
+                            size="small"
+                            color={theme.colors.button}
+                            style={{ marginTop: 10 }}
+                        />
+                    )}
                 </View>
             </View>
         </Modal>
@@ -113,44 +149,26 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-        width: '90%',
-        borderRadius: 20,
+        width: '80%',
         padding: 20,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
+        borderRadius: 10,
         elevation: 5,
-        position: 'relative', // Добавлено для позиционирования кнопки закрытия
     },
     closeButton: {
-        position: 'absolute',
-        top: 15,
-        right: 15,
-        zIndex: 10,
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        justifyContent: 'center',
-        alignItems: 'center',
+        alignSelf: 'flex-end',
     },
     titleContainer: {
         alignItems: 'center',
         marginBottom: 20,
-        marginTop: 10,
     },
     avatarContainer: {
         alignItems: 'center',
         marginBottom: 20,
-        position: 'relative',
     },
     avatarPlaceholder: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -159,7 +177,7 @@ const styles = StyleSheet.create({
     },
     saveButton: {
         marginTop: 10,
-    }
+    },
 });
 
 export default ChangeProfile;

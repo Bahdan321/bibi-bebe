@@ -28,19 +28,19 @@ export default function Profile() {
     const title = user?.title;
     const email = user?.email;
 
-    // Показываем индикатор загрузки, если данные еще загружаются
-    if (isLoading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
-                <CustomText
-                    content="Загрузка профиля..."
-                    size="lg"
-                    color={theme.colors.text}
-                    weight="normal"
-                />
-            </View>
-        );
-    }
+    // // Показываем индикатор загрузки, если данные еще загружаются
+    // if (isLoading) {
+    //     return (
+    //         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+    //             <CustomText
+    //                 content="Загрузка профиля..."
+    //                 size="lg"
+    //                 color={theme.colors.text}
+    //                 weight="normal"
+    //             />
+    //         </View>
+    //     );
+    // }
 
     const openEditModal = () => {
         setIsEditModalVisible(true);
