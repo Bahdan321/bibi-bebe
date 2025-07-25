@@ -16,6 +16,7 @@ import Spaces from '@/components/screens/spaces';
 import KakoetoMenu from '@/components/screens/kakoetoMenu';
 import { useTheme } from '@/providers/ThemeProvider';
 import Goals from '@/components/screens/goals';
+import { useTasksInitializer } from '@/hooks/useTasksInitializer';
 
 const Home = observer(() => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -30,6 +31,9 @@ const Home = observer(() => {
     const spacesBottomSheetRef = useRef<BottomSheet>(null);
     const kakoetoMenuBottomSheetRef = useRef<BottomSheet>(null);
     const goalsBottomSheetRef = useRef<BottomSheet>(null);
+    
+    // Инициализация задач для текущего пространства
+    useTasksInitializer();
 
     const renderBackdrop = useCallback(
         (props: any) => (

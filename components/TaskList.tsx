@@ -18,7 +18,10 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
           date={date}
         />
       ))}
-      <NewTaskInput onAddTask={(text) => onAddTask(text, date)} />
+      <NewTaskInput onAddTask={(text) => {
+        console.log('TaskList: вызов onAddTask с текстом:', text);
+        onAddTask(text, date);
+      }} />
     </View>
   );
 });

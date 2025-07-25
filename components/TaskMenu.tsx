@@ -20,6 +20,8 @@ import {
   toggleTaskChangeDisplayDate,
   addTask,
   addReward,
+  toggleTaskChangeTitle,
+  toggleTaskChangeDescription,
   tasks$,
 } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
@@ -32,6 +34,8 @@ import NewSubtaskInput from './NewSubtaskInput';
 import SubtaskItem from './SubtaskItem';
 import { v4 as uuidv4 } from 'uuid';
 import { observe } from '@legendapp/state';
+import { useCurrentUserId, useCurrentSpaceId } from '@/hooks/useCurrentUser';
+import { useTasksInitializer } from '@/hooks/useTasksInitializer';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
   task,
@@ -44,6 +48,9 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   setDescription,
 }) => {
   const { theme } = useTheme();
+  const currentUserId = useCurrentUserId();
+  const currentSpaceId = useCurrentSpaceId();
+  useTasksInitializer();
 
   const [taskStatusCopy, setTaskStatusCopy] = useState(task.status);
   const [taskStatusColor, setTaskStatusColor] = useState(
@@ -188,17 +195,18 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   };
 
   const handleDuplicate = () => {
-    console.log("123123122312312312313213123123123123", task.space_id || '')
+    if (!currentSpaceId || !currentUserId) return;
+    
     toggleDublicateTask(
       task.title || '',
-      task.space_id || '',
-      task.user_id,
+      currentSpaceId,
+      currentUserId,
       task.due_date,
       task.display_date,
       task.reward || '',
       task.status,
-      task.description || '',
-      task.parent_task_id || '',
+      task.description || null,
+      task.parent_task_id || null,
       task.created_at,
       task.updated_at,
       task.completion_date,
@@ -318,15 +326,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   ];
 
   const handleAddSubtask = async (subtaskTitle: string) => {
+    if (!currentSpaceId || !currentUserId) return;
+    
     await addTask(
       subtaskTitle,
-      task.space_id || '',
-      task.user_id,
+      currentSpaceId,
+      currentUserId,
       task.due_date,
       task.display_date,
       '', // No reward for subtask initially
       false,
-      '',
+      null, // description as null instead of empty string
       task.id,
       new Date().toISOString(),
       new Date().toISOString(),
@@ -438,8 +448,8 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         ))}
         <NewSubtaskInput
           parentTaskId={task.id}
-          spaceId={task.space_id || ''}
-          userId={task.user_id}
+          spaceId={currentSpaceId || ''}
+          userId={currentUserId || ''}
           date={date}
           onAddSubtask={handleAddSubtask}
         />

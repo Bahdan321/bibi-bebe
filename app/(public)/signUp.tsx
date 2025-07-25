@@ -1,5 +1,5 @@
-import { View, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
-import React, { useState } from 'react';
+import { View, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
 
 import TextInputField from '@/components/TextInputField';
 
@@ -15,14 +15,74 @@ export default function SignUp() {
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [nameError, setNameError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [generalError, setGeneralError] = useState('');
     const router = useRouter();
     const { signUp, signInWithGoogle } = useAuth();
 
+    // Валидация имени
+    const validateName = (name: string) => {
+        if (!name) {
+            setNameError('Пожалуйста, введите имя');
+            return false;
+        } else if (name.length < 2) {
+            setNameError('Имя должно содержать минимум 2 символа');
+            return false;
+        }
+        setNameError('');
+        return true;
+    };
+
+    // Валидация email
+    const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            setEmailError('Пожалуйста, введите email');
+            return false;
+        } else if (!emailRegex.test(email)) {
+            setEmailError('Пожалуйста, введите корректный email');
+            return false;
+        }
+        setEmailError('');
+        return true;
+    };
+
+    // Валидация пароля
+    const validatePassword = (password: string) => {
+        if (!password) {
+            setPasswordError('Пожалуйста, введите пароль');
+            return false;
+        } else if (password.length < 6) {
+            setPasswordError('Пароль должен содержать минимум 6 символов');
+            return false;
+        }
+        setPasswordError('');
+        return true;
+    };
+
+    // Очистка ошибок при изменении полей
+    useEffect(() => {
+        if (name) setNameError('');
+        if (email) setEmailError('');
+        if (password) setPasswordError('');
+        if (nameError || emailError || passwordError) setGeneralError('');
+    }, [name, email, password]);
+
     const handleSignUp = async () => {
-        if (!email || !password || !name) {
-            Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
+        // Сбросить общую ошибку
+        setGeneralError('');
+        
+        // Валидация полей
+        const isNameValid = validateName(name);
+        const isEmailValid = validateEmail(email);
+        const isPasswordValid = validatePassword(password);
+        
+        if (!isNameValid || !isEmailValid || !isPasswordValid) {
             return;
         }
+        
         setIsLoading(true);
         try {
             const result = await signUp(name, email, password);
@@ -37,35 +97,47 @@ export default function SignUp() {
                     router.replace('/(private)/onboardingScreen');
                 }
             } else {
-                Alert.alert('Ошибка регистрации', result.error || 'Неверное имя пользователя или пароль');
+                setGeneralError(result.error || 'Неверное имя пользователя или пароль');
             }
         } catch (error) {
             console.error('Error signing up:', error);
-            Alert.alert('Ошибка', 'Произошла ошибка при регистрации');
+            setGeneralError('Произошла ошибка при регистрации');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleGoogleSignUp = async () => {
+        // Сбросить все ошибки перед попыткой входа через Google
+        setNameError('');
+        setEmailError('');
+        setPasswordError('');
+        setGeneralError('');
+        
         setIsLoading(true);
         try {
             const result = await signInWithGoogle();
             if (result.success) {
                 router.replace('/(private)/onboardingScreen');
             } else {
-                Alert.alert('Ошибка', result.error || 'Ошибка регистрации через Google');
+                setGeneralError(result.error || 'Ошибка регистрации через Google');
             }
         } catch (error) {
             console.error('Error signing up with Google:', error);
-            Alert.alert('Ошибка', 'Произошла ошибка при регистрации через Google');
+            setGeneralError('Произошла ошибка при регистрации через Google');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleAppleSignUp = () => {
-        Alert.alert('Внимание', 'Регистрация через Apple пока не реализована');
+        // Сбросить все ошибки
+        setNameError('');
+        setEmailError('');
+        setPasswordError('');
+        setGeneralError('');
+        
+        setGeneralError('Регистрация через Apple пока не реализована');
     };
 
     return (
@@ -93,6 +165,12 @@ export default function SignUp() {
                 />
             </View>
             
+            {generalError ? (
+                <View style={styles.generalErrorContainer}>
+                    <CustomText content={generalError} size="sm" color="#FF3B30" />
+                </View>
+            ) : null}
+            
             <TextInputField
                 label="Name"
                 labelColor="#B0B0B0"
@@ -101,6 +179,8 @@ export default function SignUp() {
                 value={name}
                 onChangeText={setName}
                 style={styles.input}
+                error={nameError}
+                onBlur={() => validateName(name)}
             />
             <TextInputField
                 label="Email"
@@ -110,6 +190,8 @@ export default function SignUp() {
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
+                error={emailError}
+                onBlur={() => validateEmail(email)}
             />
             <View style={styles.passwordContainer}>
                 <TextInputField
@@ -121,6 +203,8 @@ export default function SignUp() {
                     onChangeText={setPassword}
                     secureTextEntry={!isPasswordVisible}
                     style={[styles.input, { paddingRight: 40 }]}
+                    error={passwordError}
+                    onBlur={() => validatePassword(password)}
                 />
                 <CustomButton
                     variant="reverse"
@@ -183,6 +267,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 20,
         backgroundColor: '#1C2526',
+    },
+    generalErrorContainer: {
+        backgroundColor: 'rgba(255, 59, 48, 0.1)',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 15,
     },
     tabContainer: {
         flexDirection: 'row',

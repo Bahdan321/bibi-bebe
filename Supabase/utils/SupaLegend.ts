@@ -2,9 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
 import { observable } from '@legendapp/state';
 import { syncedSupabase } from '@legendapp/state/sync-plugins/supabase';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
-import { configureSynced } from '@legendapp/state/sync';
+import { configureSynced, syncState } from '@legendapp/state/sync';
 import { observablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
@@ -12,6 +10,8 @@ import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
 import { Task } from '@/types/types';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 
 // useEffect(() => {
@@ -64,6 +64,9 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseServiceRoleK
 
 const generateId = () => uuidv4();
 
+// Создаем observable для текущего ID пространства
+export const currentSpaceId$ = observable<string | null>(null);
+
 const customSynced = configureSynced(syncedSupabase, {
   persist: {
     plugin: observablePersistAsyncStorage({
@@ -80,15 +83,20 @@ const customSynced = configureSynced(syncedSupabase, {
   },
 });
 
+// Создаем observable для tasks с динамическим фильтром
 export const tasks$ = observable(
   customSynced({
     supabase,
-    collection: 'tasks',
+    collection: 'tasks' as const,
     select: (from) =>
       from.select(
         'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, display_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, is_anime_task, reward'
       ),
-    filter: (select) => select.eq('space_id', "37366bcc-a1d5-4025-aa34-66efcb1e632a"),
+    // Используем динамический фильтр, который реагирует на изменения currentSpaceId$
+    filter: (select) => {
+      const spaceId = currentSpaceId$.get();
+      return spaceId ? select.eq('space_id', spaceId) : select.is('space_id', null);
+    },
     actions: ['read', 'create', 'update', 'delete'],
     realtime: true,
     persist: {
@@ -103,6 +111,29 @@ export const tasks$ = observable(
     },
   })
 );
+
+// Функция для обновления текущего ID пространства
+export const updateCurrentSpaceId = async () => {
+  try {
+    const spaceId = await getCurrentSpaceId();
+    currentSpaceId$.set(spaceId);
+    console.log('Текущее ID пространства обновлено:', spaceId);
+  } catch (error) {
+    console.error('Ошибка обновления текущего ID пространства:', error);
+  }
+};
+
+// Функция для установки конкретного ID пространства
+export const setCurrentSpaceId = (spaceId: string | null) => {
+  currentSpaceId$.set(spaceId);
+  console.log('ID пространства установлено:', spaceId);
+};
+
+// Инициализируем текущее ID пространства при загрузке модуля
+updateCurrentSpaceId().catch(error => {
+  console.error('Ошибка инициализации текущего ID пространства:', error);
+});
+
 
 export const addTask = (
   title: string,
@@ -137,7 +168,7 @@ export const addTask = (
       status: status || false,
       due_date: due_date || isoNow,
       display_date: display_date,
-      description: description || null,
+      description: description || '',
       parent_task_id: parent_task_id || null,
       created_at: created_at || isoNow,
       updated_at: isoNow,
@@ -228,7 +259,7 @@ export const toggleDublicateTask = async (
       display_date,
       reward, // Используем новое текстовое поле
       status || false,
-      description || null,
+      description || '',
       parent_task_id || null,
       created_at || dateString,
       dateString,
@@ -246,13 +277,13 @@ export const toggleDublicateTask = async (
         console.log('Дублируем подзадачу с parent_task_id:', mainTaskId);
         await addTask(
           subtask.title,
-          subtask.space_id,
-          subtask.user_id,
+          space_id, // Используем переданный space_id вместо subtask.space_id
+          user_id, // Используем переданный user_id вместо subtask.user_id
           subtask.due_date,
           subtask.display_date,
-          subtask.reward, // Используем новое текстовое поле
+          subtask.reward || '', // Используем новое текстовое поле
           subtask.status,
-          subtask.description,
+          subtask.description || '',
           mainTaskId,
           subtask.created_at,
           subtask.updated_at,
@@ -275,38 +306,56 @@ export const toggleDublicateTask = async (
 };
 
 export const toggleTaskCompletion = (taskId: string) => {
-  tasks$[taskId].status.set((prev) => !prev);
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.status.set((prev: boolean) => !prev);
+  }
 };
 
 export const toggleTaskRename = (taskId: string, newTitle: string) => {
-  tasks$[taskId].title.set((prev) => newTitle);
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.title.set(newTitle);
+  }
 };
 
 export const toggleTaskRenameDescription = (taskId: string, newDescription: string) => {
-  tasks$[taskId].description.set((prev) => newDescription);
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.description.set(newDescription);
+  }
 };
 
 export const toggleTaskChangeDate = (taskId: string, newDate: string) => {
-  tasks$[taskId].due_date.set((prev) => newDate);
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.due_date.set(newDate);
+  }
 };
 
 export const toggleTaskChangeDisplayDate = (taskId: string, newDisplayDate: string) => {
-  tasks$[taskId].display_date.set((prev) => newDisplayDate);
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.display_date.set(newDisplayDate);
+  }
 };
 
 export const toggleTaskRemove = (taskId: string) => {
-  const task = tasks$[taskId].get();
-  if (task.description === null) {
-    tasks$[taskId].description.set('');
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    const taskData = task.get();
+    if (taskData.description === null) {
+      task.description.set('');
+    }
+    task.delete();
   }
-  tasks$[taskId].delete();
 };
 
 export const updateTaskTitle = async (taskId: string, newTitle: string) => {
   const { error } = await supabase
     .from('tasks')
-    .update({ title: newTitle })
-    .eq('id', taskId);
+    .update({ title: newTitle } as any)
+    .eq('id', taskId as any);
 
   if (error) {
     console.error('Ошибка при обновлении названия задачи:', error);
@@ -314,10 +363,16 @@ export const updateTaskTitle = async (taskId: string, newTitle: string) => {
 };
 
 export const changeEisenhowerMatrixStatus = (taskId: string, isUrgent: boolean, isImportant: boolean) => {
-  tasks$[taskId].is_urgent.set((prev) => isUrgent);
-  tasks$[taskId].is_important.set((prev) => isImportant);
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.is_urgent.set(isUrgent);
+    task.is_important.set(isImportant);
+  }
 };
 
 export const addReward = (taskId: string, reward: string) => {
-  tasks$[taskId].reward.set((prev) => reward)
-}
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.reward.set(reward);
+  }
+};

@@ -1,5 +1,5 @@
-import { View, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
-import React, { useState } from 'react';
+import { View, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
 
 import TextInputField from '@/components/TextInputField';
 
@@ -14,12 +14,55 @@ export default function SignIn() {
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [generalError, setGeneralError] = useState('');
     const router = useRouter();
     const { signIn, signInWithGoogle } = useAuth();
 
+    // Валидация email
+    const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            setEmailError('Пожалуйста, введите email');
+            return false;
+        } else if (!emailRegex.test(email)) {
+            setEmailError('Пожалуйста, введите корректный email');
+            return false;
+        }
+        setEmailError('');
+        return true;
+    };
+
+    // Валидация пароля
+    const validatePassword = (password: string) => {
+        if (!password) {
+            setPasswordError('Пожалуйста, введите пароль');
+            return false;
+        } else if (password.length < 6) {
+            setPasswordError('Пароль должен содержать минимум 6 символов');
+            return false;
+        }
+        setPasswordError('');
+        return true;
+    };
+
+    // Очистка ошибок при изменении полей
+    useEffect(() => {
+        if (email) setEmailError('');
+        if (password) setPasswordError('');
+        if (emailError || passwordError) setGeneralError('');
+    }, [email, password]);
+
     const handleSignIn = async () => {
-        if (!email || !password) {
-            Alert.alert('Ошибка', 'Пожалуйста, заполните все поля');
+        // Сбросить общую ошибку
+        setGeneralError('');
+        
+        // Валидация полей
+        const isEmailValid = validateEmail(email);
+        const isPasswordValid = validatePassword(password);
+        
+        if (!isEmailValid || !isPasswordValid) {
             return;
         }
 
@@ -29,35 +72,45 @@ export default function SignIn() {
             if (result.success) {
                 router.replace('/(private)/home');
             } else {
-                Alert.alert('Ошибка входа', result.error || 'Неверный email или пароль');
+                setGeneralError(result.error || 'Неверный email или пароль');
             }
         } catch (error) {
             console.error('Error signing in:', error);
-            Alert.alert('Ошибка', 'Произошла ошибка при входе в аккаунт');
+            setGeneralError('Произошла ошибка при входе в аккаунт');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleGoogleSignIn = async () => {
+        // Сбросить все ошибки перед попыткой входа через Google
+        setEmailError('');
+        setPasswordError('');
+        setGeneralError('');
+        
         setIsLoading(true);
         try {
             const result = await signInWithGoogle();
             if (result.success) {
                 router.replace('/(private)/home');
             } else {
-                Alert.alert('Ошибка', result.error || 'Ошибка авторизации через Google');
+                setGeneralError(result.error || 'Ошибка авторизации через Google');
             }
         } catch (error) {
             console.error('Error signing in with Google:', error);
-            Alert.alert('Ошибка', 'Произошла ошибка при авторизации через Google');
+            setGeneralError('Произошла ошибка при авторизации через Google');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleAppleSignIn = () => {
-        Alert.alert('Внимание', 'Авторизация через Apple пока не реализована');
+        // Сбросить все ошибки
+        setEmailError('');
+        setPasswordError('');
+        setGeneralError('');
+        
+        setGeneralError('Авторизация через Apple пока не реализована');
     };
 
     return (
@@ -69,6 +122,12 @@ export default function SignIn() {
                     <CustomText content="Sign up" size="md" color="#8A8A8A" weight="medium" />
                 </CustomTouchable>
             </View>
+            {generalError ? (
+                <View style={styles.generalErrorContainer}>
+                    <CustomText content={generalError} size="sm" color="#FF3B30" />
+                </View>
+            ) : null}
+            
             <TextInputField
                 label="Email"
                 labelColor="#B0B0B0"
@@ -77,6 +136,8 @@ export default function SignIn() {
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
+                error={emailError}
+                onBlur={() => validateEmail(email)}
             />
             <View style={styles.passwordContainer}>
                 <TextInputField
@@ -88,6 +149,8 @@ export default function SignIn() {
                     onChangeText={setPassword}
                     secureTextEntry={!isPasswordVisible}
                     style={[styles.input, { paddingRight: 40 }]}
+                    error={passwordError}
+                    onBlur={() => validatePassword(password)}
                 />
                 <CustomButton
                     variant="reverse"
@@ -144,6 +207,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 20,
         backgroundColor: '#1C2526',
+    },
+    generalErrorContainer: {
+        backgroundColor: 'rgba(255, 59, 48, 0.1)',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 15,
     },
     tabContainer: {
         flexDirection: 'row',

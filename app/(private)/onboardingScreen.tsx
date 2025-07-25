@@ -14,6 +14,7 @@ const OnboardingScreen = () => {
     const menuFadeAnim = useRef(new Animated.Value(0)).current;
     const [showMenu, setShowMenu] = useState(false);
     const [spaceName, setSpaceName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { createUserSpace } = useAuth();
 
     useEffect(() => {
@@ -46,11 +47,21 @@ const OnboardingScreen = () => {
     }, []);
 
     const handleSubmit = async () => {
+        if (!spaceName.trim()) return;
+        
+        setIsLoading(true);
         console.log('Food preference submitted:', spaceName);
-        const result = await createUserSpace(spaceName);
+        
+        try {
+            const result = await createUserSpace(spaceName);
 
-        if (result && result.success) {
-            router.replace('/(private)/home');
+            if (result && result.success) {
+                router.replace('/(private)/home');
+            }
+        } catch (error) {
+            console.error('Error creating space:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -107,10 +118,11 @@ const OnboardingScreen = () => {
                         <CustomButton
                             variant="primary"
                             size="medium"
-                            title="Отправить"
+                            title={isLoading ? "Загрузка..." : "Отправить"}
                             titleColor={theme.colors.text}
                             onPress={handleSubmit}
                             style={{ ...styles.button, backgroundColor: theme.colors.primary }}
+                            disabled={isLoading || !spaceName.trim()}
                         />
                     </Animated.View>
                 )}

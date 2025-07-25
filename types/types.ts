@@ -71,6 +71,7 @@ export interface User {
     avatar_url: string | null
     displayed_title_id: string | null
     title?: string // Название титула для отображения
+    current_space_id?: string | null // Текущее активное пространство пользователя
 }
 
 export interface AuthContextType {

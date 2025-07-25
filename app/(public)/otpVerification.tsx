@@ -26,7 +26,7 @@ export default function OtpVerification() {
 
     useEffect(() => {
         // Таймер для обратного отсчета
-        let timer: NodeJS.Timeout;
+        let timer: number;
         if (countdown > 0 && !canResend) {
             timer = setTimeout(() => setCountdown(countdown - 1), 1000);
         } else if (countdown === 0 && !canResend) {
@@ -46,7 +46,7 @@ export default function OtpVerification() {
             const result = await verifySignupOtp(email, otp);
             if (result.success) {
                 Alert.alert('Успех', 'Аккаунт успешно подтвержден', [
-                    { text: 'OK', onPress: () => router.replace('/(private)/home') }
+                    { text: 'OK', onPress: () => router.replace('/(private)/onboardingScreen') }
                 ]);
             } else {
                 Alert.alert('Ошибка', result.error || 'Неверный OTP код');

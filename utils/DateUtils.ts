@@ -51,9 +51,9 @@ export const truncateMonth = (month: string) => {
     return monthsMap[month] || month;
 }
 
-const returnFormatedDate = (date) => {
-    return `${date[0].toUpperCase()}${date.slice(1)}`
-}
+const returnFormatedDate = (date: string) => {
+    return `${date[0].toUpperCase()}${date.slice(1)}`;
+};
 
 export const getWeekDays = (date: Date) => {
     const start = startOfWeek(date, { weekStartsOn: 1 });

@@ -7,12 +7,32 @@ import { useTheme } from '@/providers/ThemeProvider';
 import { tasks$, toggleTaskCompletion, addTask } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
 import { DayBlockProps, Task } from '@/types/types';
+import { useCurrentUserId } from '@/hooks/useCurrentUser';
+import { useCurrentSpaceId } from '@/hooks/useCurrentSpace';
+import { useTasksInitializer } from '@/hooks/useTasksInitializer';
 
 const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
-    const todos = tasks$.get();
+    const currentUserId = useCurrentUserId();
+    const currentSpaceId = useCurrentSpaceId();
     const { theme } = useTheme();
     const today = new Date();
     const isToday = new Date(date).toDateString() === today.toDateString();
+
+    // Инициализируем tasks$ для текущего пространства
+    useTasksInitializer();
+
+    const todos = tasks$.get();
+
+    // Если нет пользователя или пространства, не показываем задачи
+    if (!currentUserId || !currentSpaceId) {
+        console.log('DayBlock: нет пользователя или пространства', { currentUserId, currentSpaceId });
+        return (
+            <View style={{ marginBottom: 48 }}>
+                <DayInfo date={date} dayOfWeek={dayOfWeek} />
+                <Gigabar color={isToday ? theme.colors.currentDay : theme.colors.secondary} size={2} />
+            </View>
+        );
+    }
 
 
     // Фильтрация задач по display_date, с учетом повторяющихся задач
@@ -67,13 +87,29 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
             <Gigabar color={isToday ? theme.colors.currentDay : theme.colors.secondary} size={2} />
             <TaskList
                 tasks={tasksForDay}
-                onAddTask={(text) => addTask(
-                    text,
-                    "d11fb04b-5d47-40ba-8cd7-472b2a0c7285",
-                    "3730b6d4-5b27-40ca-90de-74b3824e98bf",
-                    date, // due_date
-                    date  // display_date
-                )}
+                onAddTask={(text) => {
+                    console.log('DayBlock: вызов addTask с параметрами:', {
+                        text,
+                        currentSpaceId,
+                        currentUserId,
+                        date
+                    });
+                    
+                    // Дополнительная проверка на null
+                    if (!currentSpaceId || !currentUserId) {
+                        console.error('DayBlock: невозможно добавить задачу - отсутствует space_id или user_id');
+                        return;
+                    }
+                    
+                    addTask(
+                        text,
+                        currentSpaceId,
+                        currentUserId,
+                        date, // due_date
+                        date, // display_date
+                        '' // reward - пустая строка по умолчанию
+                    );
+                }}
                 onToggleTaskCompletion={toggleTaskCompletion}
                 date={date}
             />

@@ -65,7 +65,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             await saveRefreshToken(session.refresh_token);
 
                             if (validTokens) {
-                                setUser(session.user as unknown as User);
+                                // Создаем объект User из данных Supabase
+                                const userFromSupabase: User = {
+                                    user_id: session.user.id,
+                                    username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'User',
+                                    email: session.user.email!,
+                                    avatar_url: null,
+                                    displayed_title_id: null
+                                };
+                                setUser(userFromSupabase);
                                 setIsAuthenticated(true);
                             } else {
                                 console.error('Не удалось сохранить токены из-за неверного формата');
@@ -182,72 +190,89 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     console.log('Токены найдены, проверяем пользователя через Supabase...');
 
                     // Получаем информацию о пользователе через Supabase
-                const { data, error } = await supabase.auth.getUser(accessToken);
+                    const { data, error } = await supabase.auth.getUser(accessToken);
 
-                if (error) {
-                    console.error('Ошибка при получении пользователя:', error.message);
-                    // Пробуем обновить токен
-                    const newToken = await refreshAccessToken();
-                    if (newToken) {
-                        // Если токен обновлен успешно, повторно проверяем пользователя
-                        const { data: refreshData, error: refreshError } = await supabase.auth.getUser(newToken);
-                        if (!refreshError && refreshData.user) {
+                    if (error) {
+                        console.error('Ошибка при получении пользователя:', error.message);
+                        // Пробуем обновить токен
+                        const newToken = await refreshAccessToken();
+                        if (newToken) {
+                            // Если токен обновлен успешно, повторно проверяем пользователя
+                            const { data: refreshData, error: refreshError } = await supabase.auth.getUser(newToken);
+                            if (!refreshError && refreshData.user) {
+                                // Получаем данные профиля пользователя из базы данных
+                                const profile = await getUserProfile(refreshData.user.id);
+
+                                if (profile) {
+                                    // Создаем объект пользователя с данными из профиля
+                                    const userWithProfile: User = {
+                                        user_id: profile.user_id,
+                                        username: profile.username,
+                                        email: refreshData.user.email!,
+                                        avatar_url: profile.avatar_url,
+                                        displayed_title_id: profile.displayed_title_id,
+                                        // current_space_id: profile.current_space_id,
+                                        title: profile.title
+                                    };
+                                    setUser(userWithProfile);
+                                } else {
+                                    // Если профиль не найден, создаем объект User из данных Supabase
+                                    const userFromSupabase: User = {
+                                        user_id: refreshData.user.id,
+                                        username: refreshData.user.user_metadata?.username || refreshData.user.email?.split('@')[0] || 'User',
+                                        email: refreshData.user.email!,
+                                        avatar_url: null,
+                                        displayed_title_id: null
+                                    };
+                                    setUser(userFromSupabase);
+                                }
+
+                                setIsAuthenticated(true);
+                                console.log('Аутентификация успешна после обновления токена');
+                                return;
+                            }
+                        }
+                        // Если обновление не помогло, очищаем токены
+                        console.log('Не удалось восстановить аутентификацию, очищаем токены');
+                        await SecureStore.deleteItemAsync('access_token');
+                        await SecureStore.deleteItemAsync('refresh_token');
+                        setIsAuthenticated(false);
+                    } else if (data.user) {
+                        // Пользователь найден, устанавливаем состояние
+                        if (data.user) {
                             // Получаем данные профиля пользователя из базы данных
-                            const profile = await getUserProfile(refreshData.user.id);
-                            
+                            const profile = await getUserProfile(data.user.id);
+
                             if (profile) {
                                 // Создаем объект пользователя с данными из профиля
                                 const userWithProfile: User = {
                                     user_id: profile.user_id,
                                     username: profile.username,
-                                    email: refreshData.user.email!,
+                                    email: data.user.email!,
+                                    current_space_id: profile.current_space_id,
                                     avatar_url: profile.avatar_url,
                                     displayed_title_id: profile.displayed_title_id,
                                     title: profile.title
                                 };
                                 setUser(userWithProfile);
                             } else {
-                                // Если профиль не найден, используем базовые данные
-                                setUser(refreshData.user as unknown as User);
+                                // Если профиль не найден, создаем объект User из данных Supabase
+                                const userFromSupabase: User = {
+                                    user_id: data.user.id,
+                                    username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'User',
+                                    email: data.user.email!,
+                                    avatar_url: null,
+                                    displayed_title_id: null,
+                                    current_space_id: null
+                                };
+                                setUser(userFromSupabase);
                             }
-                            
-                            setIsAuthenticated(true);
-                            console.log('Аутентификация успешна после обновления токена');
-                            return;
                         }
+
+                        setIsAuthenticated(true);
+                        console.log('Аутентификация успешна');
+                        return;
                     }
-                    // Если обновление не помогло, очищаем токены
-                    console.log('Не удалось восстановить аутентификацию, очищаем токены');
-                    await SecureStore.deleteItemAsync('access_token');
-                    await SecureStore.deleteItemAsync('refresh_token');
-                    setIsAuthenticated(false);
-                } else if (data.user) {
-                    // Пользователь найден, устанавливаем состояние
-                    if (data.user) {
-                        // Получаем данные профиля пользователя из базы данных
-                        const profile = await getUserProfile(data.user.id);
-                        
-                        if (profile) {
-                            // Создаем объект пользователя с данными из профиля
-                            const userWithProfile: User = {
-                                user_id: profile.user_id,
-                                username: profile.username,
-                                email: data.user.email!,
-                                avatar_url: profile.avatar_url,
-                                displayed_title_id: profile.displayed_title_id,
-                                title: profile.title
-                            };
-                            setUser(userWithProfile);
-                        } else {
-                            // Если профиль не найден, используем базовые данные
-                            setUser(data.user as unknown as User);
-                        }
-                    }
-                    
-                    setIsAuthenticated(true);
-                    console.log('Аутентификация успешна');
-                    return;
-                }
                 }
 
                 // Если нет accessToken, но есть refreshToken, пробуем обновить
@@ -260,7 +285,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             if (data.user) {
                                 // Получаем данные профиля пользователя из базы данных
                                 const profile = await getUserProfile(data.user.id);
-                                
+
                                 if (profile) {
                                     // Создаем объект пользователя с данными из профиля
                                     const userWithProfile: User = {
@@ -269,14 +294,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                         email: data.user.email!,
                                         avatar_url: profile.avatar_url,
                                         displayed_title_id: profile.displayed_title_id,
+                                        current_space_id: profile.current_space_id,
                                         title: profile.title
                                     };
                                     setUser(userWithProfile);
                                 } else {
-                                    // Если профиль не найден, используем базовые данные
-                                    setUser(data.user as unknown as User);
+                                    // Если профиль не найден, создаем объект User из данных Supabase
+                                    const userFromSupabase: User = {
+                                        user_id: data.user.id,
+                                        username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'User',
+                                        email: data.user.email!,
+                                        avatar_url: null,
+                                        displayed_title_id: null,
+                                        current_space_id: null
+                                    };
+                                    setUser(userFromSupabase);
                                 }
-                                
+
                                 setIsAuthenticated(true);
                                 console.log('Аутентификация успешна после обновления токена');
                                 return;
@@ -365,7 +399,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (validTokens) {
                     // Получаем данные профиля пользователя из базы данных
                     const profile = await getUserProfile(data.user.id);
-                    
+
                     if (profile) {
                         // Создаем объект пользователя с данными из профиля
                         const userWithProfile: User = {
@@ -374,14 +408,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             email: data.user.email!,
                             avatar_url: profile.avatar_url,
                             displayed_title_id: profile.displayed_title_id,
+                            current_space_id: profile.current_space_id,
                             title: profile.title
                         };
                         setUser(userWithProfile);
                     } else {
-                        // Если профиль не найден, используем базовые данные
-                        setUser(data.user as unknown as User);
+                        // Если профиль не найден, создаем объект User из данных Supabase
+                        const userFromSupabase: User = {
+                            user_id: data.user.id,
+                            username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'User',
+                            email: data.user.email!,
+                            avatar_url: null,
+                            displayed_title_id: null,
+                            current_space_id: null
+                        };
+                        setUser(userFromSupabase);
                     }
-                    
+
                     setIsAuthenticated(true);
                     console.log('Вход выполнен успешно');
                     return { success: true };
@@ -428,15 +471,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 return null;
             }
 
+            // Получаем текущее пространство пользователя из таблицы userspaces
+            const currentSpaceId = await getCurrentUserSpaceId(userId);
+
             return {
                 user_id: (data as any).user_id,
                 username: (data as any).username,
                 avatar_url: (data as any).avatar_url,
                 displayed_title_id: (data as any).displayed_title_id,
+                current_space_id: currentSpaceId,
                 title: (data as any).titles?.title_name || null
             };
         } catch (error) {
             console.error('Ошибка при получении профиля пользователя:', error);
+            return null;
+        }
+    };
+
+    // Функция для получения текущего пространства пользователя
+    const getCurrentUserSpaceId = async (userId: string): Promise<string | null> => {
+        try {
+            const { data, error } = await supabase
+                .from('userspaces')
+                .select('space_id')
+                .eq('user_id', userId)
+                .order('joined_at', { ascending: false })
+                .limit(1)
+                .single();
+
+            if (error) {
+                console.log('Пользователь не состоит ни в одном пространстве:', error);
+                return null;
+            }
+
+            return data?.space_id || null;
+        } catch (error) {
+            console.error('Ошибка при получении текущего пространства:', error);
             return null;
         }
     };
@@ -483,7 +553,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (validTokens) {
                     // Получаем данные профиля пользователя из базы данных
                     const profile = await getUserProfile(data.user.id);
-                    
+
                     if (profile) {
                         // Создаем объект пользователя с данными из профиля
                         const userWithProfile: User = {
@@ -492,14 +562,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             email: data.user.email!,
                             avatar_url: profile.avatar_url,
                             displayed_title_id: profile.displayed_title_id,
+                            current_space_id: profile.current_space_id,
                             title: profile.title
                         };
                         setUser(userWithProfile);
                     } else {
-                        // Если профиль не найден, используем базовые данные
-                        setUser(data.user as unknown as User);
+                        // Если профиль не найден, создаем объект User из данных Supabase
+                        const userFromSupabase: User = {
+                            user_id: data.user.id,
+                            username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'User',
+                            email: data.user.email!,
+                            avatar_url: null,
+                            displayed_title_id: null,
+                            current_space_id: null
+                        };
+
+                        // Создаем профиль пользователя в базе данных
+                        console.log('Создаем профиль пользователя при регистрации...');
+                        const { error: profileError } = await supabase
+                            .from('profiles')
+                            .insert({
+                                user_id: data.user.id,
+                                username: userFromSupabase.username,
+                                email: userFromSupabase.email,
+                                avatar_url: null,
+                                displayed_title_id: null
+                            });
+
+                        if (profileError) {
+                            console.error('Ошибка при создании профиля пользователя при регистрации:', profileError);
+                            // Продолжаем выполнение, так как аутентификация уже прошла успешно
+                        }
+
+                        setUser(userFromSupabase);
                     }
-                    
+
                     setIsAuthenticated(true);
                     return { success: true, requiresConfirmation: false };
                 } else {
@@ -592,24 +689,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             setIsLoading(true);
 
-            const response = await fetchWithAuth(`/space/create/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name: spaceName }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                console.log("Данные:", data);
-                await saveSpace(data);
-
-                return { success: true };
-            } else {
-                return { success: false, error: data.detail || 'Ошибка при получении данных пространства' };
+            if (!user) {
+                return { success: false, error: 'Пользователь не аутентифицирован' };
             }
+            console.log("USER:", user, user.user_id)
+
+            // Создаем пространство в Supabase
+            const { data: spaceData, error: spaceError } = await supabase
+                .from('spaces')
+                .insert({
+                    name: spaceName,
+                    created_by: user.user_id
+                })
+                .select()
+                .single();
+
+            if (spaceError) {
+                console.error('Ошибка при создании пространства:', spaceError);
+                return { success: false, error: 'Ошибка при создании пространства' };
+            }
+
+            // Добавляем пользователя в таблицу userspaces
+            const { error: userSpaceError } = await supabase
+                .from('userspaces')
+                .insert({
+                    user_id: user.user_id,
+                    space_id: spaceData.space_id,
+                    role: 'admin'
+                });
+
+            if (userSpaceError) {
+                console.error('Ошибка при добавлении пользователя в пространство:', userSpaceError);
+                return { success: false, error: 'Ошибка при настройке пространства' };
+            }
+
+            // Сохраняем пространство в локальное хранилище
+            const spaceForStorage = {
+                space_id: spaceData.space_id,
+                space_name: spaceData.name,
+                created_by: spaceData.created_by,
+                created_at: spaceData.created_at || new Date().toISOString()
+            };
+            await saveSpace(spaceForStorage);
+
+            // Пространство создано и пользователь добавлен в userspaces
+            // current_space_id будет получен через таблицу userspaces
+
+            // Обновляем пользователя с текущим пространством в локальном состоянии
+            const updatedUser = {
+                ...user,
+                current_space_id: spaceData.space_id
+            };
+            setUser(updatedUser);
+
+            console.log('Пространство создано успешно:', spaceData);
+            return { success: true };
 
         } catch (error) {
             console.error('Error during create new space:', error);
@@ -701,7 +835,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         }
 
                         if (validTokens) {
-                            setUser(sessionData.user as unknown as User);
+                            // Создаем объект User из данных Supabase
+                            const userFromSupabase: User = {
+                                user_id: sessionData.user.id,
+                                username: sessionData.user.user_metadata?.username || sessionData.user.email?.split('@')[0] || 'User',
+                                email: sessionData.user.email!,
+                                avatar_url: null,
+                                displayed_title_id: null,
+                                current_space_id: null
+                            };
+
+                            // Проверяем, существует ли профиль пользователя
+                            const profile = await getUserProfile(sessionData.user.id);
+
+                            // Если профиль не существует, создаем его
+                            if (!profile) {
+                                console.log('Создаем профиль пользователя при входе через Google...');
+                                const { error: profileError } = await supabase
+                                    .from('profiles')
+                                    .insert({
+                                        user_id: sessionData.user.id,
+                                        username: userFromSupabase.username,
+                                        email: userFromSupabase.email,
+                                        avatar_url: null,
+                                        displayed_title_id: null
+                                    });
+
+                                if (profileError) {
+                                    console.error('Ошибка при создании профиля пользователя через Google:', profileError);
+                                    // Продолжаем выполнение, так как аутентификация уже прошла успешно
+                                }
+                            }
+
+                            setUser(userFromSupabase);
                             setIsAuthenticated(true);
                             console.log('Вход через Google выполнен успешно');
                             return { success: true };
@@ -752,8 +918,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await saveRefreshToken(data.session.refresh_token);
 
                 if (validTokens) {
-                    // Устанавливаем пользователя и состояние аутентификации
-                    setUser(data.user as unknown as User);
+                    // Создаем объект User из данных Supabase
+                    const userFromSupabase: User = {
+                        user_id: data.user.id,
+                        username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'User',
+                        email: data.user.email!,
+                        avatar_url: null,
+                        displayed_title_id: null,
+                        current_space_id: null
+                    };
+
+                    // Проверяем, существует ли профиль пользователя
+                    const profile = await getUserProfile(data.user.id);
+
+                    // Если профиль не существует, создаем его
+                    if (!profile) {
+                        console.log('Создаем профиль пользователя...');
+                        const { error: profileError } = await supabase
+                            .from('profiles')
+                            .insert({
+                                user_id: data.user.id,
+                                username: userFromSupabase.username,
+                                email: userFromSupabase.email,
+                                avatar_url: null,
+                                displayed_title_id: null,
+                                current_space_id: null
+                            });
+
+                        if (profileError) {
+                            console.error('Ошибка при создании профиля пользователя:', profileError);
+                            // Продолжаем выполнение, так как аутентификация уже прошла успешно
+                        }
+                    }
+
+                    setUser(userFromSupabase);
                     setIsAuthenticated(true);
 
                     console.log('Регистрация завершена успешно');

@@ -11,10 +11,14 @@ const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTa
     const { theme } = useTheme();
 
     const handleSubmit = () => {
-        console.log('Добавляем задачу:', inputValue);
+        console.log('NewTaskInput: добавляем задачу:', inputValue);
         if (inputValue.trim() !== '') {
-            onAddTask(inputValue.trim());
-            setInputValue('');
+            try {
+                onAddTask(inputValue.trim());
+                setInputValue('');
+            } catch (error) {
+                console.error('NewTaskInput: ошибка при добавлении задачи:', error);
+            }
         }
     };
 
