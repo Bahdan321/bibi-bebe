@@ -34,8 +34,9 @@ import NewSubtaskInput from './NewSubtaskInput';
 import SubtaskItem from './SubtaskItem';
 import { v4 as uuidv4 } from 'uuid';
 import { observe } from '@legendapp/state';
-import { useCurrentUserId, useCurrentSpaceId } from '@/hooks/useCurrentUser';
+import { useCurrentUserId } from '@/hooks/useCurrentUser';
 import { useTasksInitializer } from '@/hooks/useTasksInitializer';
+import { useCurrentSpaceId } from '@/hooks/useCurrentSpace';
 
 const TaskMenu: React.FC<TaskMenuProps> = ({
   task,
@@ -196,7 +197,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
   const handleDuplicate = () => {
     if (!currentSpaceId || !currentUserId) return;
-    
+
     toggleDublicateTask(
       task.title || '',
       currentSpaceId,
@@ -327,7 +328,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
   const handleAddSubtask = async (subtaskTitle: string) => {
     if (!currentSpaceId || !currentUserId) return;
-    
+
     await addTask(
       subtaskTitle,
       currentSpaceId,
