@@ -13,6 +13,7 @@ export interface Theme {
     finishedTask: string;
     unfinishedTask: string;
     currentDay: string;
+    profileButton: string;
     settingsBackground: string;
   };
   spacing: typeof SPACING;
