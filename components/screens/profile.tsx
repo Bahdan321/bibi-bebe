@@ -187,7 +187,7 @@ export default function Profile() {
                         title="Выйти из аккаунта"
                         icon="log-out-outline"
                         onPress={handleSignOut}
-                        buttonColor={theme.colors.primary}
+                        buttonColor={theme.colors.text}
                         size="medium"
                         style={styles.logoutButton}
                     />
