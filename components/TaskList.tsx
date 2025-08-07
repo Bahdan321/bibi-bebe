@@ -14,7 +14,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
         <TaskItem
           key={task.id}
           task={task}
-          onToggleTaskCompletion={() => onToggleTaskCompletion(task.id)}
+          onToggleTaskCompletion={(taskId, date) => onToggleTaskCompletion(taskId, date)}
           date={date}
         />
       ))}
@@ -27,9 +27,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
 });
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
+  container: { width: '100%' },
 });
 
 export default TaskList;

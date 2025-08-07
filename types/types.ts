@@ -41,6 +41,12 @@ export interface TaskItemProps {
     onToggleTaskCompletion: (taskId: string) => void;
 }
 
+export interface Override {
+    date: string; // Формат ISO, например, "2025-08-11"
+    completed: boolean;
+    deleted: boolean;
+}
+
 export interface Task {
     id: string; // Временный UUID или строковое представление task_id
     space_id: string; // UUID пространства
@@ -62,6 +68,7 @@ export interface Task {
     reward?: string | null;
     is_anime_task: boolean; // Аниме-задача
     deleted?: boolean; // Флаг удаления (опционально, если используется soft delete)
+    overrides?: Override[]; // Массив переопределений для повторяющихся задач
 }
 
 export interface User {

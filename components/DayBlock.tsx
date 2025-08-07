@@ -4,7 +4,7 @@ import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
-import { tasks$, toggleTaskCompletion, addTask } from '@/Supabase/utils/SupaLegend';
+import { tasks$, toggleTaskCompletion, addTask, getTaskStateForDate } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
 import { DayBlockProps, Task } from '@/types/types';
 import { useCurrentUserId } from '@/hooks/useCurrentUser';
@@ -18,12 +18,10 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
     const today = new Date();
     const isToday = new Date(date).toDateString() === today.toDateString();
 
-    // Инициализируем tasks$ для текущего пространства
     useTasksInitializer();
 
     const todos = tasks$.get();
 
-    // Если нет пользователя или пространства, не показываем задачи
     if (!currentUserId || !currentSpaceId) {
         console.log('DayBlock: нет пользователя или пространства', { currentUserId, currentSpaceId });
         return (
@@ -34,16 +32,12 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
         );
     }
 
-
-    // Фильтрация задач по display_date, с учетом повторяющихся задач
-    const tasksForDay = Object.values(todos || {}).filter((task: Task) => {
+    const tasksForDay = Object.values(todos || {}).flatMap((task: Task) => {
         let taskDisplayDate = task.display_date;
         if (!taskDisplayDate) {
-            // Проверяем валидность created_at
-            if (task.created_at && typeof task.created_at === 'string' && !isNaN(new Date(task.created_at).getTime())) {
+            if (task.created_at && !isNaN(new Date(task.created_at).getTime())) {
                 taskDisplayDate = new Date(task.created_at).toISOString().split('T')[0];
             } else {
-                // Запасной вариант: используем due_date или текущую дату
                 taskDisplayDate = task.due_date || new Date().toISOString().split('T')[0];
                 console.warn('Invalid created_at for task:', { id: task.id, title: task.title, created_at: task.created_at });
             }
@@ -52,24 +46,36 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
         const taskDate = new Date(taskDisplayDate);
         const currentDate = new Date(date);
 
-        if (task.is_repeating) {
-            if (task.repeat_interval) {
-                try {
-                    const repeatDays = JSON.parse(task.repeat_interval); // ["mon", "wed", "fri"]
-                    const dayOfWeek = currentDate.toLocaleString('en-US', { weekday: 'short' }).toLowerCase(); // "mon"
-                    return taskDate <= currentDate && repeatDays.includes(dayOfWeek);
-                } catch (e) {
-                    console.error('Ошибка парсинга repeat_interval:', e);
-                    return false;
+        if (task.is_repeating && task.repeat_interval) {
+            try {
+                const repeatDays = JSON.parse(task.repeat_interval); // ["mon", "wed", "fri"]
+                const dayOfWeekLower = currentDate.toLocaleString('en-US', { weekday: 'short' }).toLowerCase();
+                if (taskDate <= currentDate && repeatDays.includes(dayOfWeekLower)) {
+                    const state = getTaskStateForDate(task, date);
+                    if (!state.deleted) {
+                        return [{ ...task, display_date: date, status: state.completed }];
+                    }
+                }
+            } catch (e) {
+                console.error('Ошибка парсинга repeat_interval:', e);
+            }
+            // Показываем задачу в день создания, даже если он не в repeat_interval
+            if (taskDisplayDate === date) {
+                const state = getTaskStateForDate(task, date);
+                if (!state.deleted) {
+                    return [{ ...task, display_date: date, status: state.completed }];
                 }
             }
-            return false;
+            return [];
         } else {
-            return taskDisplayDate === date;
+            // Для неповторяющихся задач показываем только в день display_date
+            if (taskDisplayDate === date) {
+                return [task];
+            }
+            return [];
         }
     });
 
-    // Отладка: логируем дату и задачи
     console.log('DayBlock date:', date);
     console.log('Tasks for day:', tasksForDay.map(t => ({
         id: t.id,
@@ -78,7 +84,7 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
         display_date: t.display_date,
         created_at: t.created_at,
         is_repeating: t.is_repeating,
-        repeat_interval: t.repeat_interval
+        repeat_interval: t.repeat_interval,
     })));
 
     return (
@@ -88,27 +94,12 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
             <TaskList
                 tasks={tasksForDay}
                 onAddTask={(text) => {
-                    console.log('DayBlock: вызов addTask с параметрами:', {
-                        text,
-                        currentSpaceId,
-                        currentUserId,
-                        date
-                    });
-                    
-                    // Дополнительная проверка на null
+                    console.log('DayBlock: вызов addTask с параметрами:', { text, currentSpaceId, currentUserId, date });
                     if (!currentSpaceId || !currentUserId) {
                         console.error('DayBlock: невозможно добавить задачу - отсутствует space_id или user_id');
                         return;
                     }
-                    
-                    addTask(
-                        text,
-                        currentSpaceId,
-                        currentUserId,
-                        date, // due_date
-                        date, // display_date
-                        '' // reward - пустая строка по умолчанию
-                    );
+                    addTask(text, currentSpaceId, currentUserId, date, date, '');
                 }}
                 onToggleTaskCompletion={toggleTaskCompletion}
                 date={date}

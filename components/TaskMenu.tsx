@@ -23,6 +23,7 @@ import {
   toggleTaskChangeTitle,
   toggleTaskChangeDescription,
   tasks$,
+  getTaskStateForDate,
 } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
@@ -109,26 +110,15 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     if (task.reward && !task.status) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(borderAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: false,
-          }),
-          Animated.timing(borderAnim, {
-            toValue: 0,
-            duration: 800,
-            useNativeDriver: false,
-          }),
-        ]),
+          Animated.timing(borderAnim, { toValue: 1, duration: 800, useNativeDriver: false }),
+          Animated.timing(borderAnim, { toValue: 0, duration: 800, useNativeDriver: false }),
+        ])
       ).start();
     }
   }, [task.reward, task.status, borderAnim]);
 
   const animatedRewardStyle = {
-    borderWidth: borderAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [1, 3],
-    }),
+    borderWidth: borderAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 3] }),
     borderColor: theme.colors.primary,
   };
 
@@ -177,7 +167,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
     updateTimer();
     const interval = setInterval(updateTimer, 60000);
-
     return () => clearInterval(interval);
   }, [task.due_date]);
 
@@ -186,10 +175,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const handleCalendarApply = (selectedDate: Date) => {
     if (isNaN(selectedDate.getTime())) return;
 
-    const displayDate = `${selectedDate.getFullYear()}-${String(
-      selectedDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
-
+    const displayDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
     toggleTaskChangeDisplayDate(task.id, displayDate);
     setIsCalendarVisible(false);
     router.dismissTo('/(private)/home');
@@ -221,16 +207,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   };
 
   const handleDelete = () => {
-    toggleTaskRemove(task.id);
-    subtasks.forEach((subtask) => toggleTaskRemove(subtask.id));
+    toggleTaskRemove(task.id, date);
+    subtasks.forEach((subtask) => toggleTaskRemove(subtask.id, date));
     onClose();
   };
 
-  const handleTaskToggle = async (taskId: string) => {
-    const currentStatus = taskStatusCopy;
-    toggleTaskCompletion(taskId);
-    setTaskStatusCopy((prev) => !prev);
-    setTaskStatusColor((prev) => (prev === theme.colors.text ? theme.colors.secondary : theme.colors.unfinishedTask));
+  const handleTaskToggle = async () => {
+    toggleTaskCompletion(task.id, date);
+    const updatedTask = tasks$[task.id].get();
+    const state = getTaskStateForDate(updatedTask, date);
+    setTaskStatusCopy(state.completed);
+    setTaskStatusColor(state.completed ? theme.colors.finishedTask : theme.colors.unfinishedTask);
   };
 
   const formattedDate = getFormatedDateOfYear(new Date(date || new Date()));
@@ -248,34 +235,28 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   };
 
   const handleOpenRepeatMenu = () => {
-    setIsRepeatMenuVisible(!isRepeatMenuVisible)
+    setIsRepeatMenuVisible(!isRepeatMenuVisible);
     setIsMainDropdownVisible(false);
     setIsEisenhowerMatrixDropdownVisible(false);
-  }
+  };
 
   const closeMainDropdown = () => setIsMainDropdownVisible(false);
   const closeEisenhowerMatrixDropdown = () => setIsEisenhowerMatrixDropdownVisible(false);
-  const closeRepeatMenu = () => setIsRepeatMenuVisible(false)
+  const closeRepeatMenu = () => setIsRepeatMenuVisible(false);
 
   const handleChangeDate = (task: Task, newDate?: Date) => {
     let dateToUse = newDate || new Date(task.display_date || new Date());
     dateToUse.setDate(dateToUse.getDate() + 1);
 
-    const newDisplayDate = `${dateToUse.getFullYear()}-${String(
-      dateToUse.getMonth() + 1,
-    ).padStart(2, '0')}-${String(dateToUse.getDate()).padStart(2, '0')}`;
+    const newDisplayDate = `${dateToUse.getFullYear()}-${String(dateToUse.getMonth() + 1).padStart(2, '0')}-${String(dateToUse.getDate()).padStart(2, '0')}`;
     toggleTaskChangeDisplayDate(task.id, newDisplayDate);
     router.dismissTo('/(private)/home');
   };
 
-  const handleDeleteSubtask = (subtaskId: string) => toggleTaskRemove(subtaskId);
+  const handleDeleteSubtask = (subtaskId: string) => toggleTaskRemove(subtaskId, date);
 
   const menuItems = [
-    {
-      icon: 'pencil' as keyof typeof Ionicons.glyphMap,
-      text: 'На завтра',
-      onPress: () => handleChangeDate(task),
-    },
+    { icon: 'pencil' as keyof typeof Ionicons.glyphMap, text: 'На завтра', onPress: () => handleChangeDate(task) },
     {
       icon: 'pencil' as keyof typeof Ionicons.glyphMap,
       text: 'На неделю',
@@ -287,43 +268,15 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         }
       },
     },
-    {
-      icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap,
-      text: 'Дублировать',
-      onPress: handleDuplicate,
-    },
-    {
-      icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap,
-      text: 'Удалить',
-      onPress: handleDelete,
-    },
+    { icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap, text: 'Дублировать', onPress: handleDuplicate },
+    { icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap, text: 'Удалить', onPress: handleDelete },
   ];
 
   const eisenhowermatrixitems = [
-    {
-      text: 'Срочно и Важно',
-      color: theme.eisenhowerMatrix.urgentImportant,
-      icon: 'alert-circle' as keyof typeof Ionicons.glyphMap,
-      onPress: () => changeEisenhowerMatrixStatus(task.id, true, true),
-    },
-    {
-      text: 'Важно, не срочно',
-      color: theme.eisenhowerMatrix.notUrgentImportant,
-      icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap,
-      onPress: () => changeEisenhowerMatrixStatus(task.id, false, true),
-    },
-    {
-      text: 'Срочно, не важно',
-      color: theme.eisenhowerMatrix.urgentNotImportant,
-      icon: 'time' as keyof typeof Ionicons.glyphMap,
-      onPress: () => changeEisenhowerMatrixStatus(task.id, true, false),
-    },
-    {
-      text: 'Не срочно и не важно',
-      color: theme.eisenhowerMatrix.notUrgentNotImportant,
-      icon: 'heart-circle' as keyof typeof Ionicons.glyphMap,
-      onPress: () => changeEisenhowerMatrixStatus(task.id, false, false),
-    },
+    { text: 'Срочно и Важно', color: theme.eisenhowerMatrix.urgentImportant, icon: 'alert-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, true, true) },
+    { text: 'Важно, не срочно', color: theme.eisenhowerMatrix.notUrgentImportant, icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, false, true) },
+    { text: 'Срочно, не важно', color: theme.eisenhowerMatrix.urgentNotImportant, icon: 'time' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, true, false) },
+    { text: 'Не срочно и не важно', color: theme.eisenhowerMatrix.notUrgentNotImportant, icon: 'heart-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, false, false) },
   ];
 
   const handleAddSubtask = async (subtaskTitle: string) => {
@@ -335,9 +288,9 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       currentUserId,
       task.due_date,
       task.display_date,
-      '', // No reward for subtask initially
+      '',
       false,
-      null, // description as null instead of empty string
+      null,
       task.id,
       new Date().toISOString(),
       new Date().toISOString(),
@@ -350,21 +303,17 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     );
   };
 
-  const handleSubtaskToggle = (subtaskId: string) => toggleTaskCompletion(subtaskId);
+  const handleSubtaskToggle = (subtaskId: string) => toggleTaskCompletion(subtaskId, date);
 
   const handleAddReward = async () => {
     const trimmed = rewardNameInput?.trim();
     if (!trimmed) return;
 
     try {
-      addReward(
-        task.id,
-        trimmed,
-      );
+      addReward(task.id, trimmed);
       setTaskRewardCopy(trimmed);
     } catch (err) {
       console.error('Ошибка при добавлении награды:', err);
-      // Alert.alert('Ошибка', 'Не удалось добавить награду');
     }
   };
 
@@ -372,7 +321,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.primary, borderRadius: 30 }]}>
-      {/* Header */}
       <View style={styles.header}>
         <CustomButton
           variant="text"
@@ -393,7 +341,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         />
       </View>
 
-      {/* Title */}
       <View style={styles.titleSection}>
         <CustomTextInput
           variant="title"
@@ -411,7 +358,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         />
         <CustomButton
           variant="text"
-          onPress={() => handleTaskToggle(task.id)}
+          onPress={handleTaskToggle}
           icon="checkmark-outline"
           iconColor={taskStatusColor}
           iconSize={32}
@@ -419,7 +366,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         />
       </View>
 
-      {/* Description */}
       <CustomTextInput
         variant="description"
         style={{ marginBottom: 20 }}
@@ -430,7 +376,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         maxLength={150}
       />
 
-      {/* Subtasks */}
       <View style={styles.subtasksSection}>
         <CustomText content="Подзадачи" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
         {subtasks.map((subtask, index) => (
@@ -456,11 +401,11 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         />
       </View>
 
-      {/* Reward block */}
       <View style={{ marginBottom: 20 }}>
         <CustomText content="Награда" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
         <CustomTextInput
-          style={{ marginBottom: 10 }} placeholderTextColor={theme.colors.background}
+          style={{ marginBottom: 10 }}
+          placeholderTextColor={theme.colors.background}
           value={rewardNameInput || ''}
           onChangeText={setRewardNameInput}
           placeholder="Введите название награды"
@@ -468,20 +413,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         <CustomButton
           variant="primary"
           onPress={handleAddReward}
-          style={{
-            ...styles.addRewardButton,
-            backgroundColor: theme.colors.button,
-            borderRadius: 10,
-          }}
+          style={{ ...styles.addRewardButton, backgroundColor: theme.colors.button, borderRadius: 10 }}
           title={task.reward ? 'Изменить награду' : 'Добавить награду'}
           titleColor={theme.colors.primary}
         />
       </View>
 
-      {/* Actions */}
       <View style={styles.actions}>
         <View style={styles.ellipsisContainer}>
-          {/* Повторяющиеся задачи */}
           <CustomButton
             variant="text"
             style={styles.actionButton}
@@ -494,13 +433,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             items={repeatMenuItems}
             visible={isRepeatMenuVisible}
             onClose={closeRepeatMenu}
-            closeOnSelect={false} // Не закрываем после выбора
+            closeOnSelect={false}
             containerStyle={styles.repeatDropdownMenu}
           />
         </View>
 
         <View style={styles.ellipsisContainer}>
-          {/* Матрица эйзенхаура */}
           <CustomButton
             variant="text"
             onPress={handleChangeTaskColor}
@@ -516,7 +454,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             containerStyle={styles.eisenhowerDropdownMenu}
           />
         </View>
-        {/* Уведомления */}
         <CustomButton
           variant="text"
           style={styles.actionButton}
@@ -526,7 +463,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           iconSize={24}
         />
         <View style={styles.ellipsisContainer}>
-          {/* Действия */}
           <CustomButton
             variant="text"
             onPress={handleOpenMainMenu}
@@ -544,7 +480,6 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         </View>
       </View>
 
-      {/* Modals */}
       <TimePickerModal
         visible={isTimePickerVisible}
         onClose={() => setIsTimePickerVisible(false)}
@@ -629,8 +564,6 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     marginBottom: 12
   },
-
-
   addRewardButton: {
     alignItems: 'center',
     paddingVertical: 10,
