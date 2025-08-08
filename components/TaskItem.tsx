@@ -8,11 +8,8 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
 import { useTheme } from '@/providers/ThemeProvider';
-import TaskMenu from './TaskMenu';
-import BottomSheet from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
-import { supabase, toggleTaskCompletion, getTaskStateForDate } from '@/Supabase/utils/SupaLegend';
+import { getTaskStateForDate } from '@/Supabase/utils/SupaLegend';
 import useRandomMeme from '@/hooks/useRandomMeme';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Confetti from './Confetti';
@@ -60,10 +57,8 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   };
 
   useEffect(() => {
-    const currentCompleted = completed;
-
-    // Проверяем переход из false в true
-    if (prevCompletedRef.current === false && currentCompleted === true && !showAnimation) {
+    // Проверяем переход состояния с false на true
+    if (prevCompletedRef.current === false && completed === true && !showAnimation) {
       setShowAnimation(true);
       opacity.value = withTiming(1, { duration: 500 });
       scale.value = withTiming(1, { duration: 500 });
@@ -73,9 +68,8 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
         setTimeout(() => setShowAnimation(false), 500);
       }, 2000);
     }
-
     // Обновляем предыдущее состояние
-    prevCompletedRef.current = currentCompleted;
+    prevCompletedRef.current = completed;
   }, [completed]);
 
   return (
@@ -142,16 +136,6 @@ const styles = StyleSheet.create({
     padding: 4,
     marginBottom: 15,
     borderRadius: 4,
-  },
-  rewardIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  rewardText: {
-    fontSize: 12,
-    marginLeft: 4,
-    fontWeight: '500',
   },
 });
 

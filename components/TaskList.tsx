@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { observer } from '@legendapp/state/react';
 import TaskItem from '@/components/TaskItem';
@@ -12,7 +12,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
     <View style={styles.container}>
       {mainTasks.map((task) => (
         <TaskItem
-          key={task.id}
+          key={`${task.id}-${date}`} // Уникальный ключ для каждой задачи на конкретную дату
           task={task}
           onToggleTaskCompletion={(taskId, date) => onToggleTaskCompletion(taskId, date)}
           date={date}
