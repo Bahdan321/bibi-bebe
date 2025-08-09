@@ -12,7 +12,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import CustomText from "@/components/base/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "@/components/base/CustomButton";
-import ChangeProfile from "@/components/ChangeProfile";
+import { ChangeProfileModal } from "@/components/modals";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAdaptiveTextSize } from "@/utils/textUtils";
 
@@ -106,8 +106,8 @@ export default function Profile() {
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                         <View style={{ flexDirection: "column", alignItems: "center", flex: 1 }}>
                             <CustomText
-                                content={username}
-                                size={getAdaptiveTextSize(username, 'username')}
+                                content={username || 'Пользователь'}
+                                size={getAdaptiveTextSize(username || 'Пользователь', 'username')}
                                 color={theme.colors.text}
                                 weight="bold"
                                 opacity={1}
@@ -116,8 +116,8 @@ export default function Profile() {
                                 textCenter={false}
                             />
                             <CustomText
-                                content={title}
-                                size={getAdaptiveTextSize(title, 'title')}
+                                content={title || 'Без титула'}
+                                size={getAdaptiveTextSize(title || 'Без титула', 'title')}
                                 color={theme.colors.secondary}
                                 weight="normal"
                                 opacity={0.9}
@@ -167,8 +167,8 @@ export default function Profile() {
                 >
                     <View style={styles.infoWrapper}>
                         <CustomText
-                            content={`Email: ${email}`}
-                            size={getAdaptiveTextSize(email, 'email')}
+                            content={`Email: ${email || 'Не указан'}`}
+                            size={getAdaptiveTextSize(email || 'Не указан', 'email')}
                             color={theme.colors.text}
                             weight="bold"
                             opacity={1}
@@ -195,11 +195,11 @@ export default function Profile() {
             </ScrollView>
 
             {/* Модальное окно редактирования профиля */}
-            <ChangeProfile
+            <ChangeProfileModal
                 visible={isEditModalVisible}
                 onClose={closeEditModal}
                 onSave={handleProfileUpdate}
-                initialUsername={username}
+                initialUsername={username || ''}
             />
         </ImageBackground>
     );

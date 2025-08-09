@@ -9,7 +9,7 @@ import TaskMenu from '@/components/TaskMenu';
 import { useAuth } from '@/providers/AuthProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import QuoteModal from '@/components/QuoteModal';
+import { QuoteModal } from '@/components/modals';
 import Settings from '@/components/screens/settings';
 import Profile from '@/components/screens/profile';
 import Spaces from '@/components/screens/spaces';
@@ -31,7 +31,7 @@ const Home = observer(() => {
     const spacesBottomSheetRef = useRef<BottomSheet>(null);
     const kakoetoMenuBottomSheetRef = useRef<BottomSheet>(null);
     const goalsBottomSheetRef = useRef<BottomSheet>(null);
-    
+
     // Инициализация задач для текущего пространства
     useTasksInitializer();
 

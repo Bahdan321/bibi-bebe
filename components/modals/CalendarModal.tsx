@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Theme } from '@/theme/themes';
-import { Ionicons } from '@expo/vector-icons';
-import CustomText from './base/CustomText';
-import CustomTouchable from './base/CustomTouchable';
+import CustomText from '../base/CustomText';
+import CustomTouchable from '../base/CustomTouchable';
+import CustomModal from '../base/CustomModal';
 
 interface ICalendarState {
   currentMonth: number;
@@ -117,147 +117,134 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalContainer}>
-        <View style={styles.calendarContainer}>
-          <View style={styles.closeButtonContainer}>
-            <CustomTouchable onPress={handleClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color={theme.colors.text} />
-            </CustomTouchable>
-          </View>
-          <View style={styles.header}>
-            <CustomTouchable onPress={handlePrevMonth}>
-              <CustomText
-                content="←"
-                size="xxl"
-                color={theme.colors.text}
-                weight="bold"
-              />
-            </CustomTouchable>
+    <CustomModal
+      visible={visible}
+      onClose={handleClose}
+      animationType="fade"
+      statusBarStyle="light"
+      statusBarBackgroundColor="transparent"
+      overlayColor="rgba(0, 0, 0, 0.5)"
+      width="90%"
+      borderRadius={30}
+      padding={theme.spacing?.lg || 20}
+      centered={true}
+      closeButtonPosition="absolute-top-right"
+      showCloseButton={true}
+    >
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <CustomTouchable onPress={handlePrevMonth}>
             <CustomText
-              content={`${capitalizedMonthName} ${currentYear}`}
+              content="←"
               size="xxl"
               color={theme.colors.text}
               weight="bold"
             />
-            <CustomTouchable onPress={handleNextMonth}>
-              <CustomText
-                content="→"
-                size="xxl"
-                color={theme.colors.text}
-                weight="bold"
-              />
-            </CustomTouchable>
-          </View>
-          <View style={styles.daysOfWeekContainer}>
-            {daysOfWeek.map((day, index) => (
-              <CustomText
-                key={index}
-                content={day}
-                size="sm"
-                color={theme.colors.text}
-                weight="bold"
-                style={styles.dayLabelContainer}
-                textCenter
-              />
-            ))}
-          </View>
-          <View style={styles.grid}>
-            {prevMonthDays.map((day, index) => (
-              <View key={`prev-${index}`} style={styles.dayCell}>
-                <CustomText
-                  content={day.toString()}
-                  size="md"
-                  color={theme.colors.secondary}
-                  style={styles.prevMonthDayTextContainer}
-                  textCenter={true}
-                />
-              </View>
-            ))}
-            {daysArray.map(day => {
-              const isSelected = selectedDate &&
-                selectedDate.getDate() === day &&
-                selectedDate.getMonth() === currentMonth &&
-                selectedDate.getFullYear() === currentYear;
-
-              return (
-                <CustomTouchable
-                  key={day}
-                  style={isSelected ? [styles.dayCell, styles.selectedDay] as any : styles.dayCell}
-                  onPress={() => handleDateSelect(day)}
-                >
-                  <CustomText
-                    content={day.toString()}
-                    size="md"
-                    color={isSelected ? theme.colors.primary : theme.colors.text}
-                    weight={isSelected ? "bold" : "normal"}
-                    textCenter={true}
-                  />
-                </CustomTouchable>
-              );
-            })}
-            {nextMonthDays.map((day, index) => (
-              <View key={`next-${index}`} style={styles.dayCell}>
-                <CustomText
-                  content={day.toString()}
-                  size="md"
-                  color={theme.colors.secondary}
-                  style={styles.nextMonthDayTextContainer}
-                  textCenter={true}
-                />
-              </View>
-            ))}
-          </View>
-          <CustomTouchable style={styles.applyButton} onPress={handleApply}>
+          </CustomTouchable>
+          <CustomText
+            content={`${capitalizedMonthName} ${currentYear}`}
+            size="xxl"
+            color={theme.colors.text}
+            weight="bold"
+          />
+          <CustomTouchable onPress={handleNextMonth}>
             <CustomText
-              content="Применить"
-              size="md"
-              color={theme.colors.primary}
+              content="→"
+              size="xxl"
+              color={theme.colors.text}
               weight="bold"
-              textCenter={true}
             />
           </CustomTouchable>
         </View>
+        <View style={styles.daysOfWeekContainer}>
+          {daysOfWeek.map((day, index) => (
+            <CustomText
+              key={index}
+              content={day}
+              size="sm"
+              color={theme.colors.text}
+              weight="bold"
+              style={styles.dayLabelContainer}
+              textCenter
+            />
+          ))}
+        </View>
+        <View style={styles.grid}>
+          {prevMonthDays.map((day, index) => (
+            <View key={`prev-${index}`} style={styles.dayCell}>
+              <CustomText
+                content={day.toString()}
+                size="md"
+                color={theme.colors.secondary}
+                style={styles.prevMonthDayTextContainer}
+                textCenter={true}
+              />
+            </View>
+          ))}
+          {daysArray.map(day => {
+            const isSelected = selectedDate &&
+              selectedDate.getDate() === day &&
+              selectedDate.getMonth() === currentMonth &&
+              selectedDate.getFullYear() === currentYear;
+
+            return (
+              <CustomTouchable
+                key={day}
+                style={isSelected ? [styles.dayCell, styles.selectedDay] as any : styles.dayCell}
+                onPress={() => handleDateSelect(day)}
+              >
+                <CustomText
+                  content={day.toString()}
+                  size="md"
+                  color={isSelected ? theme.colors.primary : theme.colors.text}
+                  weight={isSelected ? "bold" : "normal"}
+                  textCenter={true}
+                />
+              </CustomTouchable>
+            );
+          })}
+          {nextMonthDays.map((day, index) => (
+            <View key={`next-${index}`} style={styles.dayCell}>
+              <CustomText
+                content={day.toString()}
+                size="md"
+                color={theme.colors.secondary}
+                style={styles.nextMonthDayTextContainer}
+                textCenter={true}
+              />
+            </View>
+          ))}
+        </View>
+        <CustomTouchable style={styles.applyButton} onPress={handleApply}>
+          <CustomText
+            content="Применить"
+            size="md"
+            color={theme.colors.primary}
+            weight="bold"
+            textCenter={true}
+          />
+        </CustomTouchable>
       </View>
-    </Modal>
+    </CustomModal>
   );
 };
 
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
-    modalContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    calendarContainer: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: 30,
-      padding: theme.spacing.lg,
-      width: '90%',
-      position: 'relative',
-    },
-    closeButtonContainer: {
-      position: 'absolute',
-      top: theme.spacing.sm,
-      right: theme.spacing.sm,
-    },
-    closeButton: {
-      padding: 5,
+    content: {
+      marginTop: theme.spacing?.sm || 10,
     },
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: theme.spacing.md,
-      marginTop: theme.spacing.sm,
+      marginBottom: theme.spacing?.md || 15,
+      marginTop: theme.spacing?.sm || 10,
     },
-
     daysOfWeekContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: theme.spacing.sm,
+      marginBottom: theme.spacing?.sm || 10,
     },
     dayLabelContainer: {
       width: '14%',
@@ -270,7 +257,7 @@ const createStyles = (theme: Theme) =>
     dayCell: {
       width: '14%',
       alignItems: 'center',
-      padding: theme.spacing.sm,
+      padding: theme.spacing?.sm || 10,
     },
     prevMonthDayTextContainer: {
       opacity: 0.5,
@@ -281,17 +268,15 @@ const createStyles = (theme: Theme) =>
     selectedDay: {
       backgroundColor: theme.colors.secondary,
       borderRadius: 8,
-      padding: theme.spacing.sm,
+      padding: theme.spacing?.sm || 10,
     },
-
     applyButton: {
-      marginTop: theme.spacing.lg,
+      marginTop: theme.spacing?.lg || 20,
       backgroundColor: theme.colors.button,
-      padding: theme.spacing.sm,
+      padding: theme.spacing?.sm || 10,
       borderRadius: 10,
       alignItems: 'center',
     },
-
   });
 
 export default CalendarModal;

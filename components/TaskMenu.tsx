@@ -29,7 +29,7 @@ import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
 
 import DropdownMenu from './DropdownMenu';
-import CalendarModal from './CalendarModal';
+import { CalendarModal } from './modals';
 import { router } from 'expo-router';
 import NewSubtaskInput from './NewSubtaskInput';
 import SubtaskItem from './SubtaskItem';
