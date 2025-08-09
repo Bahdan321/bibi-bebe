@@ -14,7 +14,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
         <TaskItem
           key={`${task.id}-${date}`} // Уникальный ключ для каждой задачи на конкретную дату
           task={task}
-          onToggleTaskCompletion={(taskId, date) => onToggleTaskCompletion(taskId, date)}
+          onToggleTaskCompletion={onToggleTaskCompletion}
           date={date}
         />
       ))}

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import CustomTouchable from './base/CustomTouchable';
 import Gigabar from './Gigabar';
@@ -9,7 +9,7 @@ import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
 import { useTheme } from '@/providers/ThemeProvider';
 import { router } from 'expo-router';
-import { getTaskStateForDate } from '@/Supabase/utils/SupaLegend';
+import { getTaskStateForDate, tasks$ } from '@/Supabase/utils/SupaLegend';
 import useRandomMeme from '@/hooks/useRandomMeme';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Confetti from './Confetti';
@@ -17,10 +17,29 @@ import Confetti from './Confetti';
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCompletion }) => {
   const { theme } = useTheme();
   const [showAnimation, setShowAnimation] = useState(false);
+  const [currentMeme, setCurrentMeme] = useState<any>(null);
   const getRandomMeme = useRandomMeme();
-  const prevCompletedRef = useRef<boolean | null>(null); // Хранит предыдущее состояние completed
 
-  const { completed, deleted } = getTaskStateForDate(task, date);
+  // Дублирование чтобы состояние нормально обновлялось, а то из-за ебанного getTaskStateForDate не работало нормально
+  const reactiveTask = tasks$[task.id];
+
+  // Тут состояние задачи нормально вычисляется, может можно сделать попроще
+  const completed = reactiveTask?.is_repeating?.get()
+    ? (() => {
+      const overrides = reactiveTask.overrides?.get() || [];
+      const override = overrides.find((o) => o.date === date);
+      return override ? override.completed : false;
+    })()
+    : reactiveTask?.status?.get() || false;
+
+  const deleted = reactiveTask?.is_repeating?.get()
+    ? (() => {
+      const overrides = reactiveTask.overrides?.get() || [];
+      const override = overrides.find((o) => o.date === date);
+      return override ? override.deleted : false;
+    })()
+    : reactiveTask?.deleted?.get() || false;
+
   if (deleted) return null;
 
   const opacity = useSharedValue(0);
@@ -53,24 +72,33 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   };
 
   const handleToggleCompletion = async () => {
-    onToggleTaskCompletion(task.id, date);
-  };
-
-  useEffect(() => {
-    // Проверяем переход состояния с false на true
-    if (prevCompletedRef.current === false && completed === true && !showAnimation) {
+    // Если задача не была выполнена и мы её выполняем - показываем анимацию
+    if (!completed) {
+      const meme = getRandomMeme();
+      setCurrentMeme(meme);
       setShowAnimation(true);
+
       opacity.value = withTiming(1, { duration: 500 });
       scale.value = withTiming(1, { duration: 500 });
+
+      // Вызываем изменение состояния сразу
+      onToggleTaskCompletion(task.id, date);
+
       setTimeout(() => {
         opacity.value = withTiming(0, { duration: 500 });
         scale.value = withTiming(0.5, { duration: 500 });
-        setTimeout(() => setShowAnimation(false), 500);
+        setTimeout(() => {
+          setShowAnimation(false);
+          setCurrentMeme(null);
+        }, 500);
       }, 2000);
+    } else {
+      // Если задача выполнена и мы её снимаем с выполнения - просто меняем состояние
+      onToggleTaskCompletion(task.id, date);
     }
-    // Обновляем предыдущее состояние
-    prevCompletedRef.current = completed;
-  }, [completed]);
+  };
+
+
 
   return (
     <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
@@ -120,7 +148,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
             },
           ]}
         >
-          <Image source={getRandomMeme} style={{ width: 250, height: 250, borderRadius: 20 }} />
+          <Image source={currentMeme} style={{ width: 250, height: 250, borderRadius: 20 }} />
           <Confetti />
         </Animated.View>
       )}

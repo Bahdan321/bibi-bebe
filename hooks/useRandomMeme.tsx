@@ -41,10 +41,10 @@ const memes = [
 ];
 
 const useRandomMeme = () => {
-    // return useCallback(() => {
-    const randomIndex = Math.floor(Math.random() * memes.length);
-    return memes[randomIndex];
-    // }, []);
+    return useCallback(() => {
+        const randomIndex = Math.floor(Math.random() * memes.length);
+        return memes[randomIndex];
+    }, []);
 };
 
 export default useRandomMeme

@@ -26,7 +26,7 @@ export type DayBlockProps = {
 export interface TaskListProps {
     tasks: Task[];
     onAddTask: (text: string, date: string) => void;
-    onToggleTaskCompletion: (taskId: string) => void;
+    onToggleTaskCompletion: (taskId: string, date: string) => void;
     date: string;
 }
 
@@ -38,7 +38,7 @@ export interface DayInfoProps {
 export interface TaskItemProps {
     task: Task;
     date: string;
-    onToggleTaskCompletion: (taskId: string) => void;
+    onToggleTaskCompletion: (taskId: string, date: string) => void;
 }
 
 export interface Override {

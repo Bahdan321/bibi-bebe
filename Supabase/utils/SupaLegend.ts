@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
 import { observable } from '@legendapp/state';
 import { syncedSupabase } from '@legendapp/state/sync-plugins/supabase';
-import { configureSynced, syncState } from '@legendapp/state/sync';
+import { configureSynced } from '@legendapp/state/sync';
 import { observablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
