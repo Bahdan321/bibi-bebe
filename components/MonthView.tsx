@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
     useSharedValue,
@@ -29,6 +29,8 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
     const { theme } = useTheme();
     const todos = tasks$.get();
     const scrollY = useSharedValue(0);
+    const scrollRef = useRef<Animated.ScrollView>(null);
+    const monthRefs = useRef<Array<View | null>>([]);
 
     // Получаем все месяцы текущего года
     const yearStart = startOfYear(currentDate);
@@ -169,6 +171,16 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
         },
     });
 
+    useEffect(() => {
+        const currentMonthIndex = currentDate.getMonth();
+        const monthRef = monthRefs.current[currentMonthIndex];
+        if (monthRef && scrollRef.current) {
+            monthRef.measure((x, y, width, height, pageX, pageY) => {
+                scrollRef.current?.scrollTo({ y: y - (SCREEN_HEIGHT / 4), animated: false });
+            });
+        }
+    }, [currentDate]);
+
     // Функция для рендера отдельного месяца
     const renderMonth = (monthDate: Date, monthIndex: number) => {
         const monthName = format(monthDate, 'LLLL', { locale: ru });
@@ -209,7 +221,11 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
         });
 
         return (
-            <Animated.View key={monthIndex} style={[styles.monthContainer, animatedStyle]}>
+            <Animated.View
+                key={monthIndex}
+                style={[styles.monthContainer, animatedStyle]}
+                ref={(ref) => (monthRefs.current[monthIndex] = ref)}
+            >
                 {/* Заголовок месяца */}
                 <View style={styles.monthHeader}>
                     <CustomText
@@ -276,6 +292,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
             <Animated.ScrollView
+                ref={scrollRef}
                 style={styles.scrollContainer}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
