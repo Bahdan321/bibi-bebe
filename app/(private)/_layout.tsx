@@ -36,7 +36,7 @@ export default function PrivateLayout() {
                             sheetExpandsWhenScrolledToEdge: true,
                             sheetElevation: 24,
                             contentStyle: {
-                                backgroundColor: theme.colors.third,
+                                backgroundColor: theme.colors.primary,
                             },
                         }}
                     />
