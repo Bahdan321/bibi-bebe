@@ -7,12 +7,14 @@ import {
 } from 'react-native-responsive-screen';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
-import { BlurView } from 'expo-blur';
+import { useLocalization } from '@/providers/LocalizationProvider';
 import CustomText from '@/components/base/CustomText';
 
 export default function Settings() {
     const { toggleTheme, theme, isDark } = useTheme();
+    const { currentLanguage, changeLanguage } = useLocalization();
     const rotateAnim = useRef(new Animated.Value(0)).current;
+    const languageRotateAnim = useRef(new Animated.Value(0)).current;
 
     // Animation effect when theme changes
     useEffect(() => {
@@ -28,13 +30,40 @@ export default function Settings() {
         outputRange: ['0deg', '360deg']
     });
 
+    const languageSpin = languageRotateAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg']
+    });
+
+    // Language switching handler with animation
+    const handleLanguageChange = async () => {
+        // Start rotation animation
+        Animated.timing(languageRotateAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+        }).start(() => {
+            // Reset animation after completion
+            languageRotateAnim.setValue(0);
+        });
+
+        // Switch between languages
+        const newLanguage = currentLanguage === 'ru' ? 'en' : 'ru';
+        await changeLanguage(newLanguage);
+    };
+
+    // Get language display name
+    const getLanguageDisplayName = () => {
+        return currentLanguage === 'ru' ? 'Русский' : 'English';
+    };
+
     const settingsItems = [
         {
             label: "Язык",
             value: (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText
-                        content="Русский"
+                        content={getLanguageDisplayName()}
                         size="sm"
                         color={theme.colors.text}
                         weight="bold"
@@ -42,8 +71,12 @@ export default function Settings() {
                     />
                 </View>
             ),
-            leftIcon: <Ionicons name="earth" size={22} color={theme.colors.button} />,
-            onPress: () => console.log('Language'),
+            leftIcon: (
+                <Animated.View style={{ transform: [{ rotate: languageSpin }] }}>
+                    <Ionicons name="earth" size={22} color={theme.colors.button} />
+                </Animated.View>
+            ),
+            onPress: handleLanguageChange,
         },
         {
             label: "Тема",
