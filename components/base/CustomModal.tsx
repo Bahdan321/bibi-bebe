@@ -111,7 +111,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
         <>
             <StatusBar
                 translucent={statusBarTranslucent}
-                backgroundColor={statusBarBackgroundColor || 'transparent'}
+                // backgroundColor={statusBarBackgroundColor || 'transparent'}
                 style={statusBarStyle}
             />
             <Modal

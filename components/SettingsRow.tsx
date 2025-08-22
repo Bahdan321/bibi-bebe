@@ -19,21 +19,33 @@ const SettingsRow: React.FC<SettingsRowProps> = ({ label, value, leftIcon, onPre
     const { theme } = useTheme();
 
     return (
-        <View style={styles.row}>
-            <View style={styles.left}>
-                {leftIcon}
-                <CustomText
-                    content={label}
-                    size="sm"
-                    color={theme.colors.background}
-                    weight="bold"
-                    style={styles.labelContainer}
-                />
+        <CustomTouchable
+            onPress={onPress}
+        >
+            <View style={styles.row}>
+
+                <View style={styles.left}>
+                    {leftIcon}
+                    <CustomText
+                        content={label}
+                        size="sm"
+                        color={theme.colors.background}
+                        weight="bold"
+                        style={styles.labelContainer}
+                    />
+                </View>
+                {/* <CustomText
+                        content={value}
+                        size="sm"
+                        color={theme.colors.background}
+                        weight="bold"
+                        style={styles.right}
+                    /> */}
+                <CustomTouchable style={styles.right} onPress={onPress}>
+                    {value}
+                </CustomTouchable>
             </View>
-            <CustomTouchable style={styles.right} onPress={onPress}>
-                {value}
-            </CustomTouchable>
-        </View>
+        </CustomTouchable>
     );
 }
 
