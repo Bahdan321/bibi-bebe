@@ -5,6 +5,8 @@ import { Theme } from '@/theme/themes';
 import CustomText from '../base/CustomText';
 import CustomTouchable from '../base/CustomTouchable';
 import CustomModal from '../base/CustomModal';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/lib/i18n';
 
 interface ICalendarState {
   currentMonth: number;
@@ -21,6 +23,7 @@ interface ICalendarProps {
 
 const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, initialDate }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const [state, setState] = useState<ICalendarState>({
@@ -72,10 +75,14 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
   );
 
   // Массив дней недели (начинаем с понедельника)
-  const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  const daysOfWeek = [
+    t('calendar.daysOfWeek.mon'), t('calendar.daysOfWeek.tue'), t('calendar.daysOfWeek.wed'),
+    t('calendar.daysOfWeek.thu'), t('calendar.daysOfWeek.fri'), t('calendar.daysOfWeek.sat'), t('calendar.daysOfWeek.sun')
+  ];
 
   // Форматирование названия месяца с большой буквы
-  const monthName = new Date(currentYear, currentMonth).toLocaleString('ru', { month: 'long' });
+  const getCurrentLocale = () => i18n.language === 'ru' ? 'ru' : 'en-US';
+  const monthName = new Date(currentYear, currentMonth).toLocaleString(getCurrentLocale(), { month: 'long' });
   const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
   const handlePrevMonth = () => {
@@ -217,7 +224,7 @@ const CalendarModal: React.FC<ICalendarProps> = ({ visible, onClose, onApply, in
         </View>
         <CustomTouchable style={styles.applyButton} onPress={handleApply}>
           <CustomText
-            content="Применить"
+            translationKey="calendar.apply"
             size="md"
             color={theme.colors.primary}
             weight="bold"

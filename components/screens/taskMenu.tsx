@@ -9,15 +9,17 @@ import { toggleTaskRename, toggleTaskRenameDescription } from '@/Supabase/utils/
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/providers/ThemeProvider';
 import DropdownMenu from '@/components/DropdownMenu';
+import { useTranslation } from 'react-i18next';
 
 
 export default function taskMenu() {
     const { theme } = useTheme();
+    const { t } = useTranslation();
 
     const { task, date } = useLocalSearchParams();
     const parsedTask: Task | null = task && typeof task === 'string' ? JSON.parse(task) : null;
     const dateString = Array.isArray(date) ? date[0] : date;
-    console.log('Parsed task:', parsedTask);
+    console.log(t('console.parsedTask'), parsedTask);
 
     // Состояние для редактируемых полей
     const [title, setTitle] = useState(parsedTask?.title || '');
@@ -27,11 +29,11 @@ export default function taskMenu() {
     const handleSaveChanges = useCallback(() => {
         if (parsedTask) {
             if (parsedTask.title !== title) {
-                console.log('Renaming task:', title);
+                console.log(t('console.renamingTask'), title);
                 toggleTaskRename(parsedTask.id, title);
             }
             if (parsedTask.description !== description) {
-                console.log('Changing description:', description);
+                console.log(t('console.changingDescription'), description);
                 toggleTaskRenameDescription(parsedTask.id, description);
             }
         }
@@ -55,7 +57,7 @@ export default function taskMenu() {
     if (!parsedTask) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomText content="Задача не найдена" size="md" color={theme.colors.text} />
+                <CustomText translationKey="onboarding.taskNotFound" size="md" color={theme.colors.text} />
             </View>
         );
     }

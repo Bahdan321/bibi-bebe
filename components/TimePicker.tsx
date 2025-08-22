@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet, Dimensions, NativeScrollEvent, NativeSynt
 import { useTheme } from '@/providers/ThemeProvider';
 import CustomText from './base/CustomText';
 import CustomButton from './base/CustomButton';
+import { useTranslation } from 'react-i18next';
 
 // Интерфейс для пропсов
 interface TimePickerProps {
@@ -12,6 +13,7 @@ interface TimePickerProps {
 
 const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) => {
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const [selectedDay, setSelectedDay] = useState('00');
     const [hours, setHours] = useState('00');
     const [minutes, setMinutes] = useState('00');
@@ -84,7 +86,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
         <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <View style={styles.labelContainer}>
                 <CustomText
-                    content="Дни"
+                    translationKey="time.days"
                     size="md"
                     color={theme.colors.secondary}
                     weight="bold"
@@ -92,7 +94,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                 />
                 <View style={styles.labelSpacer} />
                 <CustomText
-                    content="Часы"
+                    translationKey="time.hours"
                     size="md"
                     color={theme.colors.secondary}
                     weight="bold"
@@ -100,7 +102,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                 />
                 <View style={styles.labelSpacer} />
                 <CustomText
-                    content="Минуты"
+                    translationKey="time.minutes"
                     size="md"
                     color={theme.colors.secondary}
                     weight="bold"
@@ -203,7 +205,8 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
                 </View>
             </View>
             <CustomText
-                content={`${selectedDay} at ${hours}:${minutes}`}
+                translationKey="time.selectedTime"
+                translationOptions={{ day: selectedDay, hours: hours, minutes: minutes }}
                 size="lg"
                 color={theme.colors.text}
                 weight="normal"
@@ -213,7 +216,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeSelected, onConfirm }) =>
             <CustomButton
                 variant="primary"
                 size="medium"
-                title="Подтвердить"
+                title={t('time.confirm')}
                 onPress={handleConfirm}
                 style={styles.confirmButton}
             />

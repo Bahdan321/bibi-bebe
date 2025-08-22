@@ -5,6 +5,7 @@ import TextInputField from '@/components/TextInputField';
 
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTranslation } from 'react-i18next';
 import CustomText from '@/components/base/CustomText';
 import CustomButton from '@/components/base/CustomButton';
 import CustomTouchable from '@/components/base/CustomTouchable';
@@ -21,14 +22,15 @@ export default function SignUp() {
     const [generalError, setGeneralError] = useState('');
     const router = useRouter();
     const { signUp, signInWithGoogle } = useAuth();
+    const { t } = useTranslation();
 
     // Валидация имени
     const validateName = (name: string) => {
         if (!name) {
-            setNameError('Пожалуйста, введите имя');
+            setNameError(t('auth.validation.nameRequired'));
             return false;
         } else if (name.length < 2) {
-            setNameError('Имя должно содержать минимум 2 символа');
+            setNameError(t('auth.validation.nameMinLength'));
             return false;
         }
         setNameError('');
@@ -39,10 +41,10 @@ export default function SignUp() {
     const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email) {
-            setEmailError('Пожалуйста, введите email');
+            setEmailError(t('auth.validation.emailRequired'));
             return false;
         } else if (!emailRegex.test(email)) {
-            setEmailError('Пожалуйста, введите корректный email');
+            setEmailError(t('auth.validation.emailInvalid'));
             return false;
         }
         setEmailError('');
@@ -52,10 +54,10 @@ export default function SignUp() {
     // Валидация пароля
     const validatePassword = (password: string) => {
         if (!password) {
-            setPasswordError('Пожалуйста, введите пароль');
+            setPasswordError(t('auth.validation.passwordRequired'));
             return false;
         } else if (password.length < 6) {
-            setPasswordError('Пароль должен содержать минимум 6 символов');
+            setPasswordError(t('auth.validation.passwordMinLength'));
             return false;
         }
         setPasswordError('');
@@ -73,16 +75,16 @@ export default function SignUp() {
     const handleSignUp = async () => {
         // Сбросить общую ошибку
         setGeneralError('');
-        
+
         // Валидация полей
         const isNameValid = validateName(name);
         const isEmailValid = validateEmail(email);
         const isPasswordValid = validatePassword(password);
-        
+
         if (!isNameValid || !isEmailValid || !isPasswordValid) {
             return;
         }
-        
+
         setIsLoading(true);
         try {
             const result = await signUp(name, email, password);
@@ -97,11 +99,11 @@ export default function SignUp() {
                     router.replace('/(private)/onboardingScreen');
                 }
             } else {
-                setGeneralError(result.error || 'Неверное имя пользователя или пароль');
+                setGeneralError(result.error || t('auth.errors.signUpError'));
             }
         } catch (error) {
             console.error('Error signing up:', error);
-            setGeneralError('Произошла ошибка при регистрации');
+            setGeneralError(t('auth.errors.signUpError'));
         } finally {
             setIsLoading(false);
         }
@@ -113,18 +115,18 @@ export default function SignUp() {
         setEmailError('');
         setPasswordError('');
         setGeneralError('');
-        
+
         setIsLoading(true);
         try {
             const result = await signInWithGoogle();
             if (result.success) {
                 router.replace('/(private)/onboardingScreen');
             } else {
-                setGeneralError(result.error || 'Ошибка регистрации через Google');
+                setGeneralError(result.error || t('auth.errors.googleAuthError'));
             }
         } catch (error) {
             console.error('Error signing up with Google:', error);
-            setGeneralError('Произошла ошибка при регистрации через Google');
+            setGeneralError(t('auth.errors.googleSignUpError'));
         } finally {
             setIsLoading(false);
         }
@@ -136,8 +138,8 @@ export default function SignUp() {
         setEmailError('');
         setPasswordError('');
         setGeneralError('');
-        
-        setGeneralError('Регистрация через Apple пока не реализована');
+
+        setGeneralError(t('auth.errors.appleSignUpNotImplemented'));
     };
 
     return (
@@ -145,7 +147,7 @@ export default function SignUp() {
             <View style={styles.tabContainer}>
                 <CustomTouchable onPress={() => router.push('/(public)/signIn')}>
                     <CustomText
-                        content="Sign in"
+                        translationKey="auth.signInTab"
                         size="md"
                         color="#8A8A8A"
                         weight="medium"
@@ -158,21 +160,21 @@ export default function SignUp() {
                     style={styles.tabSeparatorContainer}
                 />
                 <CustomText
-                    content="Sign up"
+                    translationKey="auth.signUpTab"
                     size="md"
                     color="#FFFFFF"
                     weight="medium"
                 />
             </View>
-            
+
             {generalError ? (
                 <View style={styles.generalErrorContainer}>
                     <CustomText content={generalError} size="sm" color="#FF3B30" />
                 </View>
             ) : null}
-            
+
             <TextInputField
-                label="Name"
+                label={t('auth.name')}
                 labelColor="#B0B0B0"
                 borderColor="#4A4A4A"
                 textColor="#FFFFFF"
@@ -183,7 +185,7 @@ export default function SignUp() {
                 onBlur={() => validateName(name)}
             />
             <TextInputField
-                label="Email"
+                label={t('auth.email')}
                 labelColor="#B0B0B0"
                 borderColor="#4A4A4A"
                 textColor="#FFFFFF"
@@ -195,7 +197,7 @@ export default function SignUp() {
             />
             <View style={styles.passwordContainer}>
                 <TextInputField
-                    label="Password"
+                    label={t('auth.password')}
                     labelColor="#B0B0B0"
                     borderColor="#4A4A4A"
                     textColor="#FFFFFF"
@@ -221,13 +223,13 @@ export default function SignUp() {
                     <CustomButton
                         variant="primary"
                         size="medium"
-                        title="Зарегистрироваться"
+                        title={t('auth.signUp')}
                         titleColor="#1C2526"
                         onPress={handleSignUp}
                         style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
                     />
                     <CustomText
-                        content="или"
+                        translationKey="common.or"
                         size="md"
                         color="#FFFFFF"
                         style={styles.orTextContainer}
@@ -236,7 +238,7 @@ export default function SignUp() {
                     <CustomButton
                         variant="service"
                         size="medium"
-                        title="Google"
+                        title={t('auth.google')}
                         onPress={handleGoogleSignUp}
                         style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
                         icon="logo-google"
@@ -247,7 +249,7 @@ export default function SignUp() {
                         <CustomButton
                             variant="service"
                             size="medium"
-                            title="Apple"
+                            title={t('auth.apple')}
                             onPress={handleAppleSignUp}
                             style={{ ...styles.socialButton, backgroundColor: '#000000' }}
                             icon="logo-apple"

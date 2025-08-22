@@ -2,6 +2,7 @@ import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTranslation } from 'react-i18next';
 import { CustomButton, CustomTouchable, CustomView } from '@/components/base';
 import CustomText from '@/components/base/CustomText';
 import TextInputField from '@/components/TextInputField';
@@ -13,16 +14,17 @@ export default function OtpVerification() {
     const [canResend, setCanResend] = useState(false);
     const router = useRouter();
     const { verifySignupOtp, resendSignupOtp } = useAuth();
+    const { t } = useTranslation();
     const params = useLocalSearchParams();
     const email = params.email as string;
 
     useEffect(() => {
         // Если email не передан, перенаправляем на страницу регистрации
         if (!email) {
-            Alert.alert('Ошибка', 'Email не указан');
+            Alert.alert(t('common.error'), t('auth.errors.emailMissing'));
             router.replace('/(public)/signUp');
         }
-    }, [email, router]);
+    }, [email, router, t]);
 
     useEffect(() => {
         // Таймер для обратного отсчета
@@ -37,7 +39,7 @@ export default function OtpVerification() {
 
     const handleVerifyOtp = async () => {
         if (!otp) {
-            Alert.alert('Ошибка', 'Пожалуйста, введите OTP код');
+            Alert.alert(t('common.error'), t('auth.validation.otpRequired'));
             return;
         }
 
@@ -45,15 +47,15 @@ export default function OtpVerification() {
         try {
             const result = await verifySignupOtp(email, otp);
             if (result.success) {
-                Alert.alert('Успех', 'Аккаунт успешно подтвержден', [
-                    { text: 'OK', onPress: () => router.replace('/(private)/onboardingScreen') }
+                Alert.alert(t('common.success'), t('auth.success.accountVerified'), [
+                    { text: t('common.ok'), onPress: () => router.replace('/(private)/onboardingScreen') }
                 ]);
             } else {
-                Alert.alert('Ошибка', result.error || 'Неверный OTP код');
+                Alert.alert(t('common.error'), result.error || t('auth.errors.otpInvalid'));
             }
         } catch (error) {
             console.error('Ошибка при верификации OTP:', error);
-            Alert.alert('Ошибка', 'Произошла ошибка при верификации OTP');
+            Alert.alert(t('common.error'), t('auth.errors.otpVerificationError'));
         } finally {
             setIsLoading(false);
         }
@@ -66,14 +68,14 @@ export default function OtpVerification() {
         try {
             const result = await resendSignupOtp(email);
             if (result.success) {
-                Alert.alert('Успех', 'OTP код отправлен повторно');
+                Alert.alert(t('common.success'), t('auth.success.otpResent'));
                 setCountdown(60);
                 setCanResend(false);
             } else {
-                Alert.alert('Ошибка', result.error || 'Ошибка при повторной отправке OTP');
+                Alert.alert(t('common.error'), result.error || t('auth.errors.otpResendError'));
             }
         } catch (error) {
-            Alert.alert('Ошибка', 'Произошла ошибка при повторной отправке OTP');
+            Alert.alert(t('common.error'), t('auth.errors.otpResendGeneralError'));
         } finally {
             setIsLoading(false);
         }
@@ -82,25 +84,26 @@ export default function OtpVerification() {
     return (
         <View style={styles.container}>
             <CustomView variant="column" padding="large" backgroundColor="transparent">
-                <CustomText 
-                    content="Подтверждение аккаунта" 
-                    size="lg" 
-                    color="#FFFFFF" 
-                    weight="bold" 
+                <CustomText
+                    translationKey="auth.accountConfirmation"
+                    size="lg"
+                    color="#FFFFFF"
+                    weight="bold"
                     style={styles.title}
                     textCenter
                 />
-                
-                <CustomText 
-                    content={`Мы отправили код подтверждения на ${email}. Пожалуйста, введите его ниже.`} 
-                    size="md" 
-                    color="#B0B0B0" 
+
+                <CustomText
+                    translationKey="auth.otpDescription"
+                    translationOptions={{ email }}
+                    size="md"
+                    color="#B0B0B0"
                     style={styles.description}
                     textCenter
                 />
-                
+
                 <TextInputField
-                    label="OTP код"
+                    label={t('auth.otpCode')}
                     labelColor="#B0B0B0"
                     borderColor="#4A4A4A"
                     textColor="#FFFFFF"
@@ -108,7 +111,7 @@ export default function OtpVerification() {
                     onChangeText={setOtp}
                     style={styles.input}
                 />
-                
+
                 {isLoading ? (
                     <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
                 ) : (
@@ -116,27 +119,27 @@ export default function OtpVerification() {
                         <CustomButton
                             variant="primary"
                             size="medium"
-                            title="Подтвердить"
+                            title={t('auth.verify')}
                             titleColor="#1C2526"
                             onPress={handleVerifyOtp}
                             style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
                         />
-                        
+
                         <CustomButton
                             variant="text"
                             size="medium"
-                            title={canResend ? 'Отправить код повторно' : `Повторная отправка через ${countdown} сек`}
+                            title={canResend ? t('auth.resendCode') : t('auth.resendCountdown', { count: countdown })}
                             titleColor={canResend ? '#FFFFFF' : '#8A8A8A'}
                             onPress={handleResendOtp}
                             disabled={!canResend}
                             style={styles.resendButton}
                         />
-                        
+
                         <CustomTouchable onPress={() => router.back()}>
-                            <CustomText 
-                                content="Вернуться назад" 
-                                size="md" 
-                                color="#8A8A8A" 
+                            <CustomText
+                                translationKey="common.back"
+                                size="md"
+                                color="#8A8A8A"
                                 style={styles.backLink}
                                 textCenter
                             />

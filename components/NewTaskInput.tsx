@@ -4,20 +4,22 @@ import { StyleSheet, View } from "react-native";
 import Gigabar from "./Gigabar";
 import { useTheme } from '@/providers/ThemeProvider';
 import CustomTextInput from './base/CustomTextInput';
+import { useTranslation } from 'react-i18next';
 
 // const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
 const NewTaskInput: React.FC<{ onAddTask: (text: string) => void }> = ({ onAddTask }) => {
     const [inputValue, setInputValue] = useState('');
     const { theme } = useTheme();
+    const { t } = useTranslation();
 
     const handleSubmit = () => {
-        console.log('NewTaskInput: добавляем задачу:', inputValue);
+        console.log('NewTaskInput:', t('console.addingTask'), inputValue);
         if (inputValue.trim() !== '') {
             try {
                 onAddTask(inputValue.trim());
                 setInputValue('');
             } catch (error) {
-                console.error('NewTaskInput: ошибка при добавлении задачи:', error);
+                console.error('NewTaskInput:', t('console.addingTaskError'), error);
             }
         }
     };

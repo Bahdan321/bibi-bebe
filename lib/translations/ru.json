@@ -1,1 +1,198 @@
-{}
+{
+    "common": {
+        "loading": "Загрузка...",
+        "save": "Сохранить",
+        "cancel": "Отмена",
+        "confirm": "Подтвердить",
+        "apply": "Применить",
+        "submit": "Отправить",
+        "or": "или",
+        "back": "Вернуться назад",
+        "error": "Ошибка",
+        "success": "Успех",
+        "ok": "OK"
+    },
+    "settings": {
+        "title": "Настройки",
+        "language": "Язык",
+        "theme": "Тема",
+        "languageRussian": "Русский",
+        "languageEnglish": "English",
+        "themeDark": "Темная",
+        "themeLight": "Светлая"
+    },
+    "profile": {
+        "title": "Профиль",
+        "noTitle": "Без титула",
+        "user": "Пользователь",
+        "email": "Email: {{email}}",
+        "emailNotSpecified": "Не указан",
+        "signOut": "Выйти из аккаунта",
+        "loadingProfile": "Загрузка профиля...",
+        "profileUpdated": "Профиль обновлен",
+        "signOutSuccess": "Выход из аккаунта выполнен успешно",
+        "signOutError": "Ошибка при выходе из аккаунта"
+    },
+    "auth": {
+        "signIn": "Войти",
+        "signUp": "Зарегистрироваться",
+        "signInTab": "Sign in",
+        "signUpTab": "Sign up",
+        "accountConfirmation": "Подтверждение аккаунта",
+        "verify": "Подтвердить",
+        "email": "Email",
+        "password": "Password",
+        "name": "Name",
+        "otpCode": "OTP код",
+        "google": "Google",
+        "apple": "Apple",
+        "resendCode": "Отправить код повторно",
+        "resendCountdown": "Повторная отправка через {{count}} сек",
+        "otpDescription": "Мы отправили код подтверждения на {{email}}. Пожалуйста, введите его ниже.",
+        "validation": {
+            "emailRequired": "Пожалуйста, введите email",
+            "emailInvalid": "Пожалуйста, введите корректный email",
+            "passwordRequired": "Пожалуйста, введите пароль",
+            "passwordMinLength": "Пароль должен содержать минимум 6 символов",
+            "nameRequired": "Пожалуйста, введите имя",
+            "nameMinLength": "Имя должно содержать минимум 2 символа",
+            "otpRequired": "Пожалуйста, введите OTP код"
+        },
+        "errors": {
+            "invalidCredentials": "Неверный email или пароль",
+            "signInError": "Произошла ошибка при входе в аккаунт",
+            "signUpError": "Произошла ошибка при регистрации",
+            "googleAuthError": "Ошибка авторизации через Google",
+            "googleSignInError": "Произошла ошибка при авторизации через Google",
+            "googleSignUpError": "Произошла ошибка при регистрации через Google",
+            "appleNotImplemented": "Авторизация через Apple пока не реализована",
+            "appleSignUpNotImplemented": "Регистрация через Apple пока не реализована",
+            "otpVerificationError": "Произошла ошибка при верификации OTP",
+            "otpInvalid": "Неверный OTP код",
+            "otpResendError": "Ошибка при повторной отправке OTP",
+            "otpResendGeneralError": "Произошла ошибка при повторной отправке OTP",
+            "emailMissing": "Email не указан"
+        },
+        "success": {
+            "accountVerified": "Аккаунт успешно подтвержден",
+            "otpResent": "OTP код отправлен повторно"
+        }
+    },
+    "onboarding": {
+        "welcome": "Приветствуем в Bibibebe",
+        "favoriteFood": "Какая ваша любимая еда?",
+        "enterFavoriteFood": "Введите вашу любимую еду",
+        "loading": "Загрузка...",
+        "submit": "Отправить",
+        "taskNotFound": "Задача не найдена"
+    },
+    "tasks": {
+        "addSubtask": "Добавить подзадачу",
+        "addDescription": "Добавьте описание",
+        "subtasks": "Подзадачи",
+        "reward": "Награда",
+        "enterRewardName": "Введите название награды",
+        "addReward": "Добавить награду",
+        "changeReward": "Изменить награду",
+        "addingTask": "добавляем задачу",
+        "addingTaskError": "ошибка при добавлении задачи",
+        "addingRewardError": "Ошибка при добавлении награды",
+        "menu": {
+            "tomorrow": "На завтра",
+            "nextWeek": "На неделю",
+            "duplicate": "Дублировать",
+            "delete": "Удалить"
+        },
+        "eisenhowerMatrix": {
+            "urgentImportant": "Срочно и важно",
+            "notUrgentImportant": "Не срочно, но важно",
+            "urgentNotImportant": "Срочно, не важно",
+            "notUrgentNotImportant": "Не срочно и не важно"
+        },
+        "daysOfWeek": {
+            "monday": "Понедельник",
+            "tuesday": "Вторник",
+            "wednesday": "Среда",
+            "thursday": "Четверг",
+            "friday": "Пятница",
+            "saturday": "Суббота",
+            "sunday": "Воскресенье"
+        }
+    },
+    "time": {
+        "days": "Дни",
+        "hours": "Часы",
+        "minutes": "Минуты",
+        "confirm": "Подтвердить",
+        "close": "Закрыть",
+        "selectedTime": "{{day}} at {{hours}}:{{minutes}}"
+    },
+    "calendar": {
+        "apply": "Применить",
+        "daysOfWeek": {
+            "sun": "Вс",
+            "mon": "Пн",
+            "tue": "Вт",
+            "wed": "Ср",
+            "thu": "Чт",
+            "fri": "Пт",
+            "sat": "Сб"
+        },
+        "daysOfWeekTruncated": {
+            "monday": "Пн",
+            "tuesday": "Вт",
+            "wednesday": "Ср",
+            "thursday": "Чт",
+            "friday": "Пт",
+            "saturday": "Сб",
+            "sunday": "Вс"
+        },
+        "months": {
+            "january": "Январь",
+            "february": "Февраль",
+            "march": "Март",
+            "april": "Апрель",
+            "may": "Май",
+            "june": "Июнь",
+            "july": "Июль",
+            "august": "Август",
+            "september": "Сентябрь",
+            "october": "Октябрь",
+            "november": "Ноябрь",
+            "december": "Декабрь"
+        },
+        "monthsTruncated": {
+            "january": "Янв",
+            "february": "Фев",
+            "march": "Мар",
+            "april": "Апр",
+            "may": "Май",
+            "june": "Июн",
+            "july": "Июл",
+            "august": "Авг",
+            "september": "Сен",
+            "october": "Окт",
+            "november": "Ноя",
+            "december": "Дек"
+        }
+    },
+    "console": {
+        "parsedTask": "Parsed task",
+        "renamingTask": "Renaming task",
+        "changingDescription": "Changing description",
+        "duplicateTask": "Duplicate task",
+        "deleteTask": "Delete task",
+        "bottomSheetClosed": "BottomSheet closed",
+        "addingTask": "добавляем задачу",
+        "addingTaskError": "ошибка при добавлении задачи",
+        "addingRewardError": "Ошибка при добавлении награды",
+        "errorCreatingSpace": "Error creating space",
+        "foodPreferenceSubmitted": "Food preference submitted",
+        "checkingQuoteDisplay": "Проверка показа цитаты...",
+        "lastDate": "Последняя дата",
+        "today": "Сегодня",
+        "showingQuote": "Показываем цитату",
+        "quoteAlreadyShown": "Цитата уже показана сегодня",
+        "quoteCheckError": "Ошибка при проверке цитаты"
+    }
+}

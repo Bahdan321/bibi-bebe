@@ -4,6 +4,7 @@ import TimePicker from './TimePicker';
 import { useTheme } from '@/providers/ThemeProvider';
 import CustomText from '@/components/base/CustomText';
 import CustomButton from '@/components/base/CustomButton';
+import { useTranslation } from 'react-i18next';
 
 // Интерфейс для пропсов
 interface TimePickerModalProps {
@@ -14,6 +15,7 @@ interface TimePickerModalProps {
 
 const TimePickerModal: React.FC<TimePickerModalProps> = ({ visible, onClose, onTimeSelected }) => {
     const { theme } = useTheme();
+    const { t } = useTranslation();
 
     return (
         <Modal
@@ -29,16 +31,12 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({ visible, onClose, onT
                         onConfirm={onClose}
                     />
                     <CustomButton
+                        variant="primary"
                         style={[styles.closeButton, { backgroundColor: theme.colors.secondary }] as any}
                         onPress={onClose}
-                    >
-                        <CustomText
-                            content="Закрыть"
-                            size="md"
-                            color={theme.colors.primary}
-                            weight="bold"
-                        />
-                    </CustomButton>
+                        title={t('time.close')}
+                        titleColor={theme.colors.primary}
+                    />
                 </View>
             </View>
         </Modal>

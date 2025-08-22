@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Gigabar from './Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import CustomTextInput from './base/CustomTextInput';
+import { useTranslation } from 'react-i18next';
 
 interface NewSubtaskInputProps {
   parentTaskId: string;
@@ -15,6 +16,7 @@ interface NewSubtaskInputProps {
 const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId, userId, date, onAddSubtask }) => {
   const [inputValue, setInputValue] = useState('');
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   const handleSubmit = () => {
     if (inputValue.trim() !== '') {
@@ -31,7 +33,7 @@ const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId
         value={inputValue}
         onChangeText={setInputValue}
         onSubmitEditing={handleSubmit}
-        placeholder="Добавить подзадачу"
+        placeholder={t('tasks.addSubtask')}
         placeholderTextColor={theme.colors.background}
         underlineColorAndroid="transparent"
       />

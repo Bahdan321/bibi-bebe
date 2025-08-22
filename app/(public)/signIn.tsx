@@ -5,6 +5,7 @@ import TextInputField from '@/components/TextInputField';
 
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomButton, CustomTouchable } from '@/components/base';
 import CustomText from '@/components/base/CustomText';
@@ -19,15 +20,16 @@ export default function SignIn() {
     const [generalError, setGeneralError] = useState('');
     const router = useRouter();
     const { signIn, signInWithGoogle } = useAuth();
+    const { t } = useTranslation();
 
     // Валидация email
     const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email) {
-            setEmailError('Пожалуйста, введите email');
+            setEmailError(t('auth.validation.emailRequired'));
             return false;
         } else if (!emailRegex.test(email)) {
-            setEmailError('Пожалуйста, введите корректный email');
+            setEmailError(t('auth.validation.emailInvalid'));
             return false;
         }
         setEmailError('');
@@ -37,10 +39,10 @@ export default function SignIn() {
     // Валидация пароля
     const validatePassword = (password: string) => {
         if (!password) {
-            setPasswordError('Пожалуйста, введите пароль');
+            setPasswordError(t('auth.validation.passwordRequired'));
             return false;
         } else if (password.length < 6) {
-            setPasswordError('Пароль должен содержать минимум 6 символов');
+            setPasswordError(t('auth.validation.passwordMinLength'));
             return false;
         }
         setPasswordError('');
@@ -57,11 +59,11 @@ export default function SignIn() {
     const handleSignIn = async () => {
         // Сбросить общую ошибку
         setGeneralError('');
-        
+
         // Валидация полей
         const isEmailValid = validateEmail(email);
         const isPasswordValid = validatePassword(password);
-        
+
         if (!isEmailValid || !isPasswordValid) {
             return;
         }
@@ -72,11 +74,11 @@ export default function SignIn() {
             if (result.success) {
                 router.replace('/(private)/home');
             } else {
-                setGeneralError(result.error || 'Неверный email или пароль');
+                setGeneralError(result.error || t('auth.errors.invalidCredentials'));
             }
         } catch (error) {
             console.error('Error signing in:', error);
-            setGeneralError('Произошла ошибка при входе в аккаунт');
+            setGeneralError(t('auth.errors.signInError'));
         } finally {
             setIsLoading(false);
         }
@@ -87,18 +89,18 @@ export default function SignIn() {
         setEmailError('');
         setPasswordError('');
         setGeneralError('');
-        
+
         setIsLoading(true);
         try {
             const result = await signInWithGoogle();
             if (result.success) {
                 router.replace('/(private)/home');
             } else {
-                setGeneralError(result.error || 'Ошибка авторизации через Google');
+                setGeneralError(result.error || t('auth.errors.googleAuthError'));
             }
         } catch (error) {
             console.error('Error signing in with Google:', error);
-            setGeneralError('Произошла ошибка при авторизации через Google');
+            setGeneralError(t('auth.errors.googleSignInError'));
         } finally {
             setIsLoading(false);
         }
@@ -109,17 +111,17 @@ export default function SignIn() {
         setEmailError('');
         setPasswordError('');
         setGeneralError('');
-        
-        setGeneralError('Авторизация через Apple пока не реализована');
+
+        setGeneralError(t('auth.errors.appleNotImplemented'));
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.tabContainer}>
-                <CustomText content="Sign in" size="md" color="#FFFFFF" weight="medium" />
+                <CustomText translationKey="auth.signInTab" size="md" color="#FFFFFF" weight="medium" />
                 <CustomText content="◆" size="md" color="#FFFFFF" style={styles.tabSeparatorContainer} />
                 <CustomTouchable onPress={() => router.push('/(public)/signUp')}>
-                    <CustomText content="Sign up" size="md" color="#8A8A8A" weight="medium" />
+                    <CustomText translationKey="auth.signUpTab" size="md" color="#8A8A8A" weight="medium" />
                 </CustomTouchable>
             </View>
             {generalError ? (
@@ -127,9 +129,9 @@ export default function SignIn() {
                     <CustomText content={generalError} size="sm" color="#FF3B30" />
                 </View>
             ) : null}
-            
+
             <TextInputField
-                label="Email"
+                label={t('auth.email')}
                 labelColor="#B0B0B0"
                 borderColor="#4A4A4A"
                 textColor="#FFFFFF"
@@ -141,7 +143,7 @@ export default function SignIn() {
             />
             <View style={styles.passwordContainer}>
                 <TextInputField
-                    label="Password"
+                    label={t('auth.password')}
                     labelColor="#B0B0B0"
                     borderColor="#4A4A4A"
                     textColor="#FFFFFF"
@@ -167,16 +169,16 @@ export default function SignIn() {
                     <CustomButton
                         variant="primary"
                         size="medium"
-                        title="Войти"
+                        title={t('auth.signIn')}
                         titleColor="#1C2526"
                         onPress={handleSignIn}
                         style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
                     />
-                    <CustomText content="или" color="#FFFFFF" style={styles.orTextContainer} textCenter={true} />
+                    <CustomText translationKey="common.or" color="#FFFFFF" style={styles.orTextContainer} textCenter={true} />
                     <CustomButton
                         variant="service"
                         size="medium"
-                        title="Google"
+                        title={t('auth.google')}
                         onPress={handleGoogleSignIn}
                         style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
                         icon="logo-google"
@@ -187,7 +189,7 @@ export default function SignIn() {
                         <CustomButton
                             variant="service"
                             size="medium"
-                            title="Apple"
+                            title={t('auth.apple')}
                             onPress={handleAppleSignIn}
                             style={{ ...styles.socialButton, backgroundColor: '#000000' }}
                             icon="logo-apple"

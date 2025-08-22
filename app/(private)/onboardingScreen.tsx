@@ -6,9 +6,11 @@ import CustomButton from '@/components/base/CustomButton';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useAuth } from '@/providers/AuthProvider';
 import CustomText from '@/components/base/CustomText';
+import { useTranslation } from 'react-i18next';
 
 const OnboardingScreen = () => {
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const router = useRouter();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const menuFadeAnim = useRef(new Animated.Value(0)).current;
@@ -48,10 +50,10 @@ const OnboardingScreen = () => {
 
     const handleSubmit = async () => {
         if (!spaceName.trim()) return;
-        
+
         setIsLoading(true);
-        console.log('Food preference submitted:', spaceName);
-        
+        console.log(t('console.foodPreferenceSubmitted'), spaceName);
+
         try {
             const result = await createUserSpace(spaceName);
 
@@ -59,7 +61,7 @@ const OnboardingScreen = () => {
                 router.replace('/(private)/home');
             }
         } catch (error) {
-            console.error('Error creating space:', error);
+            console.error(t('console.errorCreatingSpace'), error);
         } finally {
             setIsLoading(false);
         }
@@ -81,7 +83,7 @@ const OnboardingScreen = () => {
                         }
                     ]}
                 >
-                    Приветствуем в Bibibebe
+                    {t('onboarding.welcome')}
                 </Animated.Text>
 
                 {/* Food preference menu with fade animation */}
@@ -96,7 +98,7 @@ const OnboardingScreen = () => {
                         ]}
                     >
                         <CustomText
-                            content="Какая ваша любимая еда?"
+                            translationKey="onboarding.favoriteFood"
                             size={22}
                             color={theme.colors.text}
                             weight="bold"
@@ -111,14 +113,14 @@ const OnboardingScreen = () => {
                             }]}
                             value={spaceName}
                             onChangeText={setSpaceName}
-                            placeholder="Введите вашу любимую еду"
+                            placeholder={t('onboarding.enterFavoriteFood')}
                             placeholderTextColor={theme.colors.background}
                         />
 
                         <CustomButton
                             variant="primary"
                             size="medium"
-                            title={isLoading ? "Загрузка..." : "Отправить"}
+                            title={isLoading ? t('onboarding.loading') : t('onboarding.submit')}
                             titleColor={theme.colors.text}
                             onPress={handleSubmit}
                             style={{ ...styles.button, backgroundColor: theme.colors.primary }}

@@ -15,8 +15,10 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import CustomText from '@/components/base/CustomText';
 import CustomTouchable from '@/components/base/CustomTouchable';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, subDays, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { enUS, ru } from 'date-fns/locale';
 import Gigabar from './Gigabar';
+import { useTranslation } from 'react-i18next';
+import { useLocalization } from '@/providers/LocalizationProvider';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -27,6 +29,8 @@ interface MonthViewProps {
 
 const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress }) => {
     const { theme } = useTheme();
+    const { t } = useTranslation();
+    const { currentLanguage } = useLocalization()
     const todos = tasks$.get();
     const scrollY = useSharedValue(0);
     const scrollRef = useRef<Animated.ScrollView>(null);
@@ -134,7 +138,10 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
     };
 
     // Дни недели
-    const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const weekDays = [
+        t('calendar.daysOfWeek.mon'), t('calendar.daysOfWeek.tue'), t('calendar.daysOfWeek.wed'),
+        t('calendar.daysOfWeek.thu'), t('calendar.daysOfWeek.fri'), t('calendar.daysOfWeek.sat'), t('calendar.daysOfWeek.sun')
+    ];
 
     // Рендер индикаторов задач
     const renderTaskIndicators = (date: Date) => {
@@ -183,7 +190,7 @@ const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress 
 
     // Функция для рендера отдельного месяца
     const renderMonth = (monthDate: Date, monthIndex: number) => {
-        const monthName = format(monthDate, 'LLLL', { locale: ru });
+        const monthName = format(monthDate, 'LLLL', { locale: currentLanguage === "ru" ? ru : enUS });
         const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
         const calendarDays = getMonthDays(monthDate);
 

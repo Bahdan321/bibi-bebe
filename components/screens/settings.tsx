@@ -8,11 +8,13 @@ import {
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { useLocalization } from '@/providers/LocalizationProvider';
+import { useTranslation } from 'react-i18next';
 import CustomText from '@/components/base/CustomText';
 
 export default function Settings() {
     const { toggleTheme, theme, isDark } = useTheme();
     const { currentLanguage, changeLanguage } = useLocalization();
+    const { t } = useTranslation();
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const languageRotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -54,12 +56,12 @@ export default function Settings() {
 
     // Get language display name
     const getLanguageDisplayName = () => {
-        return currentLanguage === 'ru' ? 'Русский' : 'English';
+        return currentLanguage === 'ru' ? t('settings.languageRussian') : t('settings.languageEnglish');
     };
 
     const settingsItems = [
         {
-            label: "Язык",
+            label: t('settings.language'),
             value: (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText
@@ -79,10 +81,10 @@ export default function Settings() {
             onPress: handleLanguageChange,
         },
         {
-            label: "Тема",
+            label: t('settings.theme'),
             value: (
                 <CustomText
-                    content={isDark ? "Темная" : "Светлая"}
+                    content={isDark ? t('settings.themeDark') : t('settings.themeLight')}
                     size="sm"
                     color={theme.colors.text}
                     weight="bold"

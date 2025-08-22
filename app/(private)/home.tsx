@@ -17,8 +17,10 @@ import KakoetoMenu from '@/components/screens/kakoetoMenu';
 import { useTheme } from '@/providers/ThemeProvider';
 import Goals from '@/components/screens/goals';
 import { useTasksInitializer } from '@/hooks/useTasksInitializer';
+import { useTranslation } from 'react-i18next';
 
 const Home = observer(() => {
+    const { t } = useTranslation();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [isMonthView, setIsMonthView] = useState(false);
     const bottomSheetRef = useRef<BottomSheet>(null);
@@ -59,22 +61,22 @@ const Home = observer(() => {
     // Проверка даты для показа цитаты
     useEffect(() => {
         const checkQuoteDisplay = async () => {
-            console.log('Проверка показа цитаты...');
+            console.log(t('console.checkingQuoteDisplay'));
             try {
                 const lastShownDate = await AsyncStorage.getItem('lastQuoteShown');
-                console.log('Последняя дата:', lastShownDate);
+                console.log(t('console.lastDate'), lastShownDate);
                 const today = new Date().toISOString().split('T')[0];
-                console.log('Сегодня:', today);
+                console.log(t('console.today'), today);
 
                 if (lastShownDate !== today) {
-                    console.log('Показываем цитату');
+                    console.log(t('console.showingQuote'));
                     setShowQuote(true);
                     await AsyncStorage.setItem('lastQuoteShown', today);
                 } else {
-                    console.log('Цитата уже показана сегодня');
+                    console.log(t('console.quoteAlreadyShown'));
                 }
             } catch (error) {
-                console.error('Ошибка при проверке цитаты:', error);
+                console.error(t('console.quoteCheckError'), error);
             }
         };
 
@@ -82,16 +84,16 @@ const Home = observer(() => {
     }, []);
 
     const handleCloseMenu = () => {
-        console.log('BottomSheet closed');
+        console.log(t('console.bottomSheetClosed'));
     };
 
     const handleDuplicateTask = (task: any) => {
-        console.log('Duplicate task:', task);
+        console.log(t('console.duplicateTask'), task);
         // Add logic to duplicate the task here
     };
 
     const handleDeleteTask = (task: any) => {
-        console.log('Delete task:', task);
+        console.log(t('console.deleteTask'), task);
         // Add logic to delete the task here
     };
 

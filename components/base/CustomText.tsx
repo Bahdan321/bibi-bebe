@@ -2,9 +2,12 @@ import { CustomTextProps } from '@/types/types';
 import React from 'react';
 import { Text, TextStyle, View, ViewStyle } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
+import { useTranslation } from 'react-i18next';
 
 const CustomText: React.FC<CustomTextProps> = ({
     content,
+    translationKey,
+    translationOptions,
     size = 'md',
     color,
     weight = 'normal',
@@ -19,7 +22,11 @@ const CustomText: React.FC<CustomTextProps> = ({
     style,
 }) => {
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const validatedOpacity = Math.min(Math.max(opacity, 0), 1);
+
+    // Determine text content: use translationKey if provided, otherwise use content
+    const displayText = translationKey ? t(translationKey, translationOptions) : content;
 
     // Resolve size value
     const fontSize = typeof size === 'number' ? size : theme.fontSize[size];
@@ -54,7 +61,7 @@ const CustomText: React.FC<CustomTextProps> = ({
 
     return (
         <View style={combinedViewStyle}>
-            <Text maxFontSizeMultiplier={1.2} style={textStyle}>{content}</Text>
+            <Text maxFontSizeMultiplier={1.2} style={textStyle}>{displayText}</Text>
         </View>
     )
 };

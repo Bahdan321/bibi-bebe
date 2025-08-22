@@ -9,6 +9,7 @@ import {
     widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
 import { useTheme } from "@/providers/ThemeProvider";
+import { useTranslation } from 'react-i18next';
 import CustomText from "@/components/base/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "@/components/base/CustomButton";
@@ -18,6 +19,7 @@ import { getAdaptiveTextSize } from "@/utils/textUtils";
 
 export default function Profile() {
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const { signOut, user, isLoading } = useAuth();
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
@@ -33,7 +35,7 @@ export default function Profile() {
     //     return (
     //         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
     //             <CustomText
-    //                 content="Загрузка профиля..."
+    //                 translationKey="profile.loadingProfile"
     //                 size="lg"
     //                 color={theme.colors.text}
     //                 weight="normal"
@@ -50,18 +52,12 @@ export default function Profile() {
         setIsEditModalVisible(false);
     };
 
-    const handleProfileUpdate = (newUsername: string) => {
-        // Здесь будет логика обновления профиля в базе данных
-        console.log("Профиль обновлен:", newUsername);
-        closeEditModal();
-    };
-
     const handleSignOut = async () => {
         try {
             await signOut();
-            console.log("Выход из аккаунта выполнен успешно");
+            console.log(t('profile.signOutSuccess'));
         } catch (error) {
-            console.error("Ошибка при выходе из аккаунта:", error);
+            console.error(t('profile.signOutError'), error);
         }
     };
 
@@ -74,7 +70,7 @@ export default function Profile() {
             <ScrollView style={{ padding: 16 }}>
                 <View style={{ padding: 24, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                     <CustomText
-                        content="Профиль"
+                        translationKey="profile.title"
                         size="xxxl"
                         color={theme.colors.text}
                         weight="bold"
@@ -106,8 +102,8 @@ export default function Profile() {
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                         <View style={{ flexDirection: "column", alignItems: "center", flex: 1 }}>
                             <CustomText
-                                content={username || 'Пользователь'}
-                                size={getAdaptiveTextSize(username || 'Пользователь', 'username')}
+                                content={username || t('profile.user')}
+                                size={getAdaptiveTextSize(username || t('profile.user'), 'username')}
                                 color={theme.colors.text}
                                 weight="bold"
                                 opacity={1}
@@ -116,8 +112,8 @@ export default function Profile() {
                                 textCenter={false}
                             />
                             <CustomText
-                                content={title || 'Без титула'}
-                                size={getAdaptiveTextSize(title || 'Без титула', 'title')}
+                                content={title || t('profile.noTitle')}
+                                size={getAdaptiveTextSize(title || t('profile.noTitle'), 'title')}
                                 color={theme.colors.secondary}
                                 weight="normal"
                                 opacity={0.9}
@@ -167,8 +163,9 @@ export default function Profile() {
                 >
                     <View style={styles.infoWrapper}>
                         <CustomText
-                            content={`Email: ${email || 'Не указан'}`}
-                            size={getAdaptiveTextSize(email || 'Не указан', 'email')}
+                            translationKey="profile.email"
+                            translationOptions={{ email: email || t('profile.emailNotSpecified') }}
+                            size={getAdaptiveTextSize(email || t('profile.emailNotSpecified'), 'email')}
                             color={theme.colors.text}
                             weight="bold"
                             opacity={1}
@@ -184,7 +181,7 @@ export default function Profile() {
                 <View style={styles.logoutButtonContainer}>
                     <CustomButton
                         variant="primary"
-                        title="Выйти из аккаунта"
+                        title={t('profile.signOut')}
                         icon="log-out-outline"
                         onPress={handleSignOut}
                         buttonColor={theme.colors.profileButton}
@@ -198,7 +195,6 @@ export default function Profile() {
             <ChangeProfileModal
                 visible={isEditModalVisible}
                 onClose={closeEditModal}
-                onSave={handleProfileUpdate}
                 initialUsername={username || ''}
             />
         </ImageBackground>

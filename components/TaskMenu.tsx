@@ -20,13 +20,14 @@ import {
   toggleTaskChangeDisplayDate,
   addTask,
   addReward,
-  toggleTaskChangeTitle,
-  toggleTaskChangeDescription,
+  toggleTaskRename,
+  toggleTaskRenameDescription,
   tasks$,
   getTaskStateForDate,
 } from '@/Supabase/utils/SupaLegend';
 import { getFormatedDateOfYear } from '@/utils/DateUtils';
 import TimePickerModal from './TimePickerModal';
+import { useTranslation } from 'react-i18next';
 
 import DropdownMenu from './DropdownMenu';
 import { CalendarModal } from './modals';
@@ -50,6 +51,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   setDescription,
 }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const currentUserId = useCurrentUserId();
   const currentSpaceId = useCurrentSpaceId();
   useTasksInitializer();
@@ -72,13 +74,13 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   );
 
   const daysOfWeek = [
-    { text: 'Понедельник', value: 'mon' },
-    { text: 'Вторник', value: 'tue' },
-    { text: 'Среда', value: 'wed' },
-    { text: 'Четверг', value: 'thu' },
-    { text: 'Пятница', value: 'fri' },
-    { text: 'Суббота', value: 'sat' },
-    { text: 'Воскресенье', value: 'sun' },
+    { text: t('tasks.daysOfWeek.monday'), value: 'mon' },
+    { text: t('tasks.daysOfWeek.tuesday'), value: 'tue' },
+    { text: t('tasks.daysOfWeek.wednesday'), value: 'wed' },
+    { text: t('tasks.daysOfWeek.thursday'), value: 'thu' },
+    { text: t('tasks.daysOfWeek.friday'), value: 'fri' },
+    { text: t('tasks.daysOfWeek.saturday'), value: 'sat' },
+    { text: t('tasks.daysOfWeek.sunday'), value: 'sun' },
   ];
 
   // Функция переключения дня
@@ -256,10 +258,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const handleDeleteSubtask = (subtaskId: string) => toggleTaskRemove(subtaskId, date);
 
   const menuItems = [
-    { icon: 'pencil' as keyof typeof Ionicons.glyphMap, text: 'На завтра', onPress: () => handleChangeDate(task) },
+    { icon: 'pencil' as keyof typeof Ionicons.glyphMap, text: t('tasks.menu.tomorrow'), onPress: () => handleChangeDate(task) },
     {
       icon: 'pencil' as keyof typeof Ionicons.glyphMap,
-      text: 'На неделю',
+      text: t('tasks.menu.nextWeek'),
       onPress: () => {
         const nextWeekDate = new Date(task.display_date || new Date());
         if (!isNaN(nextWeekDate.getTime())) {
@@ -268,15 +270,15 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         }
       },
     },
-    { icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap, text: 'Дублировать', onPress: handleDuplicate },
-    { icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap, text: 'Удалить', onPress: handleDelete },
+    { icon: 'duplicate-outline' as keyof typeof Ionicons.glyphMap, text: t('tasks.menu.duplicate'), onPress: handleDuplicate },
+    { icon: 'trash-bin-outline' as keyof typeof Ionicons.glyphMap, text: t('tasks.menu.delete'), onPress: handleDelete },
   ];
 
   const eisenhowermatrixitems = [
-    { text: 'Срочно и Важно', color: theme.eisenhowerMatrix.urgentImportant, icon: 'alert-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, true, true) },
-    { text: 'Важно, не срочно', color: theme.eisenhowerMatrix.notUrgentImportant, icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, false, true) },
-    { text: 'Срочно, не важно', color: theme.eisenhowerMatrix.urgentNotImportant, icon: 'time' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, true, false) },
-    { text: 'Не срочно и не важно', color: theme.eisenhowerMatrix.notUrgentNotImportant, icon: 'heart-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, false, false) },
+    { text: t('tasks.eisenhowerMatrix.urgentImportant'), color: theme.eisenhowerMatrix.urgentImportant, icon: 'alert-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, true, true) },
+    { text: t('tasks.eisenhowerMatrix.notUrgentImportant'), color: theme.eisenhowerMatrix.notUrgentImportant, icon: 'checkmark-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, false, true) },
+    { text: t('tasks.eisenhowerMatrix.urgentNotImportant'), color: theme.eisenhowerMatrix.urgentNotImportant, icon: 'time' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, true, false) },
+    { text: t('tasks.eisenhowerMatrix.notUrgentNotImportant'), color: theme.eisenhowerMatrix.notUrgentNotImportant, icon: 'heart-circle' as keyof typeof Ionicons.glyphMap, onPress: () => changeEisenhowerMatrixStatus(task.id, false, false) },
   ];
 
   const handleAddSubtask = async (subtaskTitle: string) => {
@@ -313,7 +315,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       addReward(task.id, trimmed);
       setTaskRewardCopy(trimmed);
     } catch (err) {
-      console.error('Ошибка при добавлении награды:', err);
+      console.error(t('console.addingRewardError'), err);
     }
   };
 
@@ -371,13 +373,13 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         style={{ marginBottom: 20 }}
         value={description}
         onChangeText={setDescription}
-        placeholder="Добавьте описание"
+        placeholder={t('tasks.addDescription')}
         multiline
         maxLength={150}
       />
 
       <View style={styles.subtasksSection}>
-        <CustomText content="Подзадачи" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
+        <CustomText translationKey="tasks.subtasks" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
         {subtasks.map((subtask, index) => (
           <React.Fragment key={subtask.id}>
             <SubtaskItem
@@ -402,19 +404,19 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       </View>
 
       <View style={{ marginBottom: 20 }}>
-        <CustomText content="Награда" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
+        <CustomText translationKey="tasks.reward" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
         <CustomTextInput
           style={{ marginBottom: 10 }}
           placeholderTextColor={theme.colors.background}
           value={rewardNameInput || ''}
           onChangeText={setRewardNameInput}
-          placeholder="Введите название награды"
+          placeholder={t('tasks.enterRewardName')}
         />
         <CustomButton
           variant="primary"
           onPress={handleAddReward}
           style={{ ...styles.addRewardButton, backgroundColor: theme.colors.button, borderRadius: 10 }}
-          title={task.reward ? 'Изменить награду' : 'Добавить награду'}
+          title={task.reward ? t('tasks.changeReward') : t('tasks.addReward')}
           titleColor={theme.colors.primary}
         />
       </View>

@@ -116,7 +116,9 @@ export interface TaskMenuProps {
 import { FontSizeKey, FontWeightKey, BorderRadiusKey } from '@/constants/design';
 
 export type CustomTextProps = {
-    content: string;
+    content?: string;
+    translationKey?: string;
+    translationOptions?: Record<string, any>;
     size?: number | FontSizeKey;
     color?: string;
     weight?: FontWeightKey;
