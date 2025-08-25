@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, StyleProp, ViewStyle, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/providers/ThemeProvider';
 import Gigabar from './Gigabar'; // Импортируем Gigabar
@@ -11,28 +11,77 @@ type MenuItem = {
     icon: keyof typeof Ionicons.glyphMap;
     text: string;
     onPress: () => void;
+    color?: string; // Добавляем color для совместимости с eisenhowermatrixitems
 };
 
 type DropdownMenuProps = {
     items: MenuItem[];
     visible: boolean;
     onClose: () => void;
-    // position: { x: number; y: number }; // Removed position prop
     containerStyle?: StyleProp<ViewStyle>;
     closeOnSelect?: boolean;
 };
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /* position, */ containerStyle, closeOnSelect = true }) => {
+const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, containerStyle, closeOnSelect = true }) => {
     const { theme } = useTheme();
+    const animValue = useRef(new Animated.Value(0)).current; // Значение анимации от 0 (скрыто) до 1 (видимо)
+    const [shouldRender, setShouldRender] = useState(visible); // Задержка unmount для анимации закрытия
 
-    if (!visible) return null;
+    useEffect(() => {
+        if (visible) {
+            setShouldRender(true);
+        }
+    }, [visible]);
+
+    useEffect(() => {
+        if (visible && shouldRender) {
+            // Анимация появления: spring для лёгкого отскока
+            animValue.setValue(0); // Сброс для повторного запуска
+            Animated.spring(animValue, {
+                toValue: 1,
+                friction: 8, // Жёсткость пружины (меньше — больше отскок)
+                tension: 40, // Скорость (больше — быстрее)
+                useNativeDriver: true, // Для лучшей производительности
+            }).start();
+        } else if (!visible && shouldRender) {
+            // Анимация скрытия: fade-out + slide-up
+            Animated.timing(animValue, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+            }).start(() => {
+                setShouldRender(false); // Unmount после анимации
+            });
+        }
+    }, [visible, shouldRender, animValue]);
+
+    if (!shouldRender) return null;
+
+    const animatedStyle = {
+        opacity: animValue, // Плавное появление/исчезновение
+        transform: [
+            {
+                translateY: animValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [-20, 0], // Скольжение вниз (при закрытии — вверх)
+                }),
+            },
+            {
+                scaleY: animValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.9, 1], // Лёгкое разворачивание/сворачивание
+                }),
+            },
+        ],
+    };
 
     return (
-        <View
+        <Animated.View
             style={[
                 styles.overlay,
                 containerStyle,
                 { backgroundColor: theme.colors.primary, borderColor: theme.colors.button },
+                animatedStyle,
             ]}
         >
             {items.map((item, index) => (
@@ -47,17 +96,17 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, /*
                         <CustomText
                             content={item.text}
                             size="sm"
-                            color={theme.colors.text}
+                            color={item.color || theme.colors.text} // Поддержка color из item
                             style={styles.menuTextContainer}
                         />
-                        <Ionicons name={item.icon} size={20} color={theme.colors.text} style={styles.icon} />
+                        <Ionicons name={item.icon} size={20} color={item.color || theme.colors.text} style={styles.icon} />
                     </CustomTouchable>
                     {index < items.length - 1 && (
                         <Gigabar color={theme.colors.button || 'grey'} size={1} marginHorizontal={10} />
                     )}
                 </React.Fragment>
             ))}
-        </View>
+        </Animated.View>
     );
 };
 
@@ -83,7 +132,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     icon: {
-        // marginRight: 10, // Убираем отступ справа у иконки
         marginLeft: 10, // Добавляем отступ слева у иконки
     },
     menuTextContainer: {
