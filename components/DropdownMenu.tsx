@@ -44,7 +44,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, co
                 useNativeDriver: true, // Для лучшей производительности
             }).start();
         } else if (!visible && shouldRender) {
-            // Анимация скрытия: fade-out + slide-up
+            // Анимация скрытия: fade-out + slide-down
             Animated.timing(animValue, {
                 toValue: 0,
                 duration: 200,
@@ -63,7 +63,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, co
             {
                 translateY: animValue.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [-20, 0], // Скольжение вниз (при закрытии — вверх)
+                    outputRange: [20, 0], // Скольжение вверх (при появлении — из снизу вверх, при закрытии — сверху вниз)
                 }),
             },
             {
