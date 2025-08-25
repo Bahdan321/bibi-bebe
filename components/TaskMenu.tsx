@@ -83,6 +83,13 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     { text: t('tasks.daysOfWeek.sunday'), value: 'sun' },
   ];
 
+  // Функция для закрытия всех dropdown
+  const closeAllDropdowns = () => {
+    setIsMainDropdownVisible(false);
+    setIsEisenhowerMatrixDropdownVisible(false);
+    setIsRepeatMenuVisible(false);
+  };
+
   // Функция переключения дня
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
@@ -172,7 +179,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     return () => clearInterval(interval);
   }, [task.due_date]);
 
-  const handleDateChange = () => setIsCalendarVisible(true);
+  const handleDateChange = () => {
+    closeAllDropdowns(); // Закрываем все dropdown перед открытием календаря
+    setIsCalendarVisible(true);
+  };
 
   const handleCalendarApply = (selectedDate: Date) => {
     if (isNaN(selectedDate.getTime())) return;
@@ -357,6 +367,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           value={title}
           onChangeText={setTitle}
           placeholder="Название задачи"
+          onFocus={closeAllDropdowns} // Закрываем dropdown при фокусе
         />
         <CustomButton
           variant="text"
@@ -376,6 +387,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         placeholder={t('tasks.addDescription')}
         multiline
         maxLength={150}
+        onFocus={closeAllDropdowns} // Закрываем dropdown при фокусе
       />
 
       <View style={styles.subtasksSection}>
@@ -400,6 +412,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           userId={currentUserId || ''}
           date={date}
           onAddSubtask={handleAddSubtask}
+          closeAllDropdowns={closeAllDropdowns}
         />
       </View>
 
@@ -411,6 +424,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
           value={rewardNameInput || ''}
           onChangeText={setRewardNameInput}
           placeholder={t('tasks.enterRewardName')}
+          onFocus={closeAllDropdowns} // Закрываем dropdown при фокусе (на всякий случай, если reward input фокусируется)
         />
         <CustomButton
           variant="primary"

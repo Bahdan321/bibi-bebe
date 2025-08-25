@@ -11,9 +11,10 @@ interface NewSubtaskInputProps {
   userId: string;
   date: string;
   onAddSubtask: (title: string) => void;
+  closeAllDropdowns?: () => void; // Добавляем проп для закрытия dropdown
 }
 
-const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId, userId, date, onAddSubtask }) => {
+const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId, userId, date, onAddSubtask, closeAllDropdowns }) => {
   const [inputValue, setInputValue] = useState('');
   const { theme } = useTheme();
   const { t } = useTranslation();
@@ -36,6 +37,7 @@ const NewSubtaskInput: React.FC<NewSubtaskInputProps> = ({ parentTaskId, spaceId
         placeholder={t('tasks.addSubtask')}
         placeholderTextColor={theme.colors.background}
         underlineColorAndroid="transparent"
+        onFocus={closeAllDropdowns} // Закрываем все dropdown при фокусе на поле
       />
       {/* <Gigabar color={theme.colors.background} size={1} marginHorizontal={6} /> */}
     </View>
