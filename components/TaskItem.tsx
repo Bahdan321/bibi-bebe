@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Добавь useEffect
 import { View, StyleSheet, Image } from 'react-native';
 import CustomTouchable from './base/CustomTouchable';
 import Gigabar from './Gigabar';
@@ -20,10 +20,8 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   const [currentMeme, setCurrentMeme] = useState<any>(null);
   const getRandomMeme = useRandomMeme();
 
-  // Дублирование чтобы состояние нормально обновлялось, а то из-за ебанного getTaskStateForDate не работало нормально
   const reactiveTask = tasks$[task.id];
 
-  // Тут состояние задачи нормально вычисляется, может можно сделать попроще
   const completed = reactiveTask?.is_repeating?.get()
     ? (() => {
       const overrides = reactiveTask.overrides?.get() || [];
@@ -42,12 +40,27 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
 
   if (deleted) return null;
 
+  // Анимация появления новой задачи (fade-in + slide-down)
   const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.5);
+  const translateY = useSharedValue(20); // Начальный сдвиг вниз для slide эффекта
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 300 });
+    translateY.value = withTiming(0, { duration: 300 });
+  }, []); // Запускается только при монтировании (добавлении новой задачи)
+
+  const itemAnimatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ scale: scale.value }],
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  // Твоя существующая анимация для мемов (оставляем как есть)
+  const memeOpacity = useSharedValue(0);
+  const memeScale = useSharedValue(0.5);
+
+  const memeAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: memeOpacity.value,
+    transform: [{ scale: memeScale.value }],
   }));
 
   const truncateTask = (text: string) => {
@@ -72,36 +85,31 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   };
 
   const handleToggleCompletion = async () => {
-    // Если задача не была выполнена и мы её выполняем - показываем анимацию
     if (!completed) {
       const meme = getRandomMeme();
       setCurrentMeme(meme);
       setShowAnimation(true);
 
-      opacity.value = withTiming(1, { duration: 500 });
-      scale.value = withTiming(1, { duration: 500 });
+      memeOpacity.value = withTiming(1, { duration: 500 });
+      memeScale.value = withTiming(1, { duration: 500 });
 
-      // Вызываем изменение состояния сразу
       onToggleTaskCompletion(task.id, date);
 
       setTimeout(() => {
-        opacity.value = withTiming(0, { duration: 500 });
-        scale.value = withTiming(0.5, { duration: 500 });
+        memeOpacity.value = withTiming(0, { duration: 500 });
+        memeScale.value = withTiming(0.5, { duration: 500 });
         setTimeout(() => {
           setShowAnimation(false);
           setCurrentMeme(null);
         }, 500);
       }, 2000);
     } else {
-      // Если задача выполнена и мы её снимаем с выполнения - просто меняем состояние
       onToggleTaskCompletion(task.id, date);
     }
   };
 
-
-
   return (
-    <View style={{ flexDirection: 'column', marginHorizontal: 6 }}>
+    <Animated.View style={[itemAnimatedStyle, { flexDirection: 'column', marginHorizontal: 6 }]}>
       <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
         <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
           <CustomText
@@ -139,7 +147,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
       {showAnimation && (
         <Animated.View
           style={[
-            animatedStyle,
+            memeAnimatedStyle,
             {
               position: 'absolute',
               top: 8,
@@ -152,7 +160,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
           <Confetti />
         </Animated.View>
       )}
-    </View>
+    </Animated.View>
   );
 });
 

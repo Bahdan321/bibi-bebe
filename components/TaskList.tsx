@@ -6,13 +6,14 @@ import NewTaskInput from '@/components/NewTaskInput';
 import { Task, TaskListProps } from '@/types/types';
 
 const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: TaskListProps) => {
-  const mainTasks = tasks.filter(task => task.parent_task_id === null);
+  const mainTasks = tasks.filter(task => task.parent_task_id === null)
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()); // Сортировка, чтобы новые задачи добавлялись в конец
 
   return (
     <View style={styles.container}>
       {mainTasks.map((task) => (
         <TaskItem
-          key={`${task.id}-${date}`} // Уникальный ключ для каждой задачи на конкретную дату
+          key={`${task.id}-${date}`}
           task={task}
           onToggleTaskCompletion={onToggleTaskCompletion}
           date={date}
