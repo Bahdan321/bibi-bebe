@@ -10,7 +10,7 @@ export default function Index() {
     const { isAuthenticated, isLoading, user } = useAuth();
     const { theme } = useTheme();
     const [hasSpace, setHasSpace] = useState<boolean | null>(null);
-    
+
     // Проверяем, есть ли у пользователя созданное пространство
     useEffect(() => {
         const checkUserSpace = async () => {
@@ -20,10 +20,10 @@ export default function Index() {
                 console.log('Проверка пространства:', space ? 'Пространство найдено' : 'Пространство не найдено');
             }
         };
-        
+
         checkUserSpace();
     }, [isAuthenticated, user]);
-    
+
     console.log(isAuthenticated, isLoading, 'Есть пространство:', hasSpace)
 
     const anim = <LottieView
@@ -43,7 +43,7 @@ export default function Index() {
                 flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: theme.colors.text
+                backgroundColor: "#7A62FF"
             }}>
                 {anim}
             </View>
@@ -58,19 +58,19 @@ export default function Index() {
                 flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: theme.colors.text
+                backgroundColor: "#7A62FF"
             }}>
                 {anim}
                 <Redirect href={"/(private)/onboardingScreen"} />
             </View>;
         }
-        
+
         // Если пользователь аутентифицирован и у него есть пространство, перенаправляем на домашний экран
         return <View style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: theme.colors.text
+            backgroundColor: "#7A62FF"
         }}>
             {anim}
             <Redirect href={"/(private)/home"} />
@@ -81,7 +81,7 @@ export default function Index() {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: theme.colors.text
+            backgroundColor: "#7A62FF"
         }}>
             {anim}
             <Redirect href={"/(public)/signIn"} />;
