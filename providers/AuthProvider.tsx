@@ -27,6 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
+    const [isInitialized, setIsInitialized] = useState(false);
     // const apiUrl = getApiUrl();
     // const apiUrl = "http://192.168.41.151:8000";
     // console.log(apiUrl)
@@ -338,6 +339,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
                 setIsAuthenticated(false);
             } finally {
+                setIsInitialized(true);
                 setIsLoading(false);
             }
         };
@@ -1019,8 +1021,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, signIn, signUp, signOut, createUserSpace, signInWithGoogle, verifySignupOtp, resendSignupOtp, updateUserProfile }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, isInitialized, user, signIn, signUp, signOut, createUserSpace, signInWithGoogle, verifySignupOtp, resendSignupOtp, updateUserProfile }}>
             {children}
         </AuthContext.Provider>
     );
-}; 
+};

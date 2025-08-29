@@ -86,6 +86,7 @@ export interface User {
 export interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
+    isInitialized: boolean;
     user: User | null;
     signIn: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
     signUp: (username: string, email: string, password: string) => Promise<{ success: boolean; requiresConfirmation?: boolean; error?: string }>;

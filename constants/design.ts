@@ -1,8 +1,4 @@
 // Константы дизайн-системы для унификации стилей
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
 
 export const SPACING = {
   xs: 4,
@@ -14,13 +10,13 @@ export const SPACING = {
 } as const;
 
 export const FONT_SIZES = {
-  xs: hp('1.5'),   // ~12px на стандартном экране
-  sm: hp('2'),   // ~14px
-  md: hp('2.5'),   // ~16px
-  lg: hp('3'),   // ~18px
-  xl: hp('3.5'),   // ~20px
-  xxl: hp('4'),  // ~24px
-  xxxl: hp('4.5'), // ~30px
+  xs: 12,   // ~12px на стандартном экране
+  sm: 14,   // ~14px
+  md: 16,   // ~16px
+  lg: 18,   // ~18px
+  xl: 20,   // ~20px
+  xxl: 24,  // ~24px
+  xxxl: 30, // ~30px
 } as const;
 
 export const FONT_WEIGHTS = {
@@ -164,19 +160,19 @@ export const BUTTON_SIZES = {
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
     fontSize: FONT_SIZES.sm,
-    iconSize: hp('2.0%'), // ~16px
+    iconSize: 16, // ~16px
   },
   medium: {
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     fontSize: FONT_SIZES.md,
-    iconSize: hp('2.5%'), // ~20px
+    iconSize: 20, // ~20px
   },
   large: {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     fontSize: FONT_SIZES.lg,
-    iconSize: hp('3.0%'), // ~24px
+    iconSize: 24, // ~24px
   },
 } as const;
 
