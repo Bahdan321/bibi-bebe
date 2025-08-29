@@ -4,7 +4,7 @@ import DayInfo from '@/components/DayInfo';
 import TaskList from '@/components/TaskList';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
-import { tasks$, toggleTaskCompletion, addTask, getTaskStateForDate } from '@/Supabase/utils/SupaLegend';
+import { tasks$, toggleTaskCompletion, addTask, getTaskStateForDate, toggleTaskRemove } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
 import { DayBlockProps, Task } from '@/types/types';
 import { useCurrentUserId } from '@/hooks/useCurrentUser';
@@ -102,6 +102,7 @@ const DayBlock: React.FC<DayBlockProps> = observer(({ date, dayOfWeek }) => {
                     addTask(text, currentSpaceId, currentUserId, date, date, '');
                 }}
                 onToggleTaskCompletion={toggleTaskCompletion}
+                onDeleteTask={toggleTaskRemove}
                 date={date}
             />
         </View>

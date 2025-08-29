@@ -5,6 +5,7 @@ import {
   ScrollView,
   Alert,
   Animated,
+  LayoutAnimation,
 } from 'react-native';
 import CustomButton from './base/CustomButton';
 import CustomText from './base/CustomText';
@@ -219,9 +220,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   };
 
   const handleDelete = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // Анимация сдвига списка
     toggleTaskRemove(task.id, date);
     subtasks.forEach((subtask) => toggleTaskRemove(subtask.id, date));
-    onClose();
+    onClose(); // Закрытие меню сразу
   };
 
   const handleTaskToggle = async () => {

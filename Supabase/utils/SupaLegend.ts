@@ -82,7 +82,7 @@ export const tasks$ = observable(
     collection: 'tasks',
     select: (from) =>
       from.select(
-        'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, display_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, is_anime_task, reward, overrides'
+        'id, space_id, user_id, parent_task_id, title, description, status, created_at, updated_at, due_date, display_date, completion_date, is_repeating, repeat_interval, planning_period, is_urgent, is_important, is_anime_task, reward, overrides, deleting'
       ),
     filter: (select) => {
       const spaceId = currentSpaceId$.get();
@@ -121,7 +121,7 @@ export const getTaskStateForDate = (task: Task, date: string): { completed: bool
   return override ? { completed: override.completed, deleted: override.deleted } : { completed: false, deleted: false };
 };
 
-export const updateTaskState = async (taskId: string, date: string, updates: Partial<{ completed: boolean; deleted: boolean }>) => {
+export const updateTaskState = async (taskId: string, date: string, updates: Partial<{ completed: boolean; deleted: boolean; deleting: boolean }>) => {
   const task = tasks$[taskId].get();
   if (!task) return;
 
@@ -189,6 +189,7 @@ export const addTask = (
       is_important,
       is_anime_task,
       overrides: [],
+      deleting: false,
     };
     tasks$.set((prev) => ({ ...prev, [newId]: taskData }));
     console.log('Task added:', { id: newId, title, due_date, display_date, created_at: taskData.created_at });
@@ -301,12 +302,23 @@ export const toggleTaskRemove = (taskId: string, date: string) => {
   const task = tasks$[taskId];
   if (task) {
     if (task.is_repeating.get()) {
-      updateTaskState(taskId, date, { deleted: true });
+      updateTaskState(taskId, date, { deleting: true });
     } else {
-      const taskData = task.get();
-      if (taskData.description === null) task.description.set('');
-      task.delete();
+      task.deleting.set(true);
     }
+  }
+};
+
+export const finishDelete = async (taskId: string, date: string) => {
+  const task = tasks$[taskId].get();
+  if (!task) return;
+
+  if (task.is_repeating) {
+    updateTaskState(taskId, date, { deleted: true, deleting: false });
+  } else {
+    // Для non-repeating: удаляем задачу полностью
+    if (task.description === null) task.description.set('');
+    tasks$[taskId].delete();
   }
 };
 

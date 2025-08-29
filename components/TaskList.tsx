@@ -4,6 +4,7 @@ import { observer } from '@legendapp/state/react';
 import TaskItem from '@/components/TaskItem';
 import NewTaskInput from '@/components/NewTaskInput';
 import { Task, TaskListProps } from '@/types/types';
+import { toggleTaskRemove } from '@/Supabase/utils/SupaLegend';
 
 const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: TaskListProps) => {
   const mainTasks = tasks.filter(task => task.parent_task_id === null)
@@ -16,6 +17,7 @@ const TaskList = observer(({ tasks, onAddTask, onToggleTaskCompletion, date }: T
           key={`${task.id}-${date}`}
           task={task}
           onToggleTaskCompletion={onToggleTaskCompletion}
+          onDeleteTask={toggleTaskRemove}
           date={date}
         />
       ))}

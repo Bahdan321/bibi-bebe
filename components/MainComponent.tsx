@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, LogBox } from 'react-native';
 import DayBlock from './DayBlock';
 import { useTheme } from '@/providers/ThemeProvider';
 import { getWeekDays } from '@/utils/DateUtils';

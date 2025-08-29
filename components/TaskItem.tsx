@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'; // Добавь useEffect
-import { View, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
 import CustomTouchable from './base/CustomTouchable';
 import Gigabar from './Gigabar';
 import CustomButton from './base/CustomButton';
@@ -9,10 +9,15 @@ import { TaskItemProps } from '@/types/types';
 import { observer } from '@legendapp/state/react';
 import { useTheme } from '@/providers/ThemeProvider';
 import { router } from 'expo-router';
-import { getTaskStateForDate, tasks$ } from '@/Supabase/utils/SupaLegend';
+import { getTaskStateForDate, tasks$, finishDelete } from '@/Supabase/utils/SupaLegend';
 import useRandomMeme from '@/hooks/useRandomMeme';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Confetti from './Confetti';
+
+// Для LayoutAnimation
+if (Platform.OS === 'android') {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCompletion }) => {
   const { theme } = useTheme();
@@ -22,37 +27,55 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
 
   const reactiveTask = tasks$[task.id];
 
-  const completed = reactiveTask?.is_repeating?.get()
-    ? (() => {
-      const overrides = reactiveTask.overrides?.get() || [];
-      const override = overrides.find((o) => o.date === date);
-      return override ? override.completed : false;
-    })()
-    : reactiveTask?.status?.get() || false;
-
-  const deleted = reactiveTask?.is_repeating?.get()
-    ? (() => {
-      const overrides = reactiveTask.overrides?.get() || [];
-      const override = overrides.find((o) => o.date === date);
-      return override ? override.deleted : false;
-    })()
-    : reactiveTask?.deleted?.get() || false;
+  const state = getTaskStateForDate(reactiveTask.get(), date);
+  const completed = state.completed;
+  const deleted = state.deleted;
+  const deleting = state.deleting;
 
   if (deleted) return null;
 
   // Анимация появления новой задачи (fade-in + slide-down)
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(20); // Начальный сдвиг вниз для slide эффекта
+  const appearOpacity = useSharedValue(0);
+  const appearTranslateY = useSharedValue(20); // Начальный сдвиг вниз для slide эффекта
 
   useEffect(() => {
-    opacity.value = withTiming(1, { duration: 300 });
-    translateY.value = withTiming(0, { duration: 300 });
+    appearOpacity.value = withTiming(1, { duration: 300 });
+    appearTranslateY.value = withTiming(0, { duration: 300 });
   }, []); // Запускается только при монтировании (добавлении новой задачи)
 
-  const itemAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
+  const appearAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: appearOpacity.value,
+    transform: [{ translateY: appearTranslateY.value }],
   }));
+
+  // Анимация удаления: opacity + height (для сжатия)
+  const deleteOpacity = useSharedValue(1);
+  const deleteHeight = useSharedValue<'auto' | number>('auto');
+
+  const contentRef = useRef<View>(null);
+
+  const deleteAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: deleteOpacity.value,
+    height: deleteHeight.value === 'auto' ? 'auto' : deleteHeight.value,
+    overflow: 'hidden',
+  }));
+
+  useEffect(() => {
+    if (deleting) {
+      // Анимируем сдвиг списка
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+      // Измеряем высоту и анимируем
+      contentRef.current?.measure((x, y, width, height) => {
+        deleteHeight.value = height; // Текущая высота
+        deleteOpacity.value = withTiming(0, { duration: 300 });
+        deleteHeight.value = withTiming(0, { duration: 300 }, () => {
+          // Завершаем удаление после анимации
+          finishDelete(task.id, date);
+        });
+      });
+    }
+  }, [deleting, task.id, date]);
 
   // Твоя существующая анимация для мемов (оставляем как есть)
   const memeOpacity = useSharedValue(0);
@@ -109,57 +132,59 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   };
 
   return (
-    <Animated.View style={[itemAnimatedStyle, { flexDirection: 'column', marginHorizontal: 6 }]}>
-      <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-        <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
-          <CustomText
-            content={truncateTask(task.title)}
-            size="md"
-            color={completed ? theme.colors.secondary : theme.colors.unfinishedTask}
-            weight="bold"
-            lineThrough={completed}
-            opacity={completed ? 0.6 : 1}
-            paddingHorizontal={2}
-            borderRadius={999}
-            borderWidth={task.is_important || task.is_urgent ? 0 : 0}
-            borderColor={taskBorderColor(task.is_urgent, task.is_important)}
-            backgroundColor={taskBorderColor(task.is_urgent, task.is_important)}
+    <Animated.View style={[appearAnimatedStyle, { flexDirection: 'column', marginHorizontal: 6 }]}>
+      <Animated.View style={deleteAnimatedStyle}>
+        <View ref={contentRef} style={[styles.container, { backgroundColor: theme.colors.primary }]}>
+          <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
+            <CustomText
+              content={truncateTask(task.title)}
+              size="md"
+              color={completed ? theme.colors.secondary : theme.colors.unfinishedTask}
+              weight="bold"
+              lineThrough={completed}
+              opacity={completed ? 0.6 : 1}
+              paddingHorizontal={2}
+              borderRadius={999}
+              borderWidth={task.is_important || task.is_urgent ? 0 : 0}
+              borderColor={taskBorderColor(task.is_urgent, task.is_important)}
+              backgroundColor={taskBorderColor(task.is_urgent, task.is_important)}
+            />
+          </CustomTouchable>
+          <CustomButton
+            variant="round"
+            size="small"
+            icon="checkmark-outline"
+            iconColor={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask}
+            onPress={handleToggleCompletion}
+            style={{
+              opacity: completed ? 0.5 : 1,
+              backgroundColor: theme.colors.primary,
+              borderColor: completed ? theme.colors.finishedTask : theme.colors.unfinishedTask,
+              borderWidth: 1.5,
+              width: 28,
+              height: 28,
+            }}
+            hitSlop={10}
           />
-        </CustomTouchable>
-        <CustomButton
-          variant="round"
-          size="small"
-          icon="checkmark-outline"
-          iconColor={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask}
-          onPress={handleToggleCompletion}
-          style={{
-            opacity: completed ? 0.5 : 1,
-            backgroundColor: theme.colors.primary,
-            borderColor: completed ? theme.colors.finishedTask : theme.colors.unfinishedTask,
-            borderWidth: 1.5,
-            width: 28,
-            height: 28,
-          }}
-          hitSlop={10}
-        />
-      </View>
-      <Gigabar color={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask} size={1} />
-      {showAnimation && (
-        <Animated.View
-          style={[
-            memeAnimatedStyle,
-            {
-              position: 'absolute',
-              top: 8,
-              left: wp("15%"),
-              zIndex: 1000,
-            },
-          ]}
-        >
-          <Image source={currentMeme} style={{ width: 250, height: 250, borderRadius: 20 }} />
-          <Confetti />
-        </Animated.View>
-      )}
+        </View>
+        <Gigabar color={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask} size={1} />
+        {showAnimation && (
+          <Animated.View
+            style={[
+              memeAnimatedStyle,
+              {
+                position: 'absolute',
+                top: 8,
+                left: wp("15%"),
+                zIndex: 1000,
+              },
+            ]}
+          >
+            <Image source={currentMeme} style={{ width: 250, height: 250, borderRadius: 20 }} />
+            <Confetti />
+          </Animated.View>
+        )}
+      </Animated.View>
     </Animated.View>
   );
 });
