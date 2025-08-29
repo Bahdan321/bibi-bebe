@@ -47,6 +47,7 @@ export interface Override {
     date: string; // Формат ISO, например, "2025-08-11"
     completed: boolean;
     deleted: boolean;
+    deleting?: boolean; // Флаг процесса удаления для анимации
 }
 
 export interface Task {
@@ -70,6 +71,7 @@ export interface Task {
     reward?: string | null;
     is_anime_task: boolean; // Аниме-задача
     deleted?: boolean; // Флаг удаления (опционально, если используется soft delete)
+    deleting?: boolean; // Флаг процесса удаления для анимации
     overrides?: Override[]; // Массив переопределений для повторяющихся задач
 }
 

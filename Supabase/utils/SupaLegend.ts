@@ -113,32 +113,32 @@ export const setCurrentSpaceId = (spaceId: string | null) => {
 
 updateCurrentSpaceId().catch(error => console.error('Ошибка инициализации текущего ID пространства:', error));
 
-export const getTaskStateForDate = (task: Task, date: string): { completed: boolean; deleted: boolean } => {
+export const getTaskStateForDate = (task: Task, date: string): { completed: boolean; deleted: boolean; deleting: boolean } => {
   if (!task.is_repeating) {
-    return { completed: task.status, deleted: task.deleted || false };
+    return { completed: task.status, deleted: task.deleted || false, deleting: task.deleting || false };
   }
   const override = task.overrides?.find((o) => o.date === date);
-  return override ? { completed: override.completed, deleted: override.deleted } : { completed: false, deleted: false };
+  return override ? { completed: override.completed, deleted: override.deleted, deleting: override.deleting || false } : { completed: false, deleted: false, deleting: false };
 };
 
 export const updateTaskState = async (taskId: string, date: string, updates: Partial<{ completed: boolean; deleted: boolean; deleting: boolean }>) => {
-  const task = tasks$[taskId].get();
+  const task = (tasks$ as any)[taskId]?.get();
   if (!task) return;
 
   let newOverrides = task.overrides ? [...task.overrides] : [];
-  const overrideIndex = newOverrides.findIndex((o) => o.date === date);
+  const overrideIndex = newOverrides.findIndex((o: any) => o.date === date);
 
   if (overrideIndex >= 0) {
     newOverrides[overrideIndex] = { ...newOverrides[overrideIndex], ...updates };
   } else {
-    newOverrides.push({ date, completed: false, deleted: false, ...updates });
+    newOverrides.push({ date, completed: false, deleted: false, deleting: false, ...updates });
   }
 
-  tasks$[taskId].overrides.set(newOverrides);
+  (tasks$ as any)[taskId].overrides.set(newOverrides);
 
   const { error } = await supabase
     .from('tasks')
-    .update({ overrides: newOverrides })
+    .update({ overrides: newOverrides } as any)
     .eq('id', taskId);
 
   if (error) console.error('Ошибка обновления overrides:', error);
@@ -287,7 +287,7 @@ export const toggleDublicateTask = async (
 };
 
 export const toggleTaskCompletion = (taskId: string, date: string) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) {
     if (task.is_repeating.get()) {
       const state = getTaskStateForDate(task.get(), date);
@@ -299,7 +299,7 @@ export const toggleTaskCompletion = (taskId: string, date: string) => {
 };
 
 export const toggleTaskRemove = (taskId: string, date: string) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) {
     if (task.is_repeating.get()) {
       updateTaskState(taskId, date, { deleting: true });
@@ -310,48 +310,48 @@ export const toggleTaskRemove = (taskId: string, date: string) => {
 };
 
 export const finishDelete = async (taskId: string, date: string) => {
-  const task = tasks$[taskId].get();
+  const task = (tasks$ as any)[taskId]?.get();
   if (!task) return;
 
   if (task.is_repeating) {
     updateTaskState(taskId, date, { deleted: true, deleting: false });
   } else {
     // Для non-repeating: удаляем задачу полностью
-    if (task.description === null) task.description.set('');
-    tasks$[taskId].delete();
+    delete (tasks$ as any)[taskId];
+    await supabase.from('tasks').delete().eq('id', taskId);
   }
 };
 
 export const toggleTaskRename = (taskId: string, newTitle: string) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) task.title.set(newTitle);
 };
 
 export const toggleTaskRenameDescription = (taskId: string, newDescription: string) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) task.description.set(newDescription);
 };
 
 export const toggleTaskChangeDate = (taskId: string, newDate: string) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) task.due_date.set(newDate);
 };
 
 export const toggleTaskChangeDisplayDate = (taskId: string, newDisplayDate: string) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) task.display_date.set(newDisplayDate);
 };
 
 export const updateTaskTitle = async (taskId: string, newTitle: string) => {
   const { error } = await supabase
     .from('tasks')
-    .update({ title: newTitle })
+    .update({ title: newTitle } as any)
     .eq('id', taskId);
   if (error) console.error('Ошибка при обновлении названия задачи:', error);
 };
 
 export const changeEisenhowerMatrixStatus = (taskId: string, isUrgent: boolean, isImportant: boolean) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) {
     task.is_urgent.set(isUrgent);
     task.is_important.set(isImportant);
@@ -359,6 +359,6 @@ export const changeEisenhowerMatrixStatus = (taskId: string, isUrgent: boolean, 
 };
 
 export const addReward = (taskId: string, reward: string) => {
-  const task = tasks$[taskId];
+  const task = (tasks$ as any)[taskId];
   if (task) task.reward.set(reward);
 };

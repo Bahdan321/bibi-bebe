@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, StyleSheet, Image, Platform, UIManager } from 'react-native';
 import CustomTouchable from './base/CustomTouchable';
 import Gigabar from './Gigabar';
 import CustomButton from './base/CustomButton';
@@ -15,7 +15,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import Confetti from './Confetti';
 
 // Для LayoutAnimation
-if (Platform.OS === 'android') {
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -25,7 +25,7 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   const [currentMeme, setCurrentMeme] = useState<any>(null);
   const getRandomMeme = useRandomMeme();
 
-  const reactiveTask = tasks$[task.id];
+  const reactiveTask = (tasks$ as any)[task.id];
 
   const state = getTaskStateForDate(reactiveTask.get(), date);
   const completed = state.completed;
@@ -50,29 +50,23 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
 
   // Анимация удаления: opacity + height (для сжатия)
   const deleteOpacity = useSharedValue(1);
-  const deleteHeight = useSharedValue<'auto' | number>('auto');
+  const deleteHeight = useSharedValue(80); // Примерная высота элемента
 
   const contentRef = useRef<View>(null);
 
   const deleteAnimatedStyle = useAnimatedStyle(() => ({
     opacity: deleteOpacity.value,
-    height: deleteHeight.value === 'auto' ? 'auto' : deleteHeight.value,
+    height: deleting ? deleteHeight.value : 'auto',
     overflow: 'hidden',
   }));
 
   useEffect(() => {
     if (deleting) {
-      // Анимируем сдвиг списка
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-      // Измеряем высоту и анимируем
-      contentRef.current?.measure((x, y, width, height) => {
-        deleteHeight.value = height; // Текущая высота
-        deleteOpacity.value = withTiming(0, { duration: 300 });
-        deleteHeight.value = withTiming(0, { duration: 300 }, () => {
-          // Завершаем удаление после анимации
-          finishDelete(task.id, date);
-        });
+      // Запускаем анимацию удаления без LayoutAnimation
+      deleteOpacity.value = withTiming(0, { duration: 300 });
+      deleteHeight.value = withTiming(0, { duration: 300 }, () => {
+        // Завершаем удаление после анимации
+        // finishDelete(task.id, date);
       });
     }
   }, [deleting, task.id, date]);
@@ -132,60 +126,63 @@ const TaskItem: React.FC<TaskItemProps> = observer(({ task, date, onToggleTaskCo
   };
 
   return (
-    <Animated.View style={[appearAnimatedStyle, { flexDirection: 'column', marginHorizontal: 6 }]}>
-      <Animated.View style={deleteAnimatedStyle}>
-        <View ref={contentRef} style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-          <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
-            <CustomText
-              content={truncateTask(task.title)}
-              size="md"
-              color={completed ? theme.colors.secondary : theme.colors.unfinishedTask}
-              weight="bold"
-              lineThrough={completed}
-              opacity={completed ? 0.6 : 1}
-              paddingHorizontal={2}
-              borderRadius={999}
-              borderWidth={task.is_important || task.is_urgent ? 0 : 0}
-              borderColor={taskBorderColor(task.is_urgent, task.is_important)}
-              backgroundColor={taskBorderColor(task.is_urgent, task.is_important)}
+    <View>
+      <Animated.View style={[appearAnimatedStyle, { flexDirection: 'column', marginHorizontal: 6 }]}>
+        <Animated.View style={deleteAnimatedStyle}>
+          <View ref={contentRef} style={[styles.container, { backgroundColor: theme.colors.primary }]}>
+            <CustomTouchable onPress={handleTextPress} style={{ flex: 1 }}>
+              <CustomText
+                content={truncateTask(task.title)}
+                size="md"
+                color={completed ? theme.colors.secondary : theme.colors.unfinishedTask}
+                weight="bold"
+                lineThrough={completed}
+                opacity={completed ? 0.6 : 1}
+                paddingHorizontal={2}
+                borderRadius={999}
+                borderWidth={task.is_important || task.is_urgent ? 0 : 0}
+                borderColor={taskBorderColor(task.is_urgent, task.is_important)}
+                backgroundColor={taskBorderColor(task.is_urgent, task.is_important)}
+              />
+            </CustomTouchable>
+            <CustomButton
+              variant="round"
+              size="small"
+              icon="checkmark-outline"
+              iconColor={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask}
+              onPress={handleToggleCompletion}
+              style={{
+                opacity: completed ? 0.5 : 1,
+                backgroundColor: theme.colors.primary,
+                borderColor: completed ? theme.colors.finishedTask : theme.colors.unfinishedTask,
+                borderWidth: 1.5,
+                width: 28,
+                height: 28,
+              }}
+              hitSlop={10}
             />
-          </CustomTouchable>
-          <CustomButton
-            variant="round"
-            size="small"
-            icon="checkmark-outline"
-            iconColor={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask}
-            onPress={handleToggleCompletion}
-            style={{
-              opacity: completed ? 0.5 : 1,
-              backgroundColor: theme.colors.primary,
-              borderColor: completed ? theme.colors.finishedTask : theme.colors.unfinishedTask,
-              borderWidth: 1.5,
-              width: 28,
-              height: 28,
-            }}
-            hitSlop={10}
-          />
-        </View>
-        <Gigabar color={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask} size={1} />
-        {showAnimation && (
-          <Animated.View
-            style={[
-              memeAnimatedStyle,
-              {
-                position: 'absolute',
-                top: 8,
-                left: wp("15%"),
-                zIndex: 1000,
-              },
-            ]}
-          >
-            <Image source={currentMeme} style={{ width: 250, height: 250, borderRadius: 20 }} />
-            <Confetti />
-          </Animated.View>
-        )}
+          </View>
+          <Gigabar color={completed ? theme.colors.finishedTask : theme.colors.unfinishedTask} size={1} />
+        </Animated.View>
       </Animated.View>
-    </Animated.View>
+      {showAnimation && (
+        <Animated.View
+          style={[
+            memeAnimatedStyle,
+            {
+              position: 'absolute',
+              top: 8,
+              left: wp("15%"),
+              zIndex: 90000,
+            },
+          ]}
+        >
+          <Image source={currentMeme} style={{ width: 250, height: 250, borderRadius: 20 }} />
+          <Confetti />
+        </Animated.View>
+      )}
+
+    </View>
   );
 });
 

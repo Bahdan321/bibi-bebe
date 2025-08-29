@@ -50,7 +50,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items, visible, onClose, co
                 duration: 200,
                 useNativeDriver: true,
             }).start(() => {
-                setShouldRender(false); // Unmount после анимации
+                // setShouldRender(false); // Unmount после анимации
             });
         }
     }, [visible, shouldRender, animValue]);
