@@ -84,7 +84,7 @@ export default function Index() {
             backgroundColor: "#7A62FF"
         }}>
             {anim}
-            <Redirect href={"/(public)/signIn"} />;
+            <Redirect href={"/(public)/signIn"} />
         </View>
     }
 }

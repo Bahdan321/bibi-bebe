@@ -18,12 +18,6 @@
             "CFBundleURLSchemes": [
               "bibibebe"
             ]
-          },
-          {
-            "CFBundleURLName": "bibibebe",
-            "CFBundleURLSchemes": [
-              "bibibebe"
-            ]
           }
         ]
       }
