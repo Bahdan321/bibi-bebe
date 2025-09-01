@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import CustomText from '@/components/base/CustomText';
 import CustomButton from '@/components/base/CustomButton';
 import CustomTouchable from '@/components/base/CustomTouchable';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withDelay } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withDelay, withSequence } from 'react-native-reanimated';
 
 export default function SignUp() {
     const [name, setName] = useState('');
@@ -25,11 +25,21 @@ export default function SignUp() {
     const { signUp, signInWithGoogle } = useAuth();
     const { t } = useTranslation();
 
+    // SignUp text and fields
     const translateY = useSharedValue(50);
     const nameFieldOpacity = useSharedValue(0);
     const nameFieldTranslateY = useSharedValue(-30);
     const emailPasswordTranslateY = useSharedValue(0);
     const buttonsTranslateY = useSharedValue(0);
+
+    // Buttons
+    const scale = useSharedValue(1);
+
+    const buttonAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: scale.value }],
+        };
+    });
 
     useEffect(() => {
         // Анимация заголовка
@@ -135,6 +145,10 @@ export default function SignUp() {
     }, [name, email, password]);
 
     const handleSignUp = async () => {
+        scale.value = withSequence(
+            withSpring(1.09, { damping: 50, stiffness: 1000 }), // Увеличение
+            withSpring(1, { damping: 30, stiffness: 100 }) // Возврат к исходному размеру
+        );
         // Сбросить общую ошибку
         setGeneralError('');
 
@@ -290,14 +304,16 @@ export default function SignUp() {
                     <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
                 ) : (
                     <>
-                        <CustomButton
-                            variant="primary"
-                            size="medium"
-                            title={t('auth.signUp')}
-                            titleColor="#1C2526"
-                            onPress={handleSignUp}
-                            style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
-                        />
+                        <Animated.View style={[buttonAnimatedStyle]}>
+                            <CustomButton
+                                variant="primary"
+                                size="medium"
+                                title={t('auth.signUp')}
+                                titleColor="#1C2526"
+                                onPress={handleSignUp}
+                                style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                            />
+                        </Animated.View>
                         <CustomText
                             translationKey="common.or"
                             size="md"

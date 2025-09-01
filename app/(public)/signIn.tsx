@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomButton, CustomTouchable } from '@/components/base';
 import CustomText from '@/components/base/CustomText';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withDelay } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withDelay, withSequence } from 'react-native-reanimated';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
@@ -49,6 +49,15 @@ export default function SignIn() {
     const animatedStyle = useAnimatedStyle(() => {
         return {
             transform: [{ translateY: translateY.value }],
+        };
+    });
+
+    // Buttons
+    const scale = useSharedValue(1);
+
+    const buttonAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: scale.value }],
         };
     });
 
@@ -99,6 +108,10 @@ export default function SignIn() {
     }, [email, password]);
 
     const handleSignIn = async () => {
+        scale.value = withSequence(
+            withSpring(1.09, { damping: 50, stiffness: 1000 }), // Увеличение
+            withSpring(1, { damping: 30, stiffness: 100 }) // Возврат к исходному размеру
+        );
         // Сбросить общую ошибку
         setGeneralError('');
 
@@ -213,14 +226,16 @@ export default function SignIn() {
                     <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
                 ) : (
                     <>
-                        <CustomButton
-                            variant="primary"
-                            size="medium"
-                            title={t('auth.signIn')}
-                            titleColor="#1C2526"
-                            onPress={handleSignIn}
-                            style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
-                        />
+                        <Animated.View style={[buttonAnimatedStyle]}>
+                            <CustomButton
+                                variant="primary"
+                                size="medium"
+                                title={t('auth.signIn')}
+                                titleColor="#1C2526"
+                                onPress={handleSignIn}
+                                style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                            />
+                        </Animated.View>
                         <CustomText translationKey="common.or" color="#FFFFFF" style={styles.orTextContainer} textCenter={true} />
                         <CustomButton
                             variant="service"
