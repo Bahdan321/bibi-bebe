@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import CustomText from '@/components/base/CustomText';
 import CustomButton from '@/components/base/CustomButton';
 import CustomTouchable from '@/components/base/CustomTouchable';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withDelay } from 'react-native-reanimated';
 
 export default function SignUp() {
     const [name, setName] = useState('');
@@ -23,6 +24,67 @@ export default function SignUp() {
     const router = useRouter();
     const { signUp, signInWithGoogle } = useAuth();
     const { t } = useTranslation();
+
+    const translateY = useSharedValue(50);
+    const nameFieldOpacity = useSharedValue(0);
+    const nameFieldTranslateY = useSharedValue(-30);
+    const emailPasswordTranslateY = useSharedValue(0);
+    const buttonsTranslateY = useSharedValue(0);
+
+    useEffect(() => {
+        // Анимация заголовка
+        translateY.value = withSpring(0, {
+            damping: 10,
+            stiffness: 100,
+        });
+
+        // Анимация появления поля имени с задержкой
+        nameFieldOpacity.value = withDelay(300, withSpring(15, {
+            damping: 15,
+            stiffness: 120,
+        }));
+        nameFieldTranslateY.value = withDelay(300, withSpring(15, {
+            damping: 15,
+            stiffness: 120,
+        }));
+
+        // Сдвиг полей email и password вниз
+        emailPasswordTranslateY.value = withDelay(200, withSpring(15, {
+            damping: 12,
+            stiffness: 100,
+        }));
+
+        // Сдвиг кнопок и остальных элементов вниз
+        buttonsTranslateY.value = withDelay(250, withSpring(15, {
+            damping: 12,
+            stiffness: 100,
+        }));
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: translateY.value }],
+        };
+    });
+
+    const nameFieldAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            opacity: nameFieldOpacity.value,
+            transform: [{ translateY: nameFieldTranslateY.value }],
+        };
+    });
+
+    const emailPasswordAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: emailPasswordTranslateY.value }],
+        };
+    });
+
+    const buttonsAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: buttonsTranslateY.value }],
+        };
+    });
 
     // Валидация имени
     const validateName = (name: string) => {
@@ -159,12 +221,14 @@ export default function SignUp() {
                     color="#FFFFFF"
                     style={styles.tabSeparatorContainer}
                 />
-                <CustomText
-                    translationKey="auth.signUpTab"
-                    size="md"
-                    color="#FFFFFF"
-                    weight="medium"
-                />
+                <Animated.View style={animatedStyle}>
+                    <CustomText
+                        translationKey="auth.signUpTab"
+                        size="md"
+                        color="#FFFFFF"
+                        weight="medium"
+                    />
+                </Animated.View>
             </View>
 
             {generalError ? (
@@ -173,92 +237,99 @@ export default function SignUp() {
                 </View>
             ) : null}
 
-            <TextInputField
-                label={t('auth.name')}
-                labelColor="#B0B0B0"
-                borderColor="#4A4A4A"
-                textColor="#FFFFFF"
-                value={name}
-                onChangeText={setName}
-                style={styles.input}
-                error={nameError}
-                onBlur={() => validateName(name)}
-            />
-            <TextInputField
-                label={t('auth.email')}
-                labelColor="#B0B0B0"
-                borderColor="#4A4A4A"
-                textColor="#FFFFFF"
-                value={email}
-                onChangeText={setEmail}
-                style={styles.input}
-                error={emailError}
-                onBlur={() => validateEmail(email)}
-            />
-            <View style={styles.passwordContainer}>
+            <Animated.View style={nameFieldAnimatedStyle}>
                 <TextInputField
-                    label={t('auth.password')}
+                    label={t('auth.name')}
                     labelColor="#B0B0B0"
                     borderColor="#4A4A4A"
                     textColor="#FFFFFF"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!isPasswordVisible}
-                    style={[styles.input, { paddingRight: 40 }]}
-                    error={passwordError}
-                    onBlur={() => validatePassword(password)}
+                    value={name}
+                    onChangeText={setName}
+                    style={styles.input}
+                    error={nameError}
+                    onBlur={() => validateName(name)}
                 />
-                <CustomButton
-                    variant="reverse"
-                    size="small"
-                    isVisible={isPasswordVisible}
-                    onPress={() => setIsPasswordVisible(prev => !prev)}
-                    style={styles.reverseButton}
+            </Animated.View>
+
+            <Animated.View style={emailPasswordAnimatedStyle}>
+                <TextInputField
+                    label={t('auth.email')}
+                    labelColor="#B0B0B0"
+                    borderColor="#4A4A4A"
+                    textColor="#FFFFFF"
+                    value={email}
+                    onChangeText={setEmail}
+                    style={styles.input}
+                    error={emailError}
+                    onBlur={() => validateEmail(email)}
                 />
-            </View>
-            {isLoading ? (
-                <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
-            ) : (
-                <>
-                    <CustomButton
-                        variant="primary"
-                        size="medium"
-                        title={t('auth.signUp')}
-                        titleColor="#1C2526"
-                        onPress={handleSignUp}
-                        style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
-                    />
-                    <CustomText
-                        translationKey="common.or"
-                        size="md"
-                        color="#FFFFFF"
-                        style={styles.orTextContainer}
-                        textCenter
+                <View style={styles.passwordContainer}>
+                    <TextInputField
+                        label={t('auth.password')}
+                        labelColor="#B0B0B0"
+                        borderColor="#4A4A4A"
+                        textColor="#FFFFFF"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={!isPasswordVisible}
+                        style={[styles.input, { paddingRight: 40 }]}
+                        error={passwordError}
+                        onBlur={() => validatePassword(password)}
                     />
                     <CustomButton
-                        variant="service"
-                        size="medium"
-                        title={t('auth.google')}
-                        onPress={handleGoogleSignUp}
-                        style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
-                        icon="logo-google"
-                        iconColor="#FFFFFF"
-                        titleColor="#FFFFFF"
+                        variant="reverse"
+                        size="small"
+                        isVisible={isPasswordVisible}
+                        onPress={() => setIsPasswordVisible(prev => !prev)}
+                        style={styles.reverseButton}
                     />
-                    {Platform.OS === 'ios' && (
+                </View>
+            </Animated.View>
+            <Animated.View style={buttonsAnimatedStyle}>
+                {isLoading ? (
+                    <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
+                ) : (
+                    <>
+                        <CustomButton
+                            variant="primary"
+                            size="medium"
+                            title={t('auth.signUp')}
+                            titleColor="#1C2526"
+                            onPress={handleSignUp}
+                            style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                        />
+                        <CustomText
+                            translationKey="common.or"
+                            size="md"
+                            color="#FFFFFF"
+                            style={styles.orTextContainer}
+                            textCenter
+                        />
                         <CustomButton
                             variant="service"
                             size="medium"
-                            title={t('auth.apple')}
-                            onPress={handleAppleSignUp}
-                            style={{ ...styles.socialButton, backgroundColor: '#000000' }}
-                            icon="logo-apple"
+                            title={t('auth.google')}
+                            onPress={handleGoogleSignUp}
+                            style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
+                            icon="logo-google"
                             iconColor="#FFFFFF"
                             titleColor="#FFFFFF"
                         />
-                    )}
-                </>
-            )}
+                        {Platform.OS === 'ios' && (
+                            <CustomButton
+                                variant="service"
+                                size="medium"
+                                title={t('auth.apple')}
+                                onPress={handleAppleSignUp}
+                                style={{ ...styles.socialButton, backgroundColor: '#000000' }}
+                                icon="logo-apple"
+                                iconColor="#FFFFFF"
+                                titleColor="#FFFFFF"
+                            />
+                        )}
+                    </>
+                )}
+            </Animated.View>
         </View>
     );
 }

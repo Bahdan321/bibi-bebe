@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomButton, CustomTouchable } from '@/components/base';
 import CustomText from '@/components/base/CustomText';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withDelay } from 'react-native-reanimated';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
@@ -21,6 +22,47 @@ export default function SignIn() {
     const router = useRouter();
     const { signIn, signInWithGoogle } = useAuth();
     const { t } = useTranslation();
+
+    const translateY = useSharedValue(50);
+    const emailPasswordTranslateY = useSharedValue(15);
+    const buttonsTranslateY = useSharedValue(15);
+
+    useEffect(() => {
+        translateY.value = withSpring(0, {
+            damping: 10,
+            stiffness: 100,
+        });
+
+        // Обратная анимация: возврат полей email и password на исходные позиции
+        emailPasswordTranslateY.value = withDelay(100, withSpring(0, {
+            damping: 12,
+            stiffness: 100,
+        }));
+
+        // Обратная анимация: возврат кнопок на исходные позиции
+        buttonsTranslateY.value = withDelay(150, withSpring(0, {
+            damping: 12,
+            stiffness: 100,
+        }));
+    }, [])
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: translateY.value }],
+        };
+    });
+
+    const emailPasswordAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: emailPasswordTranslateY.value }],
+        };
+    });
+
+    const buttonsAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: buttonsTranslateY.value }],
+        };
+    });
 
     // Валидация email
     const validateEmail = (email: string) => {
@@ -118,7 +160,9 @@ export default function SignIn() {
     return (
         <View style={styles.container}>
             <View style={styles.tabContainer}>
-                <CustomText translationKey="auth.signInTab" size="md" color="#FFFFFF" weight="medium" />
+                <Animated.View style={animatedStyle}>
+                    <CustomText translationKey="auth.signInTab" size="md" color="#FFFFFF" weight="medium" />
+                </Animated.View>
                 <CustomText content="◆" size="md" color="#FFFFFF" style={styles.tabSeparatorContainer} />
                 <CustomTouchable onPress={() => router.push('/(public)/signUp')}>
                     <CustomText translationKey="auth.signUpTab" size="md" color="#8A8A8A" weight="medium" />
@@ -130,75 +174,79 @@ export default function SignIn() {
                 </View>
             ) : null}
 
-            <TextInputField
-                label={t('auth.email')}
-                labelColor="#B0B0B0"
-                borderColor="#4A4A4A"
-                textColor="#FFFFFF"
-                value={email}
-                onChangeText={setEmail}
-                style={styles.input}
-                error={emailError}
-                onBlur={() => validateEmail(email)}
-            />
-            <View style={styles.passwordContainer}>
+            <Animated.View style={emailPasswordAnimatedStyle}>
                 <TextInputField
-                    label={t('auth.password')}
+                    label={t('auth.email')}
                     labelColor="#B0B0B0"
                     borderColor="#4A4A4A"
                     textColor="#FFFFFF"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!isPasswordVisible}
-                    style={[styles.input, { paddingRight: 40 }]}
-                    error={passwordError}
-                    onBlur={() => validatePassword(password)}
+                    value={email}
+                    onChangeText={setEmail}
+                    style={styles.input}
+                    error={emailError}
+                    onBlur={() => validateEmail(email)}
                 />
-                <CustomButton
-                    variant="reverse"
-                    size="small"
-                    isVisible={isPasswordVisible}
-                    onPress={() => setIsPasswordVisible(prev => !prev)}
-                    style={styles.reverseButton}
-                />
-            </View>
-            {isLoading ? (
-                <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
-            ) : (
-                <>
-                    <CustomButton
-                        variant="primary"
-                        size="medium"
-                        title={t('auth.signIn')}
-                        titleColor="#1C2526"
-                        onPress={handleSignIn}
-                        style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                <View style={styles.passwordContainer}>
+                    <TextInputField
+                        label={t('auth.password')}
+                        labelColor="#B0B0B0"
+                        borderColor="#4A4A4A"
+                        textColor="#FFFFFF"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={!isPasswordVisible}
+                        style={[styles.input, { paddingRight: 40 }]}
+                        error={passwordError}
+                        onBlur={() => validatePassword(password)}
                     />
-                    <CustomText translationKey="common.or" color="#FFFFFF" style={styles.orTextContainer} textCenter={true} />
                     <CustomButton
-                        variant="service"
-                        size="medium"
-                        title={t('auth.google')}
-                        onPress={handleGoogleSignIn}
-                        style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
-                        icon="logo-google"
-                        iconColor="#FFFFFF"
-                        titleColor="#FFFFFF"
+                        variant="reverse"
+                        size="small"
+                        isVisible={isPasswordVisible}
+                        onPress={() => setIsPasswordVisible(prev => !prev)}
+                        style={styles.reverseButton}
                     />
-                    {Platform.OS === 'ios' && (
+                </View>
+            </Animated.View>
+            <Animated.View style={buttonsAnimatedStyle}>
+                {isLoading ? (
+                    <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
+                ) : (
+                    <>
+                        <CustomButton
+                            variant="primary"
+                            size="medium"
+                            title={t('auth.signIn')}
+                            titleColor="#1C2526"
+                            onPress={handleSignIn}
+                            style={{ ...styles.button, backgroundColor: '#FFFFFF' }}
+                        />
+                        <CustomText translationKey="common.or" color="#FFFFFF" style={styles.orTextContainer} textCenter={true} />
                         <CustomButton
                             variant="service"
                             size="medium"
-                            title={t('auth.apple')}
-                            onPress={handleAppleSignIn}
-                            style={{ ...styles.socialButton, backgroundColor: '#000000' }}
-                            icon="logo-apple"
+                            title={t('auth.google')}
+                            onPress={handleGoogleSignIn}
+                            style={{ ...styles.socialButton, backgroundColor: '#4285F4' }}
+                            icon="logo-google"
                             iconColor="#FFFFFF"
                             titleColor="#FFFFFF"
                         />
-                    )}
-                </>
-            )}
+                        {Platform.OS === 'ios' && (
+                            <CustomButton
+                                variant="service"
+                                size="medium"
+                                title={t('auth.apple')}
+                                onPress={handleAppleSignIn}
+                                style={{ ...styles.socialButton, backgroundColor: '#000000' }}
+                                icon="logo-apple"
+                                iconColor="#FFFFFF"
+                                titleColor="#FFFFFF"
+                            />
+                        )}
+                    </>
+                )}
+            </Animated.View>
         </View>
     );
 }

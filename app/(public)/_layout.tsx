@@ -10,7 +10,7 @@ export default function PublicLayout() {
                 <Stack
                     screenOptions={{
                         headerShown: false,
-                        animation: 'fade'
+                        animation: 'fade_from_bottom'
                     }}
                 >
                     <Stack.Screen
