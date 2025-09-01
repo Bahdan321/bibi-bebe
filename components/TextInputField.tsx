@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { TextInput, StyleSheet, View, ViewStyle, Text } from 'react-native';
 import CustomText from '@/components/base/CustomText';
+import { useTheme } from "@/providers/ThemeProvider";
 
 type TextInputFieldProps = {
     label: string;
@@ -15,27 +16,28 @@ type TextInputFieldProps = {
     onBlur?: () => void;
 }
 
-const TextInputField: React.FC<TextInputFieldProps> = ({ 
-    label, 
-    labelColor, 
-    borderColor, 
-    textColor, 
-    value, 
-    onChangeText, 
-    secureTextEntry = false, 
-    style, 
-    error, 
-    onBlur 
+const TextInputField: React.FC<TextInputFieldProps> = ({
+    label,
+    labelColor,
+    borderColor,
+    textColor,
+    value,
+    onChangeText,
+    secureTextEntry = false,
+    style,
+    error,
+    onBlur
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     const hasError = !!error;
+    const { theme } = useTheme();
 
     return (
         <View style={styles.wrapper}>
-            <View 
+            <View
                 style={[
-                    styles.container, 
-                    style, 
+                    styles.container,
+                    style,
                     { borderColor: hasError ? '#FF3B30' : borderColor },
                     hasError ? styles.errorContainer : {}
                 ]}
@@ -49,7 +51,7 @@ const TextInputField: React.FC<TextInputFieldProps> = ({
                     } as any]}
                 />
                 <TextInput
-                    style={[styles.input, { color: textColor }]}
+                    style={[styles.input, { color: textColor, fontSize: theme.fontSize.md }]}
                     value={value}
                     onChangeText={onChangeText}
                     secureTextEntry={secureTextEntry}
@@ -86,9 +88,9 @@ const styles = StyleSheet.create({
         left: 10,
     },
     input: {
-        height: 40,
-        fontSize: 16, // md размер из theme.fontSize
-        paddingTop: 15, // Отступ для текста, чтобы не перекрывать лейбл
+        // height: 40,
+        // fontSize: 16, // md размер из theme.fontSize
+        paddingTop: 10, // Отступ для текста, чтобы не перекрывать лейбл
         paddingHorizontal: 10,
     },
     errorText: {
