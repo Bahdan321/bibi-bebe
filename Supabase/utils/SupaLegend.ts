@@ -5,14 +5,12 @@ import { syncedSupabase } from '@legendapp/state/sync-plugins/supabase';
 import { configureSynced } from '@legendapp/state/sync';
 import { observablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect } from 'react';
-import { getCurrentSpaceId, getSpace } from '@/storages/spaceStorage';
+import { getCurrentSpaceId } from '@/storages/spaceStorage';
 import { Task } from '@/types/types';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-
 
 // useEffect(() => {
 //   AsyncStorage.clear();
@@ -20,10 +18,8 @@ import { v4 as uuidv4 } from 'uuid';
 //   SecureStore.deleteItemAsync('refresh_token');
 // }, []);
 
-
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
-const supabaseServiceRoleKey = process.env.EXPO_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
 
 // Создаем кастомное хранилище для токенов
 const ExpoSecureStoreAdapter = {
@@ -52,8 +48,8 @@ const ExpoSecureStoreAdapter = {
   },
 };
 
-// Создаем клиент Supabase
-export const supabase = createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+// Создаем клиент Supabase (используем публичный anon key)
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: ExpoSecureStoreAdapter,
     autoRefreshToken: true,
@@ -76,8 +72,8 @@ const customSynced = configureSynced(syncedSupabase, {
   onError: (error) => console.error('Ошибка синхронизации с Supabase:', error),
 });
 
-export const tasks$ = observable(
-  customSynced({
+export const tasks$ = observable<any>(
+  (customSynced({
     supabase,
     collection: 'tasks',
     select: (from) =>
@@ -93,7 +89,7 @@ export const tasks$ = observable(
     persist: { name: 'tasks', retrySync: true },
     retry: { infinite: true },
     onError: (error) => console.error('Ошибка в tasks$:', error),
-  })
+  }) as any)
 );
 
 export const updateCurrentSpaceId = async () => {
@@ -139,7 +135,7 @@ export const updateTaskState = async (taskId: string, date: string, updates: Par
   const { error } = await supabase
     .from('tasks')
     .update({ overrides: newOverrides } as any)
-    .eq('id', taskId);
+    .eq('id', taskId as any);
 
   if (error) console.error('Ошибка обновления overrides:', error);
 };
@@ -188,12 +184,12 @@ export const addTask = (
       is_urgent,
       is_important,
       is_anime_task,
-      overrides: [],
+      overrides: [] as any,
       deleting: false,
-    };
-    tasks$.set((prev) => ({ ...prev, [newId]: taskData }));
+    } as any;
+    tasks$.set((prev: any) => ({ ...prev, [newId]: taskData }));
     console.log('Task added:', { id: newId, title, due_date, display_date, created_at: taskData.created_at });
-    return supabase.from('tasks').insert([taskData]).then(({ error }) => {
+    return supabase.from('tasks').insert([taskData] as any).then(({ error }) => {
       if (error) {
         console.error('Ошибка вставки в Supabase:', error);
         return Promise.reject(error);
@@ -246,10 +242,10 @@ export const toggleDublicateTask = async (
       parent_task_id || null,
       created_at || dateString,
       dateString,
-      completion_date || null,
+      completion_date ?? undefined,
       is_repeating,
-      repeat_interval || null,
-      planning_period || null,
+      repeat_interval ?? undefined,
+      planning_period ?? undefined,
       is_urgent,
       is_important,
       is_anime_task
@@ -261,18 +257,18 @@ export const toggleDublicateTask = async (
           subtask.title,
           space_id,
           user_id,
-          subtask.due_date,
-          subtask.display_date,
+          subtask.due_date || dateString,
+          subtask.display_date || dateString,
           subtask.reward || '',
           subtask.status,
           subtask.description || '',
           mainTaskId,
-          subtask.created_at,
-          subtask.updated_at,
-          subtask.completion_date,
+          subtask.created_at || dateString,
+          subtask.updated_at || dateString,
+          subtask.completion_date ?? undefined,
           subtask.is_repeating,
-          subtask.repeat_interval,
-          subtask.planning_period,
+          subtask.repeat_interval ?? undefined,
+          subtask.planning_period ?? undefined,
           subtask.is_urgent,
           subtask.is_important,
           subtask.is_anime_task
@@ -318,35 +314,15 @@ export const finishDelete = async (taskId: string, date: string) => {
   } else {
     // Для non-repeating: удаляем задачу полностью
     delete (tasks$ as any)[taskId];
-    await supabase.from('tasks').delete().eq('id', taskId);
+    await supabase.from('tasks').delete().eq('id', taskId as any);
   }
-};
-
-export const toggleTaskRename = (taskId: string, newTitle: string) => {
-  const task = (tasks$ as any)[taskId];
-  if (task) task.title.set(newTitle);
-};
-
-export const toggleTaskRenameDescription = (taskId: string, newDescription: string) => {
-  const task = (tasks$ as any)[taskId];
-  if (task) task.description.set(newDescription);
-};
-
-export const toggleTaskChangeDate = (taskId: string, newDate: string) => {
-  const task = (tasks$ as any)[taskId];
-  if (task) task.due_date.set(newDate);
-};
-
-export const toggleTaskChangeDisplayDate = (taskId: string, newDisplayDate: string) => {
-  const task = (tasks$ as any)[taskId];
-  if (task) task.display_date.set(newDisplayDate);
 };
 
 export const updateTaskTitle = async (taskId: string, newTitle: string) => {
   const { error } = await supabase
     .from('tasks')
     .update({ title: newTitle } as any)
-    .eq('id', taskId);
+    .eq('id', taskId as any);
   if (error) console.error('Ошибка при обновлении названия задачи:', error);
 };
 

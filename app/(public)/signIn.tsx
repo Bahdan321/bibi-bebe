@@ -149,7 +149,11 @@ export default function SignIn() {
         try {
             const result = await signInWithGoogle();
             if (result.success) {
-                router.replace('/(private)/home');
+                if (result.newUser) {
+                    router.replace('/(private)/onboardingScreen');
+                } else {
+                    router.replace('/(private)/home');
+                }
             } else {
                 setGeneralError(result.error || t('auth.errors.googleAuthError'));
             }

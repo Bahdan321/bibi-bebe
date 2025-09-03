@@ -94,7 +94,7 @@ export interface AuthContextType {
     signUp: (username: string, email: string, password: string) => Promise<{ success: boolean; requiresConfirmation?: boolean; error?: string }>;
     signOut: () => Promise<void>;
     createUserSpace: (spaceName: string) => Promise<{ success: boolean; error?: string }>;
-    signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+    signInWithGoogle: () => Promise<{ success: boolean; newUser?: boolean; error?: string }>;
     verifySignupOtp: (email: string, token: string) => Promise<{ success: boolean; error?: string }>;
     resendSignupOtp: (email: string) => Promise<{ success: boolean; error?: string }>;
     updateUserProfile: (username: string) => Promise<{ success: boolean; error?: string }>;

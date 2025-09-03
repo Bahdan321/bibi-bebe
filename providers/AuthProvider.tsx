@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { saveAccessToken, saveRefreshToken, getAccessToken, refreshAccessToken, getRefreshToken } from '@/storages/tokenStorage';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { getCurrentUrl } from '@/hooks/useGetCurrentUrl';
 import { getApiUrl } from '@/storages/apiUrlStorage';
 import { fetchWithAuth } from '@/hooks/useFetchWithAuth';
 import { AuthContextType, User } from '@/types/types';
 import { saveSpace } from '@/storages/spaceStorage';
-import { supabase } from '@/Supabase/utils/SupaLegend';
+import { supabase, tasks$ } from '@/Supabase/utils/SupaLegend';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
 import { User as SupabaseUser } from '@supabase/supabase-js';
@@ -637,6 +638,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await SecureStore.deleteItemAsync('access_token');
             await SecureStore.deleteItemAsync('refresh_token');
 
+            // Очищаем все пользовательские данные из локальных хранилищ
+            try {
+                // 1) Удаляем текущее пространство
+                await SecureStore.deleteItemAsync('current_space');
+
+                // 2) Очищаем персист из Legend State: данные и метаданные
+                await AsyncStorage.multiRemove(['tasks', 'tasks__m']);
+
+                // 3) Сбрасываем in-memory состояние задач
+                tasks$.set({});
+            } catch (cleanupError) {
+                console.error('Ошибка при очистке локальных хранилищ:', cleanupError);
+            }
+
             // Сбрасываем состояние аутентификации
             setUser(null);
             setIsAuthenticated(false);
@@ -648,12 +663,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // В случае ошибки все равно сбрасываем локальное состояние
             setUser(null);
             setIsAuthenticated(false);
-            // Пытаемся удалить токены даже при ошибке
+            // Пытаемся удалить токены и очистить локальные хранилища даже при ошибке
             try {
                 await SecureStore.deleteItemAsync('access_token');
                 await SecureStore.deleteItemAsync('refresh_token');
+                await SecureStore.deleteItemAsync('current_space');
+                await AsyncStorage.multiRemove(['tasks', 'tasks__m']);
+                tasks$.set({});
             } catch (deleteError) {
-                console.error('Ошибка при удалении токенов:', deleteError);
+                console.error('Ошибка при удалении токенов/данных:', deleteError);
             }
         } finally {
             setIsLoading(false);
@@ -778,106 +796,172 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (browserResult.type === 'success') {
                 console.log('Успешная авторизация через Google');
+
+                // 1) Пытаемся получить сессию напрямую у Supabase (упрощенный путь для Expo)
+                const { data: currentSession, error: currentSessionError } = await supabase.auth.getSession();
+                if (currentSessionError) {
+                    console.warn('Не удалось получить текущую сессию сразу после OAuth:', currentSessionError.message);
+                }
+                if (currentSession?.session) {
+                    // Сохраняем токены без проверки формата refresh token (Supabase refresh token может быть не-JWT)
+                    await saveAccessToken(currentSession.session.access_token);
+                    await saveRefreshToken(currentSession.session.refresh_token);
+
+                    const sbUser = currentSession.session.user;
+
+                    // Проверяем профиль, создаем при необходимости
+                    let profile = await getUserProfile(sbUser.id);
+                    if (!profile) {
+                        console.log('Создаем профиль пользователя при входе через Google...');
+                        console.log(sbUser.user_metadata?.username, sbUser.email?.split('@')[0], 'User',)
+                        const { error: profileError } = await supabase
+                            .from('profiles')
+                            .insert({
+                                user_id: sbUser.id,
+                                username: sbUser.email?.split('@')[0] || 'User loh',
+                                email: sbUser.email!,
+                                avatar_url: null,
+                                displayed_title_id: null,
+                            });
+                        if (profileError) {
+                            console.error('Ошибка при создании профиля пользователя через Google:', profileError);
+                        }
+                        // После создания профиля текущего пространства нет
+                        profile = null;
+                    }
+
+                    // Определяем текущее пространство пользователя
+                    const currentSpaceId = profile?.current_space_id || await getCurrentUserSpaceId(sbUser.id);
+                    const hasSpace = !!currentSpaceId;
+
+                    // Если у пользователя есть пространство — сохраним его в локальное хранилище
+                    if (hasSpace && currentSpaceId) {
+                        const { data: spaceRow, error: spaceFetchError } = await supabase
+                            .from('spaces')
+                            .select('space_id, name, created_by, created_at')
+                            .eq('space_id', currentSpaceId)
+                            .single();
+                        if (!spaceFetchError && spaceRow) {
+                            const spaceRowData = spaceRow as { space_id: string; name: string; created_by: string; created_at?: string | null };
+                            await saveSpace({
+                                space_id: spaceRowData.space_id,
+                                space_name: spaceRowData.name,
+                                created_by: spaceRowData.created_by,
+                                created_at: spaceRowData.created_at || new Date().toISOString(),
+                            });
+                        } else if (spaceFetchError) {
+                            console.warn('Не удалось загрузить данные пространства:', spaceFetchError);
+                        }
+                    }
+
+                    const userFromSupabase: User = {
+                        user_id: sbUser.id,
+                        username: sbUser.user_metadata?.username || sbUser.email?.split('@')[0] || 'User',
+                        email: sbUser.email!,
+                        avatar_url: null,
+                        displayed_title_id: null,
+                        current_space_id: currentSpaceId || null,
+                    };
+
+                    setUser(userFromSupabase);
+                    setIsAuthenticated(true);
+                    console.log('Вход через Google выполнен успешно (по текущей сессии)');
+                    return { success: true, newUser: !hasSpace };
+                }
+
+                // 2) Fallback: парсим токены из URL-хеша, если сессия не подтянулась автоматически
                 const url = browserResult.url;
-                const params = new URLSearchParams(url.split('#')[1]);
+                const params = new URLSearchParams((url.split('#')[1] || ''));
                 const accessToken = params.get('access_token');
                 const refreshToken = params.get('refresh_token');
 
-                // Проверяем формат токенов перед использованием
-                if (accessToken) {
-                    // Проверка формата access token
-                    const accessTokenParts = accessToken.split('.');
-                    if (accessTokenParts.length !== 3) {
-                        console.error('Неверный формат access token при входе через Google:', accessToken.substring(0, 20) + '...');
-                        return { success: false, error: 'Неверный формат токена доступа' };
-                    }
+                if (!accessToken) {
+                    console.error('Не удалось получить access token из ответа Google');
+                    return { success: false, error: 'Не удалось получить токен доступа' };
+                }
 
-                    // Проверка формата refresh token, если он есть
-                    if (refreshToken) {
-                        const refreshTokenParts = refreshToken.split('.');
-                        if (refreshTokenParts.length !== 3) {
-                            console.error('Неверный формат refresh token при входе через Google:', refreshToken.substring(0, 20) + '...');
-                            return { success: false, error: 'Неверный формат токена обновления' };
-                        }
-                    }
-                    console.log('Access token получен, устанавливаем сессию в Supabase...');
+                // Проверяем только access token на формат JWT (опционально), refresh token не проверяем по формату
+                const accessTokenParts = accessToken.split('.');
+                if (accessTokenParts.length !== 3) {
+                    console.error('Неверный формат access token при входе через Google:', accessToken.substring(0, 20) + '...');
+                    return { success: false, error: 'Неверный формат токена доступа' };
+                }
 
-                    // Устанавливаем сессию в Supabase с полученными токенами
-                    const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-                        access_token: accessToken,
-                        refresh_token: refreshToken || ''
-                    });
+                console.log('Access token получен, пытаемся установить сессию в Supabase...');
+                const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    // refresh token может отсутствовать в ответе, передаем пустую строку если его нет
+                    refresh_token: refreshToken || '',
+                });
 
-                    if (sessionError) {
-                        console.error('Ошибка при установке сессии:', sessionError.message);
-                        throw sessionError;
-                    }
+                if (sessionError) {
+                    console.error('Ошибка при установке сессии:', sessionError.message);
+                    throw sessionError;
+                }
 
-                    if (sessionData.session) {
-                        console.log('Сессия установлена успешно, сохраняем токены...');
+                if (sessionData.session) {
+                    console.log('Сессия установлена успешно, сохраняем токены...');
 
-                        // Проверка формата токенов перед сохранением
-                        const accessTokenParts = sessionData.session.access_token.split('.');
-                        const refreshTokenParts = sessionData.session.refresh_token.split('.');
+                    // Сохраняем access token и refresh token без проверки формата refresh token
+                    await saveAccessToken(sessionData.session.access_token);
+                    await saveRefreshToken(sessionData.session.refresh_token);
 
-                        let validTokens = true;
+                    const sbUser = sessionData.user;
 
-                        if (accessTokenParts.length !== 3) {
-                            console.error('Неверный формат access token при входе через Google (сессия):', sessionData.session.access_token.substring(0, 20) + '...');
-                            validTokens = false;
-                        } else {
-                            await saveAccessToken(sessionData.session.access_token);
-                        }
-
-                        if (refreshTokenParts.length !== 3) {
-                            console.error('Неверный формат refresh token при входе через Google (сессия):', sessionData.session.refresh_token.substring(0, 20) + '...');
-                            validTokens = false;
-                        } else {
-                            await saveRefreshToken(sessionData.session.refresh_token);
-                        }
-
-                        if (validTokens) {
-                            // Создаем объект User из данных Supabase
-                            const userFromSupabase: User = {
-                                user_id: sessionData.user.id,
-                                username: sessionData.user.user_metadata?.username || sessionData.user.email?.split('@')[0] || 'User',
-                                email: sessionData.user.email!,
+                    // Проверяем профиль, создаем при необходимости
+                    let profile = await getUserProfile(sbUser.id);
+                    if (!profile) {
+                        console.log('Создаем профиль пользователя при входе через Google...');
+                        const { error: profileError } = await supabase
+                            .from('profiles')
+                            .insert({
+                                user_id: sbUser.id,
+                                username: sbUser.email?.split('@')[0] || 'User loh1',
+                                email: sbUser.email!,
                                 avatar_url: null,
                                 displayed_title_id: null,
-                                current_space_id: null
-                            };
-
-                            // Проверяем, существует ли профиль пользователя
-                            const profile = await getUserProfile(sessionData.user.id);
-
-                            // Если профиль не существует, создаем его
-                            if (!profile) {
-                                console.log('Создаем профиль пользователя при входе через Google...');
-                                const { error: profileError } = await supabase
-                                    .from('profiles')
-                                    .insert({
-                                        user_id: sessionData.user.id,
-                                        username: userFromSupabase.username,
-                                        email: userFromSupabase.email,
-                                        avatar_url: null,
-                                        displayed_title_id: null
-                                    });
-
-                                if (profileError) {
-                                    console.error('Ошибка при создании профиля пользователя через Google:', profileError);
-                                    // Продолжаем выполнение, так как аутентификация уже прошла успешно
-                                }
-                            }
-
-                            setUser(userFromSupabase);
-                            setIsAuthenticated(true);
-                            console.log('Вход через Google выполнен успешно');
-                            return { success: true };
-                        } else {
-                            console.error('Не удалось сохранить токены из-за неверного формата при входе через Google');
-                            return { success: false, error: 'Неверный формат токенов' };
+                            });
+                        if (profileError) {
+                            console.error('Ошибка при создании профиля пользователя через Google:', profileError);
                         }
                     }
+
+                    // Определяем текущее пространство пользователя и сохраняем его при наличии
+                    const currentSpaceId = profile?.current_space_id || await getCurrentUserSpaceId(sbUser.id);
+                    const hasSpace = !!currentSpaceId;
+
+                    if (hasSpace && currentSpaceId) {
+                        const { data: spaceRow, error: spaceFetchError } = await supabase
+                            .from('spaces')
+                            .select('space_id, name, created_by, created_at')
+                            .eq('space_id', currentSpaceId)
+                            .single();
+                        if (!spaceFetchError && spaceRow) {
+                            await saveSpace({
+                                space_id: spaceRow.space_id,
+                                space_name: spaceRow.name,
+                                created_by: spaceRow.created_by,
+                                created_at: spaceRow.created_at || new Date().toISOString(),
+                            });
+                        } else if (spaceFetchError) {
+                            console.warn('Не удалось загрузить данные пространства:', spaceFetchError);
+                        }
+                    }
+
+                    // Формируем пользователя и выставляем состояние
+                    const userFromSupabase: User = {
+                        user_id: sbUser.id,
+                        username: sbUser.email?.split('@')[0] || 'User loh2',
+                        email: sbUser.email!,
+                        avatar_url: null,
+                        displayed_title_id: null,
+                        current_space_id: currentSpaceId || null,
+                    };
+
+                    setUser(userFromSupabase);
+                    setIsAuthenticated(true);
+                    console.log('Вход через Google выполнен успешно (через fallback-сессию)');
+                    return { success: true, newUser: !hasSpace };
                 }
             }
             return { success: false, error: 'Не удалось завершить авторизацию через Google' };
