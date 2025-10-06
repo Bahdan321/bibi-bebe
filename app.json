@@ -24,9 +24,24 @@
             "CFBundleURLSchemes": [
               "bibibebe"
             ]
+          },
+          {
+            "CFBundleURLName": "bibibebe",
+            "CFBundleURLSchemes": [
+              "bibibebe"
+            ]
+          },
+          {
+            "CFBundleURLName": "bibibebe",
+            "CFBundleURLSchemes": [
+              "bibibebe"
+            ]
           }
-        ]
-      }
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "usesAppleSignIn": true,
+      "appleTeamId": "3SX8ZG35BH"
     },
     "android": {
       "adaptiveIcon": {
@@ -73,6 +88,7 @@
       "expo-font",
       "expo-secure-store",
       "expo-web-browser",
+      "expo-apple-authentication",
       [
         "react-native-edge-to-edge",
         {

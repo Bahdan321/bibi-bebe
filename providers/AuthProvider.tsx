@@ -12,6 +12,7 @@ import { supabase, tasks$ } from '@/Supabase/utils/SupaLegend';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -201,7 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         if (newToken) {
                             // Если токен обновлен успешно, повторно проверяем пользователя
                             const { data: refreshData, error: refreshError } = await supabase.auth.getUser(newToken);
-                            if (!refreshError && refreshData.user) {
+                            if (!refreshError && refreshData?.user) {
                                 // Получаем данные профиля пользователя из базы данных
                                 const profile = await getUserProfile(refreshData.user.id);
 
@@ -210,7 +211,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                     const userWithProfile: User = {
                                         user_id: profile.user_id,
                                         username: profile.username,
-                                        email: refreshData.user.email!,
+                                        email: refreshData.user!.email!,
                                         avatar_url: profile.avatar_url,
                                         displayed_title_id: profile.displayed_title_id,
                                         // current_space_id: profile.current_space_id,
@@ -220,9 +221,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 } else {
                                     // Если профиль не найден, создаем объект User из данных Supabase
                                     const userFromSupabase: User = {
-                                        user_id: refreshData.user.id,
-                                        username: refreshData.user.user_metadata?.username || refreshData.user.email?.split('@')[0] || 'User',
-                                        email: refreshData.user.email!,
+                                        user_id: refreshData.user!.id,
+                                        username: refreshData.user!.user_metadata?.username || refreshData.user!.email?.split('@')[0] || 'User',
+                                        email: refreshData.user!.email!,
                                         avatar_url: null,
                                         displayed_title_id: null
                                     };
@@ -239,7 +240,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         await SecureStore.deleteItemAsync('access_token');
                         await SecureStore.deleteItemAsync('refresh_token');
                         setIsAuthenticated(false);
-                    } else if (data.user) {
+                    } else if (data?.user) {
                         // Пользователь найден, устанавливаем состояние
                         if (data.user) {
                             // Получаем данные профиля пользователя из базы данных
@@ -284,7 +285,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         const newAccessToken = await refreshAccessToken();
                         if (newAccessToken) {
                             const { data } = await supabase.auth.getUser(newAccessToken);
-                            if (data.user) {
+                            if (data?.user) {
                                 // Получаем данные профиля пользователя из базы данных
                                 const profile = await getUserProfile(data.user.id);
 
@@ -293,7 +294,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                     const userWithProfile: User = {
                                         user_id: profile.user_id,
                                         username: profile.username,
-                                        email: data.user.email!,
+                                        email: data.user!.email!,
                                         avatar_url: profile.avatar_url,
                                         displayed_title_id: profile.displayed_title_id,
                                         current_space_id: profile.current_space_id,
@@ -303,8 +304,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 } else {
                                     // Если профиль не найден, создаем объект User из данных Supabase
                                     const userFromSupabase: User = {
-                                        user_id: data.user.id,
-                                        username: data.user.user_metadata?.username || data.user.email?.split('@')[0] || 'User',
+                                        user_id: data.user!.id,
+                                        username: data.user!.user_metadata?.username || data.user!.email?.split('@')[0] || 'User',
                                         email: data.user.email!,
                                         avatar_url: null,
                                         displayed_title_id: null,
@@ -589,7 +590,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 username: userFromSupabase.username,
                                 email: userFromSupabase.email,
                                 avatar_url: null,
-                                displayed_title_id: null
+                                displayed_title_id: null,
+                                password_hash: ''
                             });
 
                         if (profileError) {
@@ -822,6 +824,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 email: sbUser.email!,
                                 avatar_url: null,
                                 displayed_title_id: null,
+                                password_hash: ''
                             });
                         if (profileError) {
                             console.error('Ошибка при создании профиля пользователя через Google:', profileError);
@@ -920,6 +923,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 email: sbUser.email!,
                                 avatar_url: null,
                                 displayed_title_id: null,
+                                password_hash: ''
                             });
                         if (profileError) {
                             console.error('Ошибка при создании профиля пользователя через Google:', profileError);
@@ -968,6 +972,154 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error) {
             console.error('Error during Google sign in:', error);
             return { success: false, error: (error as Error).message || 'Произошла ошибка при входе через Google' };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const signInWithApple = async (): Promise<{ success: boolean; error?: string; newUser?: boolean }> => {
+        try {
+            setIsLoading(true);
+            console.log('Начинаем вход через Apple...');
+
+            // Проверяем доступность Apple Authentication
+            const isAvailable = await AppleAuthentication.isAvailableAsync();
+            if (!isAvailable) {
+                console.error('Apple Authentication недоступен на этом устройстве');
+                return { success: false, error: 'Apple Sign-In недоступен на этом устройстве' };
+            }
+
+            // Запрашиваем аутентификацию через Apple
+            const credential = await AppleAuthentication.signInAsync({
+                requestedScopes: [
+                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                ],
+            });
+
+            console.log('Apple credential получен:', {
+                user: credential.user,
+                email: credential.email,
+                fullName: credential.fullName,
+                identityToken: credential.identityToken ? 'present' : 'missing',
+            });
+
+            if (!credential.identityToken) {
+                console.error('Не удалось получить identity token от Apple');
+                return { success: false, error: 'Не удалось получить токен от Apple' };
+            }
+
+            // Аутентификация в Supabase с помощью Apple ID token
+            const { data, error } = await supabase.auth.signInWithIdToken({
+                provider: 'apple',
+                token: credential.identityToken,
+            });
+
+            if (error) {
+                console.error('Ошибка при аутентификации в Supabase:', error.message);
+                return { success: false, error: error.message };
+            }
+
+            if (data.session && data.user) {
+                console.log('Apple аутентификация успешна, сохраняем токены...');
+
+                // Сохраняем токены
+                await saveAccessToken(data.session.access_token);
+                await saveRefreshToken(data.session.refresh_token);
+
+                const sbUser = data.user;
+
+                // Проверяем профиль, создаем при необходимости
+                let profile = await getUserProfile(sbUser.id);
+                if (!profile) {
+                    console.log('Создаем профиль пользователя при входе через Apple...');
+                    
+                    // Формируем имя пользователя из Apple данных или email
+                    let username = 'User';
+                    if (credential.fullName?.givenName && credential.fullName?.familyName) {
+                        username = `${credential.fullName.givenName} ${credential.fullName.familyName}`;
+                    } else if (credential.email) {
+                        username = credential.email.split('@')[0];
+                    } else if (sbUser.email) {
+                        username = sbUser.email.split('@')[0];
+                    }
+
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert({
+                            user_id: sbUser.id,
+                            username: username,
+                            email: sbUser.email!,
+                            avatar_url: null,
+                            displayed_title_id: null,
+                            password_hash: ''
+                        });
+                    if (profileError) {
+                        console.error('Ошибка при создании профиля пользователя через Apple:', profileError);
+                    }
+                    // После создания профиля текущего пространства нет
+                    profile = null;
+                }
+
+                // Определяем текущее пространство пользователя
+                const currentSpaceId = profile?.current_space_id || await getCurrentUserSpaceId(sbUser.id);
+                const hasSpace = !!currentSpaceId;
+
+                // Если у пользователя есть пространство — сохраним его в локальное хранилище
+                if (hasSpace && currentSpaceId) {
+                    const { data: spaceRow, error: spaceFetchError } = await supabase
+                        .from('spaces')
+                        .select('space_id, name, created_by, created_at')
+                        .eq('space_id', currentSpaceId)
+                        .single();
+                    if (!spaceFetchError && spaceRow) {
+                        const spaceRowData = spaceRow as { space_id: string; name: string; created_by: string; created_at?: string | null };
+                        await saveSpace({
+                            space_id: spaceRowData.space_id,
+                            space_name: spaceRowData.name,
+                            created_by: spaceRowData.created_by,
+                            created_at: spaceRowData.created_at || new Date().toISOString(),
+                        });
+                    } else if (spaceFetchError) {
+                        console.warn('Не удалось загрузить данные пространства:', spaceFetchError);
+                    }
+                }
+
+                // Формируем имя пользователя для объекта User
+                let displayUsername = 'User';
+                if (credential.fullName?.givenName && credential.fullName?.familyName) {
+                    displayUsername = `${credential.fullName.givenName} ${credential.fullName.familyName}`;
+                } else if (credential.email) {
+                    displayUsername = credential.email.split('@')[0];
+                } else if (sbUser.email) {
+                    displayUsername = sbUser.email.split('@')[0];
+                }
+
+                const userFromSupabase: User = {
+                    user_id: sbUser.id,
+                    username: displayUsername,
+                    email: sbUser.email!,
+                    avatar_url: null,
+                    displayed_title_id: null,
+                    current_space_id: currentSpaceId || null,
+                };
+
+                setUser(userFromSupabase);
+                setIsAuthenticated(true);
+                console.log('Вход через Apple выполнен успешно');
+                return { success: true, newUser: !hasSpace };
+            }
+
+            return { success: false, error: 'Не удалось завершить авторизацию через Apple' };
+        } catch (error: any) {
+            console.error('Error during Apple sign in:', error);
+            
+            // Обработка отмены пользователем
+            if (error.code === 'ERR_CANCELED') {
+                return { success: false, error: 'Авторизация отменена пользователем' };
+            }
+            
+            return { success: false, error: error.message || 'Произошла ошибка при входе через Apple' };
         } finally {
             setIsLoading(false);
         }
@@ -1028,7 +1180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 email: userFromSupabase.email,
                                 avatar_url: null,
                                 displayed_title_id: null,
-                                current_space_id: null
+                                current_space_id: null,
+                                password_hash: ''
                             });
 
                         if (profileError) {
@@ -1105,7 +1258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, isInitialized, user, signIn, signUp, signOut, createUserSpace, signInWithGoogle, verifySignupOtp, resendSignupOtp, updateUserProfile }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, isInitialized, user, signIn, signUp, signOut, createUserSpace, signInWithGoogle, signInWithApple, verifySignupOtp, resendSignupOtp, updateUserProfile }}>
             {children}
         </AuthContext.Provider>
     );

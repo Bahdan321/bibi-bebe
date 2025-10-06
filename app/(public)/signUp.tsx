@@ -22,7 +22,7 @@ export default function SignUp() {
     const [passwordError, setPasswordError] = useState('');
     const [generalError, setGeneralError] = useState('');
     const router = useRouter();
-    const { signUp, signInWithGoogle } = useAuth();
+    const { signUp, signInWithGoogle, signInWithApple } = useAuth();
     const { t } = useTranslation();
 
     // SignUp text and fields
@@ -212,14 +212,31 @@ export default function SignUp() {
         }
     };
 
-    const handleAppleSignUp = () => {
-        // Сбросить все ошибки
+    const handleAppleSignUp = async () => {
+        // Сбросить все ошибки перед попыткой входа через Apple
         setNameError('');
         setEmailError('');
         setPasswordError('');
         setGeneralError('');
 
-        setGeneralError(t('auth.errors.appleSignUpNotImplemented'));
+        setIsLoading(true);
+        try {
+            const result = await signInWithApple();
+            if (result.success) {
+                if (result.newUser) {
+                    router.replace('/(private)/onboardingScreen');
+                } else {
+                    router.replace('/(private)/home');
+                }
+            } else {
+                setGeneralError(result.error || t('auth.errors.appleAuthError'));
+            }
+        } catch (error) {
+            console.error('Error signing up with Apple:', error);
+            setGeneralError(t('auth.errors.appleSignUpError'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
