@@ -134,14 +134,14 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   useEffect(() => {
     const updateSubtasks = () => {
       const allTasks = tasks$.get();
-      const subtasksList = Object.values(allTasks).filter((t) => t.parent_task_id === task.id);
+      const subtasksList = Object.values(allTasks).filter((t: any) => t.parent_task_id === task.id) as Task[];
       setSubtasks(subtasksList);
     };
     updateSubtasks();
 
     const dispose = observe(() => {
       const allTasks = tasks$.get();
-      const subtasksList = Object.values(allTasks).filter((t) => t.parent_task_id === task.id);
+      const subtasksList = Object.values(allTasks).filter((t: any) => t.parent_task_id === task.id) as Task[];
       setSubtasks(subtasksList);
     });
 
@@ -200,12 +200,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       task.title || '',
       currentSpaceId,
       currentUserId,
-      task.due_date,
-      task.display_date,
+      task.due_date || new Date().toISOString(),
+      task.display_date || new Date().toISOString(),
       task.reward || '',
       task.status,
-      task.description || null,
-      task.parent_task_id || null,
+      task.description || undefined,
+      task.parent_task_id || undefined,
       task.created_at,
       task.updated_at,
       task.completion_date,
@@ -265,7 +265,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     router.dismissTo('/(private)/home');
   };
 
-  const handleDeleteSubtask = (subtaskId: string) => toggleTaskRemove(subtaskId, date);
+  const handleDeleteSubtask = async (subtaskId: string) => {
+    console.log('handleDeleteSubtask called with:', subtaskId);
+    await toggleTaskRemove(subtaskId, date);
+  };
 
   const menuItems = [
     { icon: 'pencil' as keyof typeof Ionicons.glyphMap, text: t('tasks.menu.tomorrow'), onPress: () => handleChangeDate(task) },
@@ -298,18 +301,18 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       subtaskTitle,
       currentSpaceId,
       currentUserId,
-      task.due_date,
-      task.display_date,
+      task.due_date || new Date().toISOString(),
+      task.display_date || new Date().toISOString(),
       '',
       false,
-      null,
+      undefined,
       task.id,
       new Date().toISOString(),
       new Date().toISOString(),
-      null,
+      undefined,
       false,
-      null,
-      null,
+      undefined,
+      undefined,
       false,
       false
     );

@@ -239,7 +239,7 @@ export const toggleDublicateTask = async (
       reward,
       status,
       description || '',
-      parent_task_id || null,
+      parent_task_id || undefined,
       created_at || dateString,
       dateString,
       completion_date ?? undefined,
@@ -294,14 +294,22 @@ export const toggleTaskCompletion = (taskId: string, date: string) => {
   }
 };
 
-export const toggleTaskRemove = (taskId: string, date: string) => {
+export const toggleTaskRemove = async (taskId: string, date: string) => {
+  console.log('toggleTaskRemove called with:', { taskId, date });
   const task = (tasks$ as any)[taskId];
   if (task) {
+    console.log('Task found, is_repeating:', task.is_repeating.get());
     if (task.is_repeating.get()) {
-      updateTaskState(taskId, date, { deleting: true });
+      await updateTaskState(taskId, date, { deleting: true });
+      // Для повторяющихся задач сразу завершаем удаление
+      await finishDelete(taskId, date);
     } else {
       task.deleting.set(true);
+      // Для обычных задач сразу завершаем удаление
+      await finishDelete(taskId, date);
     }
+  } else {
+    console.log('Task not found with id:', taskId);
   }
 };
 
@@ -313,7 +321,8 @@ export const finishDelete = async (taskId: string, date: string) => {
     updateTaskState(taskId, date, { deleted: true, deleting: false });
   } else {
     // Для non-repeating: удаляем задачу полностью
-    delete (tasks$ as any)[taskId];
+    // Используем правильный метод Legend State для удаления
+    (tasks$ as any)[taskId].delete();
     await supabase.from('tasks').delete().eq('id', taskId as any);
   }
 };
@@ -337,4 +346,46 @@ export const changeEisenhowerMatrixStatus = (taskId: string, isUrgent: boolean, 
 export const addReward = (taskId: string, reward: string) => {
   const task = (tasks$ as any)[taskId];
   if (task) task.reward.set(reward);
+};
+
+export const toggleTaskChangeDisplayDate = async (taskId: string, newDisplayDate: string) => {
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.display_date.set(newDisplayDate);
+    
+    const { error } = await supabase
+      .from('tasks')
+      .update({ display_date: newDisplayDate } as any)
+      .eq('id', taskId as any);
+    
+    if (error) console.error('Ошибка при обновлении даты отображения задачи:', error);
+  }
+};
+
+export const toggleTaskRename = async (taskId: string, newTitle: string) => {
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.title.set(newTitle);
+    
+    const { error } = await supabase
+      .from('tasks')
+      .update({ title: newTitle } as any)
+      .eq('id', taskId as any);
+    
+    if (error) console.error('Ошибка при переименовании задачи:', error);
+  }
+};
+
+export const toggleTaskRenameDescription = async (taskId: string, newDescription: string) => {
+  const task = (tasks$ as any)[taskId];
+  if (task) {
+    task.description.set(newDescription);
+    
+    const { error } = await supabase
+      .from('tasks')
+      .update({ description: newDescription } as any)
+      .eq('id', taskId as any);
+    
+    if (error) console.error('Ошибка при обновлении описания задачи:', error);
+  }
 };
