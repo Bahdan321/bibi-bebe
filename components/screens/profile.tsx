@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     ImageBackground,
     ScrollView,
@@ -16,12 +16,47 @@ import CustomButton from "@/components/base/CustomButton";
 import { ChangeProfileModal } from "@/components/modals";
 import { useAuth } from "@/providers/AuthProvider";
 import { getAdaptiveTextSize } from "@/utils/textUtils";
+import useRandomMemeAvatar from "@/hooks/useRandomMemeAvatar";
 
 export default function Profile() {
     const { theme } = useTheme();
     const { t } = useTranslation();
     const { signOut, user, isLoading } = useAuth();
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    
+    // Хук для получения мема по индексу и сохраненного индекса
+    const { getMemeByIndex, getSavedAvatarIndex, getRandomMemeIndexWithSave } = useRandomMemeAvatar();
+    const [currentAvatarIndex, setCurrentAvatarIndex] = useState<number | null>(null);
+
+    // Загружаем сохраненный индекс аватара при монтировании компонента
+    useEffect(() => {
+        const loadSavedAvatar = async () => {
+            console.log('🔄 Загружаем аватар для пользователя:', user?.username);
+            
+            const savedIndex = await getSavedAvatarIndex();
+            console.log('💾 Сохраненный индекс из AsyncStorage:', savedIndex);
+            
+            if (savedIndex !== null) {
+                // Используем сохраненный индекс
+                console.log('✅ Используем сохраненный индекс:', savedIndex);
+                setCurrentAvatarIndex(savedIndex);
+            } else if (user?.avatar_url) {
+                // Если нет сохраненного индекса, но есть avatar_url в профиле
+                const urlIndex = parseInt(user.avatar_url);
+                console.log('🔗 Используем индекс из avatar_url:', urlIndex);
+                setCurrentAvatarIndex(urlIndex);
+            } else {
+                // Для уже авторизованных пользователей без сохраненного индекса
+                // генерируем случайный мем и сохраняем его индекс
+                console.log('🎲 Генерируем новый случайный индекс');
+                const randomIndex = await getRandomMemeIndexWithSave();
+                console.log('🎯 Новый сгенерированный индекс:', randomIndex);
+                setCurrentAvatarIndex(randomIndex);
+            }
+        };
+        
+        loadSavedAvatar();
+    }, [user?.avatar_url]);
 
     console.log(user)
 
@@ -132,8 +167,8 @@ export default function Profile() {
                         >
                             <ImageBackground
                                 source={
-                                    user?.avatar_url
-                                        ? { uri: user.avatar_url }
+                                    currentAvatarIndex !== null
+                                        ? getMemeByIndex(currentAvatarIndex)
                                         : require("../../assets/images/memes/meme10.jpg")
                                 }
                                 style={{

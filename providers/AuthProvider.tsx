@@ -13,6 +13,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import useRandomMemeAvatar from '@/hooks/useRandomMemeAvatar';
 
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +31,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [isInitialized, setIsInitialized] = useState(false);
+    
+    // Хук для получения случайной аватарки мема
+    const { getRandomMemeIndexWithSave } = useRandomMemeAvatar();
+    
     // const apiUrl = getApiUrl();
     // const apiUrl = "http://192.168.41.151:8000";
     // console.log(apiUrl)
@@ -583,13 +588,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                         // Создаем профиль пользователя в базе данных
                         console.log('Создаем профиль пользователя при регистрации...');
+                        const randomMemeIndex = await getRandomMemeIndexWithSave();
                         const { error: profileError } = await supabase
                             .from('profiles')
                             .insert({
                                 user_id: data.user.id,
                                 username: userFromSupabase.username,
                                 email: userFromSupabase.email,
-                                avatar_url: null,
+                                avatar_url: randomMemeIndex.toString(),
                                 displayed_title_id: null,
                                 password_hash: ''
                             });
@@ -915,13 +921,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     let profile = await getUserProfile(sbUser.id);
                     if (!profile) {
                         console.log('Создаем профиль пользователя при входе через Google...');
+                        const randomMemeIndex = await getRandomMemeIndexWithSave();
                         const { error: profileError } = await supabase
                             .from('profiles')
                             .insert({
                                 user_id: sbUser.id,
                                 username: sbUser.email?.split('@')[0] || 'User loh1',
                                 email: sbUser.email!,
-                                avatar_url: null,
+                                avatar_url: randomMemeIndex.toString(),
                                 displayed_title_id: null,
                                 password_hash: ''
                             });
@@ -1172,13 +1179,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     // Если профиль не существует, создаем его
                     if (!profile) {
                         console.log('Создаем профиль пользователя...');
+                        const randomMemeIndex = await getRandomMemeIndexWithSave();
                         const { error: profileError } = await supabase
                             .from('profiles')
                             .insert({
                                 user_id: data.user.id,
                                 username: userFromSupabase.username,
                                 email: userFromSupabase.email,
-                                avatar_url: null,
+                                avatar_url: randomMemeIndex.toString(),
                                 displayed_title_id: null,
                                 current_space_id: null,
                                 password_hash: ''
