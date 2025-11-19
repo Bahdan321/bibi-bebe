@@ -1,4 +1,4 @@
-import { View, ImageBackground, Animated, Switch } from 'react-native'
+import { View, ImageBackground, Animated, Switch, Linking } from 'react-native'
 import React, { useRef, useEffect, useState } from 'react'
 import SettingsRow from '@/components/SettingsRow'
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import CustomText from '@/components/base/CustomText';
 import { useScreenFrame } from '@/components/base/ScreenFrame';
 import { getFrameEnabled, saveFrameEnabled } from '@/storages/frameStorage';
+import SocialLinks from '@/components/SocialLinks';
 
 export default function Settings() {
     const { toggleTheme, theme, isDark } = useTheme();
@@ -64,6 +65,16 @@ export default function Settings() {
         saveFrameEnabled(next);
     };
 
+    const handleContactPress = async () => {
+        const email = 'bibibebeofficial@gmail.com';
+        const subject = encodeURIComponent('Bibibebe feedback');
+        const mailto = `mailto:${email}?subject=${subject}`;
+        try {
+            const supported = await Linking.canOpenURL(mailto);
+            if (supported) await Linking.openURL(mailto);
+        } catch { }
+    };
+
     // Get language display name
     const getLanguageDisplayName = () => {
         return currentLanguage === 'ru' ? t('settings.languageRussian') : t('settings.languageEnglish');
@@ -113,7 +124,7 @@ export default function Settings() {
             onPress: toggleTheme,
         },
         {
-            label: 'Обводка',
+            label: t('settings.frame'),
             value: (
                 <Switch
                     value={isFrameEnabled}
@@ -130,6 +141,34 @@ export default function Settings() {
                 <Ionicons name="crop" size={22} color={theme.colors.button} />
             ),
             onPress: handleFrameToggle,
+        },
+        {
+            label: t('settings.contact'),
+            value: (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <CustomText
+                        content={''}
+                        size="sm"
+                        color={theme.colors.text}
+                        weight="bold"
+                        style={{ marginRight: 5 }}
+                    />
+                </View>
+            ),
+            leftIcon: (
+                <Ionicons name="mail-outline" size={22} color={theme.colors.button} />
+            ),
+            onPress: handleContactPress,
+        },
+        {
+            label: t('settings.social'),
+            value: (
+                <SocialLinks />
+            ),
+            leftIcon: (
+                <Ionicons name="share-social-outline" size={22} color={theme.colors.button} />
+            ),
+            onPress: () => { },
         },
         {},
     ];

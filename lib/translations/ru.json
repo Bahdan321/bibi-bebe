@@ -19,7 +19,10 @@
         "languageRussian": "Русский",
         "languageEnglish": "English",
         "themeDark": "Темная",
-        "themeLight": "Светлая"
+        "themeLight": "Светлая",
+        "frame": "Обводка",
+        "contact": "Связаться с разработчиками",
+        "social": "Социальные сети"
     },
     "profile": {
         "title": "Профиль",
