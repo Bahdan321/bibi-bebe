@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
-import { useLayout } from '@/providers/LayoutProvider';
+import { ViewStyle } from 'react-native';
+import { ScreenFrame } from '@/components/base/ScreenFrame';
 
 interface ScreenLayoutProps {
     children: React.ReactNode;
@@ -8,18 +8,10 @@ interface ScreenLayoutProps {
     contentContainerStyle?: ViewStyle;
 }
 
-export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
-    children,
-    style,
-    contentContainerStyle,
-}) => {
-    const { containerStyle, contentContainerStyle: defaultContentContainerStyle } = useLayout();
-
+export const ScreenLayout: React.FC<ScreenLayoutProps> = ({ children, style, contentContainerStyle }) => {
     return (
-        <View style={[containerStyle, style]}>
-            <View style={[defaultContentContainerStyle, contentContainerStyle]}>
-                {children}
-            </View>
-        </View>
+        <ScreenFrame style={style} contentContainerStyle={contentContainerStyle}>
+            {children}
+        </ScreenFrame>
     );
 };

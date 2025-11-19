@@ -1,20 +1,23 @@
-import { View, ImageBackground, Animated } from 'react-native'
-import React, { useRef, useEffect } from 'react'
+import { View, ImageBackground, Animated, Switch } from 'react-native'
+import React, { useRef, useEffect, useState } from 'react'
 import SettingsRow from '@/components/SettingsRow'
 import { Ionicons } from '@expo/vector-icons';
 import {
-    widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import Gigabar from '@/components/Gigabar';
 import { useTheme } from '@/providers/ThemeProvider';
 import { useLocalization } from '@/providers/LocalizationProvider';
 import { useTranslation } from 'react-i18next';
 import CustomText from '@/components/base/CustomText';
+import { useScreenFrame } from '@/components/base/ScreenFrame';
+import { getFrameEnabled, saveFrameEnabled } from '@/storages/frameStorage';
 
 export default function Settings() {
     const { toggleTheme, theme, isDark } = useTheme();
     const { currentLanguage, changeLanguage } = useLocalization();
     const { t } = useTranslation();
+    const frame = useScreenFrame();
+    const [isFrameEnabled, setIsFrameEnabled] = useState(true);
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const languageRotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -25,7 +28,7 @@ export default function Settings() {
             duration: 300,
             useNativeDriver: true,
         }).start();
-    }, [isDark]);
+    }, [isDark, rotateAnim]);
 
     const spin = rotateAnim.interpolate({
         inputRange: [0, 1],
@@ -52,6 +55,13 @@ export default function Settings() {
         // Switch between languages
         const newLanguage = currentLanguage === 'ru' ? 'en' : 'ru';
         await changeLanguage(newLanguage);
+    };
+
+    const handleFrameToggle = () => {
+        const next = !isFrameEnabled;
+        setIsFrameEnabled(next);
+        frame.enable(next, true, { duration: 250 });
+        saveFrameEnabled(next);
     };
 
     // Get language display name
@@ -102,8 +112,37 @@ export default function Settings() {
             ),
             onPress: toggleTheme,
         },
+        {
+            label: 'Обводка',
+            value: (
+                <Switch
+                    value={isFrameEnabled}
+                    onValueChange={(v) => {
+                        setIsFrameEnabled(v);
+                        frame.enable(v, true, { duration: 250 });
+                        saveFrameEnabled(v);
+                    }}
+                    trackColor={{ false: theme.colors.background, true: theme.colors.button }}
+                    thumbColor={isFrameEnabled ? theme.colors.primary : theme.colors.secondary}
+                />
+            ),
+            leftIcon: (
+                <Ionicons name="crop" size={22} color={theme.colors.button} />
+            ),
+            onPress: handleFrameToggle,
+        },
         {},
     ];
+
+    useEffect(() => {
+        (async () => {
+            const stored = await getFrameEnabled();
+            if (stored !== null) {
+                setIsFrameEnabled(stored);
+                frame.enable(stored, false);
+            }
+        })();
+    }, [frame]);
 
     return (
         <ImageBackground
