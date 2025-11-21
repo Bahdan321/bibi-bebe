@@ -559,7 +559,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             const dateISO = task.display_date || task.due_date || date;
             const title = task.title || '';
             const { scheduleTaskReminder } = await import('@/utils/notifications');
-            await scheduleTaskReminder(title, dateISO, hours, minutes);
+            await scheduleTaskReminder(title, dateISO, hours, minutes, task.id);
             Alert.alert(t('reminders.successTitle'), t('reminders.scheduled'));
           } catch (err: any) {
             if (err?.message === 'past_time') {

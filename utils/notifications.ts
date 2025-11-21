@@ -12,7 +12,7 @@ export async function requestNotificationPermissions(): Promise<boolean> {
   return granted;
 }
 
-export async function scheduleTaskReminder(title: string, dateISO: string | null | undefined, hours: number, minutes: number): Promise<string> {
+export async function scheduleTaskReminder(title: string, dateISO: string | null | undefined, hours: number, minutes: number, taskId?: string): Promise<string> {
   const hasPermission = await requestNotificationPermissions();
   if (!hasPermission) {
     throw new Error('permission_denied');
@@ -41,8 +41,25 @@ export async function scheduleTaskReminder(title: string, dateISO: string | null
       body: i18n.t('notifications.reminderBody', { title }),
       sound: true,
       priority: Notifications.AndroidNotificationPriority.DEFAULT,
+      categoryIdentifier: 'task_reminder',
+      data: { taskId, dateISO, hours, minutes, title },
     },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: triggerDate, channelId: Platform.OS === 'android' ? 'reminders' : undefined },
   });
   return id;
+}
+
+export async function registerTaskReminderCategory() {
+  await Notifications.setNotificationCategoryAsync('task_reminder', [
+    {
+      identifier: 'SNOOZE_1H',
+      buttonTitle: 'Отложить на 1 час',
+      options: { opensAppToForeground: true },
+    },
+    {
+      identifier: 'OPEN_TASK',
+      buttonTitle: 'Выполнить',
+      options: { opensAppToForeground: true },
+    },
+  ]);
 }
