@@ -74,6 +74,10 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     task.repeat_interval ? JSON.parse(task.repeat_interval) : []
   );
 
+  const descShakeAnim = useRef(new Animated.Value(0)).current;
+  const [isDescLimitFeedback, setIsDescLimitFeedback] = useState(false);
+  const limitFlashTimeoutRef = useRef<any>(null);
+
   const daysOfWeek = [
     { text: t('tasks.daysOfWeek.monday'), value: 'mon' },
     { text: t('tasks.daysOfWeek.tuesday'), value: 'tue' },
@@ -126,6 +130,12 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       ).start();
     }
   }, [task.reward, task.status, borderAnim]);
+
+  useEffect(() => {
+    return () => {
+      if (limitFlashTimeoutRef.current) clearTimeout(limitFlashTimeoutRef.current);
+    };
+  }, []);
 
   const animatedRewardStyle = {
     borderWidth: borderAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 3] }),
@@ -251,6 +261,21 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
     setIsRepeatMenuVisible(!isRepeatMenuVisible);
     setIsMainDropdownVisible(false);
     setIsEisenhowerMatrixDropdownVisible(false);
+  };
+
+  const triggerDescLimitFeedback = () => {
+    if (limitFlashTimeoutRef.current) clearTimeout(limitFlashTimeoutRef.current);
+    setIsDescLimitFeedback(true);
+    Animated.sequence([
+      Animated.timing(descShakeAnim, { toValue: 8, duration: 40, useNativeDriver: true }),
+      Animated.timing(descShakeAnim, { toValue: -8, duration: 40, useNativeDriver: true }),
+      Animated.timing(descShakeAnim, { toValue: 6, duration: 40, useNativeDriver: true }),
+      Animated.timing(descShakeAnim, { toValue: -6, duration: 40, useNativeDriver: true }),
+      Animated.timing(descShakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
+    ]).start();
+    limitFlashTimeoutRef.current = setTimeout(() => {
+      setIsDescLimitFeedback(false);
+    }, 1000);
   };
 
   const closeMainDropdown = () => setIsMainDropdownVisible(false);
@@ -384,16 +409,24 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         />
       </View>
 
-      <CustomTextInput
-        variant="description"
-        style={{ marginBottom: 20 }}
-        value={description}
-        onChangeText={setDescription}
-        placeholder={t('tasks.addDescription')}
-        multiline
-        maxLength={150}
-        onFocus={closeAllDropdowns} // Закрываем dropdown при фокусе
-      />
+      <Animated.View style={{ marginBottom: 20, transform: [{ translateX: descShakeAnim }] }}>
+        <CustomTextInput
+          variant="description"
+          value={description}
+          onChangeText={(text) => {
+            if (text.length > 150) {
+              triggerDescLimitFeedback();
+              setDescription(text.slice(0, 150));
+            } else {
+              setDescription(text);
+            }
+          }}
+          placeholder={t('tasks.addDescription')}
+          multiline
+          onFocus={closeAllDropdowns}
+          style={{ color: isDescLimitFeedback ? 'red' : theme.colors.text }}
+        />
+      </Animated.View>
 
       <View style={styles.subtasksSection}>
         <CustomText translationKey="tasks.subtasks" style={{ marginBottom: 10 }} color={theme.colors.secondary} />
