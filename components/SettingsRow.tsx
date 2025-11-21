@@ -29,7 +29,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({ label, value, leftIcon, onPre
                     <CustomText
                         content={label}
                         size="sm"
-                        color={theme.colors.background}
+                        color={theme.colors.text}
                         weight="bold"
                         style={styles.labelContainer}
                     />
