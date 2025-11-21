@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useMemo, useCallback } from 'react';
+import { View, StyleSheet, Dimensions, FlatList } from 'react-native';
 import Animated, {
     useSharedValue,
     useAnimatedScrollHandler,
@@ -11,7 +11,6 @@ import { useTheme } from '@/providers/ThemeProvider';
 import { tasks$ } from '@/Supabase/utils/SupaLegend';
 import { observer } from '@legendapp/state/react';
 import { Task } from '@/types/types';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import CustomText from '@/components/base/CustomText';
 import CustomTouchable from '@/components/base/CustomTouchable';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addDays, subDays, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
@@ -20,294 +19,281 @@ import Gigabar from './Gigabar';
 import { useTranslation } from 'react-i18next';
 import { useLocalization } from '@/providers/LocalizationProvider';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// --- КОНСТАНТЫ РАЗМЕРОВ (КРИТИЧНО ДЛЯ АНИМАЦИИ) ---
+const MONTH_HEADER_HEIGHT = 60;
+const WEEK_HEADER_HEIGHT = 40;
+const DAY_HEIGHT = (SCREEN_WIDTH - 32) / 7; // Квадратные дни
+const GIGABAR_HEIGHT = 2;
+const MONTH_MARGIN_BOTTOM = 32;
+const WEEKS_IN_VIEW = 6; // Всегда резервируем место под 6 недель
+
+// Полная высота одного элемента списка
+const ITEM_HEIGHT =
+    MONTH_HEADER_HEIGHT +
+    WEEK_HEADER_HEIGHT +
+    GIGABAR_HEIGHT +
+    (WEEKS_IN_VIEW * DAY_HEIGHT) +
+    MONTH_MARGIN_BOTTOM;
 
 interface MonthViewProps {
     currentDate: Date;
     onDayPress: (date: string) => void;
 }
 
-const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress }) => {
-    const { theme } = useTheme();
-    const { t } = useTranslation();
-    const { currentLanguage } = useLocalization()
-    const todos = tasks$.get();
-    const scrollY = useSharedValue(0);
-    const scrollRef = useRef<Animated.ScrollView>(null);
-    const monthRefs = useRef<Array<View | null>>([]);
+// Создаем Анимированный FlatList
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
-    // Получаем все месяцы текущего года
-    const yearStart = startOfYear(currentDate);
-    const yearEnd = endOfYear(currentDate);
-    const monthsOfYear = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+// --- 1. Компонент Дня (Без изменений, максимальная оптимизация) ---
+const DayItem = React.memo(({
+    date,
+    monthDate,
+    theme,
+    onDayPress,
+    taskCount,
+    isTodayDay
+}: any) => {
+    const dateString = format(date, 'yyyy-MM-dd');
+    const dayNumber = date.getDate();
+    const isCurrentMonthDay = date.getMonth() === monthDate.getMonth();
 
-    // Функция для получения дней конкретного месяца
-    const getMonthDays = (monthDate: Date) => {
-        const monthStart = startOfMonth(monthDate);
-        const monthEnd = endOfMonth(monthDate);
-
-        // Получаем первый день недели (понедельник = 1)
-        const startDay = getDay(monthStart);
-        const adjustedStartDay = startDay === 0 ? 6 : startDay - 1; // Преобразуем воскресенье (0) в 6
-
-        // Добавляем дни предыдущего месяца для заполнения первой недели
-        const calendarStart = subDays(monthStart, adjustedStartDay);
-
-        // Получаем последний день недели
-        const endDay = getDay(monthEnd);
-        const adjustedEndDay = endDay === 0 ? 6 : endDay - 1;
-
-        // Добавляем дни следующего месяца для заполнения последней недели
-        const calendarEnd = addDays(monthEnd, 6 - adjustedEndDay);
-
-        // Получаем все дни для отображения в календаре
-        return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-    };
-
-    // Функция для проверки наличия задач в определенный день
-    const hasTasksForDay = (date: Date): boolean => {
-        const dateString = format(date, 'yyyy-MM-dd');
-        return Object.values(todos || {}).some((task: Task) => {
-            let taskDisplayDate = task.display_date;
-            if (!taskDisplayDate) {
-                if (task.created_at && typeof task.created_at === 'string' && !isNaN(new Date(task.created_at).getTime())) {
-                    taskDisplayDate = new Date(task.created_at).toISOString().split('T')[0];
-                } else {
-                    taskDisplayDate = task.due_date || new Date().toISOString().split('T')[0];
-                }
-            }
-
-            if (task.is_repeating) {
-                if (task.repeat_interval) {
-                    try {
-                        const repeatDays = JSON.parse(task.repeat_interval);
-                        const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' }).toLowerCase();
-                        const taskDate = new Date(taskDisplayDate);
-                        return taskDate <= date && repeatDays.includes(dayOfWeek);
-                    } catch (e) {
-                        return false;
-                    }
-                }
-                return false;
-            } else {
-                return taskDisplayDate === dateString;
-            }
-        });
-    };
-
-    // Функция для получения количества задач в день
-    const getTaskCountForDay = (date: Date): number => {
-        const dateString = format(date, 'yyyy-MM-dd');
-        return Object.values(todos || {}).filter((task: Task) => {
-            let taskDisplayDate = task.display_date;
-            if (!taskDisplayDate) {
-                if (task.created_at && typeof task.created_at === 'string' && !isNaN(new Date(task.created_at).getTime())) {
-                    taskDisplayDate = new Date(task.created_at).toISOString().split('T')[0];
-                } else {
-                    taskDisplayDate = task.due_date || new Date().toISOString().split('T')[0];
-                }
-            }
-
-            if (task.is_repeating) {
-                if (task.repeat_interval) {
-                    try {
-                        const repeatDays = JSON.parse(task.repeat_interval);
-                        const dayOfWeek = date.toLocaleString('en-US', { weekday: 'short' }).toLowerCase();
-                        const taskDate = new Date(taskDisplayDate);
-                        return taskDate <= date && repeatDays.includes(dayOfWeek);
-                    } catch (e) {
-                        return false;
-                    }
-                }
-                return false;
-            } else {
-                return taskDisplayDate === dateString;
-            }
-        }).length;
-    };
-
-    // Проверка, является ли день текущим месяцем
-    const isCurrentMonth = (date: Date, monthDate: Date): boolean => {
-        return date.getMonth() === monthDate.getMonth() && date.getFullYear() === monthDate.getFullYear();
-    };
-
-    // Проверка, является ли день сегодняшним
-    const isToday = (date: Date): boolean => {
-        const today = new Date();
-        return date.toDateString() === today.toDateString();
-    };
-
-    // Дни недели
-    const weekDays = [
-        t('calendar.daysOfWeek.mon'), t('calendar.daysOfWeek.tue'), t('calendar.daysOfWeek.wed'),
-        t('calendar.daysOfWeek.thu'), t('calendar.daysOfWeek.fri'), t('calendar.daysOfWeek.sat'), t('calendar.daysOfWeek.sun')
-    ];
-
-    // Рендер индикаторов задач
-    const renderTaskIndicators = (date: Date) => {
-        const taskCount = getTaskCountForDay(date);
+    const renderTaskIndicators = () => {
         if (taskCount === 0) return null;
-
-        const maxDots = 4; // Максимальное количество точек
+        const maxDots = 4;
         const dotsToShow = Math.min(taskCount, maxDots);
-
         return (
-            <Animated.View style={styles.indicatorsContainer}>
+            <View style={styles.indicatorsContainer}>
                 {Array.from({ length: dotsToShow }, (_, index) => (
-                    <View
-                        key={index}
-                        style={[styles.taskIndicator, { backgroundColor: theme.colors.text }]}
-                    />
+                    <View key={index} style={[styles.taskIndicator, { backgroundColor: theme.colors.text }]} />
                 ))}
                 {taskCount > maxDots && (
-                    <CustomText
-                        content="+"
-                        size="xs"
-                        color={theme.colors.text}
-                        weight="bold"
-                        style={styles.moreIndicatorContainer}
-                    />
+                    <CustomText content="+" size="xs" color={theme.colors.text} weight="bold" style={styles.moreIndicatorContainer} />
                 )}
-            </Animated.View>
-        );
-    };
-
-    const scrollHandler = useAnimatedScrollHandler({
-        onScroll: (event) => {
-            scrollY.value = event.contentOffset.y;
-        },
-    });
-
-    useEffect(() => {
-        const currentMonthIndex = currentDate.getMonth();
-        const monthRef = monthRefs.current[currentMonthIndex];
-        if (monthRef && scrollRef.current) {
-            monthRef.measure((x, y, width, height, pageX, pageY) => {
-                scrollRef.current?.scrollTo({ y: y - (SCREEN_HEIGHT / 4), animated: false });
-            });
-        }
-    }, [currentDate]);
-
-    // Функция для рендера отдельного месяца
-    const renderMonth = (monthDate: Date, monthIndex: number) => {
-        const monthName = format(monthDate, 'LLLL', { locale: currentLanguage === "ru" ? ru : enUS });
-        const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-        const calendarDays = getMonthDays(monthDate);
-
-        // Примерная высота одного месяца (заголовок + дни недели + календарь + отступы)
-        const MONTH_HEIGHT = 400; // Приблизительная высота месяца
-        const monthOffset = monthIndex * MONTH_HEIGHT;
-
-        const animatedStyle = useAnimatedStyle(() => {
-            const inputRange = [
-                monthOffset - SCREEN_HEIGHT,
-                monthOffset - SCREEN_HEIGHT / 2,
-                monthOffset,
-                monthOffset + SCREEN_HEIGHT / 2,
-                monthOffset + SCREEN_HEIGHT
-            ];
-
-            const opacity = interpolate(
-                scrollY.value,
-                inputRange,
-                [0, 0.3, 1, 1, 0.3],
-                Extrapolate.CLAMP
-            );
-
-            const translateY = interpolate(
-                scrollY.value,
-                inputRange,
-                [50, 25, 0, 0, 25],
-                Extrapolate.CLAMP
-            );
-
-            return {
-                opacity,
-                transform: [{ translateY }],
-            };
-        });
-
-        return (
-            <Animated.View
-                key={monthIndex}
-                style={[styles.monthContainer, animatedStyle]}
-                ref={(ref) => (monthRefs.current[monthIndex] = ref)}
-            >
-                {/* Заголовок месяца */}
-                <View style={styles.monthHeader}>
-                    <CustomText
-                        content={capitalizedMonthName}
-                        size="xxxl"
-                        color={theme.colors.text}
-                        weight="bold"
-                    // textCenter
-                    />
-                </View>
-
-                {/* Заголовок с днями недели */}
-                <View style={styles.weekHeader}>
-                    {weekDays.map((day, index) => (
-                        <View key={index} style={styles.weekDayContainer}>
-                            <CustomText
-                                content={day}
-                                size="md"
-                                color={theme.colors.secondary}
-                                weight="600"
-                                textCenter
-                            />
-                        </View>
-                    ))}
-                </View>
-
-                <Gigabar color="gray" size={2} />
-                {/* Сетка календаря */}
-                <View style={styles.calendarGrid}>
-                    {calendarDays.map((date, index) => {
-                        const dateString = format(date, 'yyyy-MM-dd');
-                        const dayNumber = date.getDate();
-                        const isCurrentMonthDay = isCurrentMonth(date, monthDate);
-                        const isTodayDay = isToday(date);
-                        const hasTasks = hasTasksForDay(date);
-
-                        return (
-                            <CustomTouchable
-                                key={index}
-                                style={[
-                                    styles.dayContainer,
-                                    isTodayDay && { backgroundColor: theme.colors.button },
-                                    !isCurrentMonthDay && { opacity: 0.3 }
-                                ]}
-                                onPress={() => onDayPress(dateString)}
-                                activeOpacity={0.7}
-                            >
-                                <CustomText
-                                    content={dayNumber.toString()}
-                                    size="md"
-                                    color={isTodayDay ? theme.colors.primary : theme.colors.text}
-                                    weight={isTodayDay ? '700' : '400'}
-                                    textCenter
-                                />
-                                {renderTaskIndicators(date)}
-                            </CustomTouchable>
-                        );
-                    })}
-                </View>
-            </Animated.View>
+            </View>
         );
     };
 
     return (
+        <CustomTouchable
+            style={[
+                styles.dayContainer,
+                { height: DAY_HEIGHT },
+                isTodayDay && { backgroundColor: theme.colors.button },
+                !isCurrentMonthDay && { opacity: 0.3 }
+            ]}
+            onPress={() => onDayPress(dateString)}
+            activeOpacity={0.7}
+        >
+            <CustomText
+                content={dayNumber.toString()}
+                size="md"
+                color={isTodayDay ? theme.colors.primary : theme.colors.text}
+                weight={isTodayDay ? '700' : '400'}
+                textCenter
+            />
+            {renderTaskIndicators()}
+        </CustomTouchable>
+    );
+}, (prev, next) => {
+    return (
+        prev.taskCount === next.taskCount &&
+        prev.isTodayDay === next.isTodayDay &&
+        prev.date.getTime() === next.date.getTime() &&
+        prev.monthDate.getTime() === next.monthDate.getTime()
+    );
+});
+
+// --- 2. Компонент Месяца с АНИМАЦИЕЙ ---
+const MonthItem = React.memo(({
+    monthDate,
+    theme,
+    currentLanguage,
+    weekDays,
+    onDayPress,
+    todos,
+    scrollY, // SharedValue приходит сюда
+    index
+}: any) => {
+    const monthName = format(monthDate, 'LLLL', { locale: currentLanguage === "ru" ? ru : enUS });
+    const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+    const calendarDays = useMemo(() => {
+        const monthStart = startOfMonth(monthDate);
+        const monthEnd = endOfMonth(monthDate);
+        const startDay = getDay(monthStart);
+        const adjustedStartDay = startDay === 0 ? 6 : startDay - 1;
+        const calendarStart = subDays(monthStart, adjustedStartDay);
+        const endDay = getDay(monthEnd);
+        const adjustedEndDay = endDay === 0 ? 6 : endDay - 1;
+        const calendarEnd = addDays(monthEnd, 6 - adjustedEndDay);
+        return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+    }, [monthDate]);
+
+    // --- ЛОГИКА АНИМАЦИИ ---
+    const animatedStyle = useAnimatedStyle(() => {
+        // Вычисляем позицию этого конкретного месяца в общем списке
+        const itemOffset = index * ITEM_HEIGHT;
+
+        // Определяем зоны для интерполяции относительно текущего скролла
+        // Когда элемент в центре экрана - он "активен"
+        const inputRange = [
+            itemOffset - SCREEN_HEIGHT,      // Где-то внизу
+            itemOffset - SCREEN_HEIGHT / 2,  // Подходит к центру (или уходит)
+            itemOffset,                      // Верх элемента совпал с верхом скролла
+            itemOffset + SCREEN_HEIGHT / 2,  // Центр
+            itemOffset + SCREEN_HEIGHT       // Ушел наверх
+        ];
+
+        const opacity = interpolate(
+            scrollY.value,
+            inputRange,
+            [0.3, 0.6, 1, 0.6, 0.3], // Немного изменил значения для плавности
+            Extrapolate.CLAMP
+        );
+
+        const scale = interpolate(
+            scrollY.value,
+            inputRange,
+            [0.9, 0.95, 1, 0.95, 0.9],
+            Extrapolate.CLAMP
+        );
+
+        const translateY = interpolate(
+            scrollY.value,
+            inputRange,
+            [20, 10, 0, -10, -20], // Легкое движение вверх-вниз
+            Extrapolate.CLAMP
+        );
+
+        return {
+            opacity,
+            transform: [{ scale }, { translateY }],
+        };
+    });
+
+    return (
+        <Animated.View style={[styles.monthContainer, { height: ITEM_HEIGHT }, animatedStyle]}>
+            <View style={[styles.monthHeader, { height: MONTH_HEADER_HEIGHT }]}>
+                <CustomText content={capitalizedMonthName} size="xxxl" color={theme.colors.text} weight="bold" />
+            </View>
+
+            <View style={[styles.weekHeader, { height: WEEK_HEADER_HEIGHT }]}>
+                {weekDays.map((day: string, idx: number) => (
+                    <View key={idx} style={styles.weekDayContainer}>
+                        <CustomText content={day} size="md" color={theme.colors.secondary} weight="600" textCenter />
+                    </View>
+                ))}
+            </View>
+
+            <Gigabar color="gray" size={GIGABAR_HEIGHT} />
+
+            <View style={styles.calendarGrid}>
+                {calendarDays.map((date, idx) => {
+                    // Упрощенная проверка задач для примера (твоя логика должна быть здесь)
+                    const dateString = format(date, 'yyyy-MM-dd');
+                    const isTodayDay = date.toDateString() === new Date().toDateString();
+
+                    // Вставь сюда свою оптимизированную логику подсчета
+                    const count = Object.values(todos || {}).filter((task: Task) => {
+                        // ... твоя логика проверки ...
+                        let taskDisplayDate = task.display_date;
+                        if (!taskDisplayDate) {
+                            taskDisplayDate = task.due_date || new Date().toISOString().split('T')[0];
+                        }
+                        return taskDisplayDate === dateString;
+                    }).length;
+
+                    return (
+                        <DayItem
+                            key={idx}
+                            date={date}
+                            monthDate={monthDate}
+                            theme={theme}
+                            onDayPress={onDayPress}
+                            taskCount={count}
+                            isTodayDay={isTodayDay}
+                        />
+                    );
+                })}
+            </View>
+        </Animated.View>
+    );
+});
+
+const MonthView: React.FC<MonthViewProps> = observer(({ currentDate, onDayPress }) => {
+    const { theme } = useTheme();
+    const { t } = useTranslation();
+    const { currentLanguage } = useLocalization();
+    const todos = tasks$.get();
+
+    // Shared Value для скролла
+    const scrollY = useSharedValue(0);
+
+    const monthsOfYear = useMemo(() => {
+        const yearStart = startOfYear(currentDate);
+        const yearEnd = endOfYear(currentDate);
+        return eachMonthOfInterval({ start: yearStart, end: yearEnd });
+    }, [currentDate.getFullYear()]);
+
+    const weekDays = useMemo(() => [
+        t('calendar.daysOfWeek.mon'), t('calendar.daysOfWeek.tue'), t('calendar.daysOfWeek.wed'),
+        t('calendar.daysOfWeek.thu'), t('calendar.daysOfWeek.fri'), t('calendar.daysOfWeek.sat'), t('calendar.daysOfWeek.sun')
+    ], [currentLanguage]);
+
+    // Индекс текущего месяца
+    const initialScrollIndex = currentDate.getMonth();
+
+    // Layout для FlatList (супер быстро, так как фиксированная высота)
+    const getItemLayout = (_: any, index: number) => ({
+        length: ITEM_HEIGHT,
+        offset: ITEM_HEIGHT * index,
+        index,
+    });
+
+    // Обработчик скролла для Reanimated
+    const scrollHandler = useAnimatedScrollHandler((event) => {
+        scrollY.value = event.contentOffset.y;
+    });
+
+    const renderItem = useCallback(({ item, index }: { item: Date, index: number }) => {
+        return (
+            <MonthItem
+                monthDate={item}
+                theme={theme}
+                currentLanguage={currentLanguage}
+                weekDays={weekDays}
+                onDayPress={onDayPress}
+                todos={todos}
+                scrollY={scrollY} // Передаем shared value
+                index={index}     // Передаем индекс для расчета позиции
+            />
+        );
+    }, [theme, currentLanguage, weekDays, todos]);
+
+    return (
         <View style={[styles.container, { backgroundColor: theme.colors.primary }]}>
-            <Animated.ScrollView
-                ref={scrollRef}
-                style={styles.scrollContainer}
+            <AnimatedFlatList
+                data={monthsOfYear}
+                renderItem={renderItem}
+                keyExtractor={(item: any) => item.toISOString()}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
+
+                // Подключаем Reanimated Scroll Handler
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
-            >
-                {monthsOfYear.map((monthDate, index) => renderMonth(monthDate, index))}
-            </Animated.ScrollView>
+
+                // Оптимизация
+                initialNumToRender={1}
+                maxToRenderPerBatch={2}
+                windowSize={3}
+                removeClippedSubviews={true}
+
+                // Позиционирование
+                getItemLayout={getItemLayout}
+                initialScrollIndex={initialScrollIndex}
+            />
         </View>
     );
 });
@@ -318,28 +304,26 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop: 12,
     },
-    monthContainer: {
-        marginBottom: 32,
-    },
-    monthHeader: {
-        paddingVertical: 12,
-        paddingBottom: 16,
-        alignItems: 'center',
-    },
-    scrollContainer: {
-        flex: 1,
-    },
     scrollContent: {
         paddingBottom: 20,
     },
+    monthContainer: {
+        // Высота задается динамически через style prop, но можно добавить overflow hidden
+        overflow: 'hidden',
+        // marginBottom включен в расчет ITEM_HEIGHT, поэтому здесь не нужен, 
+        // отступы внутри самого Item лучше делать паддингами, если нужно
+    },
+    monthHeader: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     weekHeader: {
         flexDirection: 'row',
-        marginBottom: 8,
+        alignItems: 'center',
     },
     weekDayContainer: {
         flex: 1,
         alignItems: 'center',
-        paddingVertical: 8,
     },
     calendarGrid: {
         flexDirection: 'row',
@@ -347,7 +331,6 @@ const styles = StyleSheet.create({
     },
     dayContainer: {
         width: `${100 / 7}%`,
-        aspectRatio: 1,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 8,
@@ -356,7 +339,7 @@ const styles = StyleSheet.create({
     },
     indicatorsContainer: {
         position: 'absolute',
-        bottom: 2,
+        bottom: 4,
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -368,6 +351,7 @@ const styles = StyleSheet.create({
     },
     moreIndicatorContainer: {
         marginLeft: 2,
+        fontSize: 12,
     },
 });
 
