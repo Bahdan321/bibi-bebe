@@ -30,7 +30,7 @@ import TimePickerModal from './TimePickerModal';
 import { useTranslation } from 'react-i18next';
 
 import DropdownMenu from './DropdownMenu';
-import { CalendarModal } from './modals';
+import { CalendarModal, TaskReminderModal } from './modals';
 import { router } from 'expo-router';
 import NewSubtaskInput from './NewSubtaskInput';
 import SubtaskItem from './SubtaskItem';
@@ -62,6 +62,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   );
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+  const [isReminderVisible, setIsReminderVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [isMainDropdownVisible, setIsMainDropdownVisible] = useState(false);
   const [isEisenhowerMatrixDropdownVisible, setIsEisenhowerMatrixDropdownVisible] = useState(false);
@@ -476,7 +477,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         <CustomButton
           variant="text"
           style={styles.actionButton}
-          onPress={() => { }}
+          onPress={() => { setIsReminderVisible(true); }}
           icon="notifications-outline"
           iconColor={theme.colors.text}
           iconSize={24}
@@ -503,6 +504,29 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
         visible={isTimePickerVisible}
         onClose={() => setIsTimePickerVisible(false)}
         onTimeSelected={() => setIsTimePickerVisible(false)}
+      />
+      <TaskReminderModal
+        visible={isReminderVisible}
+        onClose={() => setIsReminderVisible(false)}
+        onConfirm={async (hours, minutes) => {
+          try {
+            const dateISO = task.display_date || task.due_date || date;
+            const title = task.title || '';
+            const { scheduleTaskReminder } = await import('@/utils/notifications');
+            await scheduleTaskReminder(title, dateISO, hours, minutes);
+            Alert.alert(t('reminders.successTitle'), t('reminders.scheduled'));
+          } catch (err: any) {
+            if (err?.message === 'past_time') {
+              Alert.alert(t('reminders.errorTitle'), t('reminders.pastTime'));
+            } else if (err?.message === 'permission_denied') {
+              Alert.alert(t('reminders.errorTitle'), t('reminders.permissionDenied'));
+            } else {
+              Alert.alert(t('reminders.errorTitle'), t('reminders.failed'));
+            }
+          } finally {
+            setIsReminderVisible(false);
+          }
+        }}
       />
       <CalendarModal
         visible={isCalendarVisible}

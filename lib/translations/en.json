@@ -130,6 +130,18 @@
         "close": "Close",
         "selectedTime": "{{day}} at {{hours}}:{{minutes}}"
     },
+    "reminders": {
+        "successTitle": "Success",
+        "scheduled": "Reminder scheduled",
+        "errorTitle": "Error",
+        "pastTime": "Selected time has already passed",
+        "permissionDenied": "Notification permission required",
+        "failed": "Failed to schedule reminder"
+    },
+    "notifications": {
+        "reminderTitle": "Reminder",
+        "reminderBody": "What about: \"{{title}}\"?"
+    },
     "calendar": {
         "apply": "Apply",
         "daysOfWeek": {

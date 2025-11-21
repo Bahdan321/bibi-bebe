@@ -130,6 +130,18 @@
         "close": "Закрыть",
         "selectedTime": "{{day}} at {{hours}}:{{minutes}}"
     },
+    "reminders": {
+        "successTitle": "Успех",
+        "scheduled": "Напоминание запланировано",
+        "errorTitle": "Ошибка",
+        "pastTime": "Выбранное время уже прошло",
+        "permissionDenied": "Требуется разрешение на уведомления",
+        "failed": "Не удалось запланировать напоминание"
+    },
+    "notifications": {
+        "reminderTitle": "Напоминание",
+        "reminderBody": "А вы не забыли про: \"{{title}}\"?"
+    },
     "calendar": {
         "apply": "Применить",
         "daysOfWeek": {
