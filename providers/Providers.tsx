@@ -9,7 +9,7 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({ children })
     useEffect(() => {
         Notifications.setNotificationHandler({
             handleNotification: async () => ({
-                shouldShowAlert: true,
+                shouldShowBanner: true,
                 shouldPlaySound: true,
                 shouldSetBadge: false,
             }),

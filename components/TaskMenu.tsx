@@ -73,6 +73,15 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
   const [selectedDays, setSelectedDays] = useState<string[]>(
     task.repeat_interval ? JSON.parse(task.repeat_interval) : []
   );
+  const selectedDateForReminder = task.display_date || task.due_date || date;
+  const isPastDay = (() => {
+    const base = new Date(selectedDateForReminder || new Date());
+    if (isNaN(base.getTime())) return false;
+    const today = new Date();
+    base.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return base.getTime() < today.getTime();
+  })();
 
   const descShakeAnim = useRef(new Animated.Value(0)).current;
   const [isDescLimitFeedback, setIsDescLimitFeedback] = useState(false);
@@ -508,14 +517,16 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
             containerStyle={styles.eisenhowerDropdownMenu}
           />
         </View>
-        <CustomButton
-          variant="text"
-          style={styles.actionButton}
-          onPress={() => { setIsReminderVisible(true); }}
-          icon="notifications-outline"
-          iconColor={theme.colors.text}
-          iconSize={24}
-        />
+        {!isPastDay && (
+          <CustomButton
+            variant="text"
+            style={styles.actionButton}
+            onPress={() => { setIsReminderVisible(true); }}
+            icon="notifications-outline"
+            iconColor={theme.colors.text}
+            iconSize={24}
+          />
+        )}
         <View style={styles.ellipsisContainer}>
           <CustomButton
             variant="text"
