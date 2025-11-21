@@ -553,6 +553,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
       <TaskReminderModal
         visible={isReminderVisible}
         onClose={() => setIsReminderVisible(false)}
+        targetDateISO={selectedDateForReminder}
         onConfirm={async (hours, minutes) => {
           try {
             const dateISO = task.display_date || task.due_date || date;

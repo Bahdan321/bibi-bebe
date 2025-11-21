@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, StyleSheet, ScrollView, NativeScrollEvent, NativeSyntheticEvent, FlatList, Animated } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { View, StyleSheet, NativeScrollEvent, NativeSyntheticEvent, FlatList, Animated } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import CustomText from '@/components/base/CustomText';
 import CustomTouchable from '@/components/base/CustomTouchable';
@@ -9,6 +9,7 @@ interface TaskReminderModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: (hours: number, minutes: number) => void;
+  targetDateISO?: string;
 }
 
 // Константы выносим наружу, чтобы они не пересоздавались
@@ -42,11 +43,12 @@ const WheelItem = React.memo(({ item, isSelected, theme, scale }: { item: string
     </View>
   );
 });
+WheelItem.displayName = 'WheelItem';
 
-const TaskReminderModal: React.FC<TaskReminderModalProps> = ({ visible, onClose, onConfirm }) => {
+const TaskReminderModal: React.FC<TaskReminderModalProps> = ({ visible, onClose, onConfirm, targetDateISO }) => {
   const { theme } = useTheme();
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   // Округляем минуты до ближайших 5
   const initialMinutesRaw = Math.round(now.getMinutes() / 5) * 5 % 60;
   const initialHoursRaw = now.getHours();
@@ -54,15 +56,36 @@ const TaskReminderModal: React.FC<TaskReminderModalProps> = ({ visible, onClose,
   const [selectedHour, setSelectedHour] = React.useState(initialHoursRaw.toString().padStart(2, '0'));
   const [selectedMinute, setSelectedMinute] = React.useState(initialMinutesRaw.toString().padStart(2, '0'));
 
-  // Создаем данные только один раз
+  const targetDate = useMemo(() => {
+    if (!targetDateISO) return null;
+    const d = new Date(targetDateISO);
+    return isNaN(d.getTime()) ? null : d;
+  }, [targetDateISO]);
+
+  const isToday = useMemo(() => {
+    if (!targetDate) return false;
+    const a = new Date(targetDate);
+    const b = new Date();
+    a.setHours(0, 0, 0, 0);
+    b.setHours(0, 0, 0, 0);
+    return a.getTime() === b.getTime();
+  }, [targetDate]);
+
+  const hoursBase = useMemo(() => {
+    if (isToday) {
+      const start = now.getHours();
+      return Array.from({ length: 24 - start }, (_, i) => (start + i).toString().padStart(2, '0'));
+    }
+    return Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+  }, [isToday, now]);
+
   const hoursData = useMemo(() => {
-    const base = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
     let result: string[] = [];
     for (let i = 0; i < LOOPS; i++) {
-      result = [...result, ...base];
+      result = [...result, ...hoursBase];
     }
     return result;
-  }, []);
+  }, [hoursBase]);
 
   const minutesData = useMemo(() => {
     const base = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
@@ -76,8 +99,11 @@ const TaskReminderModal: React.FC<TaskReminderModalProps> = ({ visible, onClose,
   // Вычисляем начальную позицию скролла, чтобы она была в середине списка ("бесконечность")
   const initialHourIndex = useMemo(() => {
     const centerLoop = Math.floor(LOOPS / 2);
-    return (centerLoop * 24) + initialHoursRaw;
-  }, [initialHoursRaw]);
+    const selected = initialHoursRaw.toString().padStart(2, '0');
+    const idxInBase = hoursBase.indexOf(selected);
+    const safeIdx = idxInBase < 0 ? 0 : idxInBase;
+    return (centerLoop * hoursBase.length) + safeIdx;
+  }, [initialHoursRaw, hoursBase]);
 
   const initialMinuteIndex = useMemo(() => {
     const centerLoop = Math.floor(LOOPS / 2);
@@ -103,9 +129,9 @@ const TaskReminderModal: React.FC<TaskReminderModalProps> = ({ visible, onClose,
   const onScrollHours = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
-    const realIndex = index % 24;
-    const value = realIndex.toString().padStart(2, '0');
-    // Обновляем состояние только если значение изменилось
+    const baseLen = hoursBase.length || 1;
+    const realIndex = ((index % baseLen) + baseLen) % baseLen;
+    const value = hoursBase[realIndex];
     setSelectedHour(prev => prev === value ? prev : value);
     Animated.parallel([
       Animated.spring(colonScale, { toValue: 1, useNativeDriver: true }),
@@ -114,7 +140,7 @@ const TaskReminderModal: React.FC<TaskReminderModalProps> = ({ visible, onClose,
         Animated.spring(hourSelectScale, { toValue: 1, useNativeDriver: true }),
       ]),
     ]).start();
-  }, []);
+  }, [hoursBase, colonScale, hourSelectScale]);
 
   const onScrollMinutes = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;
@@ -129,7 +155,7 @@ const TaskReminderModal: React.FC<TaskReminderModalProps> = ({ visible, onClose,
         Animated.spring(minuteSelectScale, { toValue: 1, useNativeDriver: true }),
       ]),
     ]).start();
-  }, []);
+  }, [colonScale, minuteSelectScale]);
 
   const onBeginDrag = () => {
     Animated.spring(colonScale, { toValue: 1.15, useNativeDriver: true }).start();
