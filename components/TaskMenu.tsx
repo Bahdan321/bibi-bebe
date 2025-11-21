@@ -359,6 +359,7 @@ const TaskMenu: React.FC<TaskMenuProps> = ({
 
       <View style={styles.titleSection}>
         <CustomTextInput
+          multiline
           variant="title"
           style={[
             { flex: 1 },

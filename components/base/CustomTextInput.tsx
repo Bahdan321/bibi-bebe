@@ -10,9 +10,12 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
   variant = 'default',
   style,
   placeholderTextColor,
+  multiline,
   ...props
 }) => {
   const { theme } = useTheme();
+
+  const isMultiline = variant === 'description' || multiline;
 
   const getVariantStyles = () => {
     switch (variant) {
@@ -38,11 +41,13 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
 
   return (
     <TextInput
+      multiline={isMultiline}
       style={[
         styles.base,
         {
           color: theme.colors.text,
           borderColor: theme.colors.secondary,
+          textAlignVertical: isMultiline ? 'top' : 'center',
         },
         getVariantStyles(),
         style,
