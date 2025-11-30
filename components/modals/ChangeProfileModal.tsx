@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, ToastAndroid, Platform, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ActivityIndicator, ToastAndroid, Platform, Alert, ImageBackground } from 'react-native';
 import { useTheme } from '@/providers/ThemeProvider';
 import { Theme } from '@/theme/types';
 import CustomText from '../base/CustomText';
@@ -8,6 +8,7 @@ import CustomTextInput from '../base/CustomTextInput';
 import CustomModal from '../base/CustomModal';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/providers/AuthProvider';
+import useRandomMemeAvatar from "@/hooks/useRandomMemeAvatar";
 
 interface ChangeProfileModalProps {
     visible: boolean;
@@ -21,10 +22,32 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
     initialUsername,
 }) => {
     const { theme } = useTheme();
-    const { updateUserProfile, isLoading } = useAuth();
+    const { updateUserProfile, isLoading, user } = useAuth();
     const [username, setUsername] = useState(initialUsername);
     const [error, setError] = useState('');
     const styles = createStyles(theme);
+
+    // Хук для аватара
+    const { getMemeByIndex, getSavedAvatarIndex, getRandomMemeIndexWithSave } = useRandomMemeAvatar();
+    const [currentAvatarIndex, setCurrentAvatarIndex] = useState<number | null>(null);
+
+    // Загружаем аватар при монтировании
+    useEffect(() => {
+        const loadSavedAvatar = async () => {
+            const savedIndex = await getSavedAvatarIndex();
+            if (savedIndex !== null) {
+                setCurrentAvatarIndex(savedIndex);
+            } else if (user?.avatar_url) {
+                const urlIndex = parseInt(user.avatar_url);
+                setCurrentAvatarIndex(urlIndex);
+            } else {
+                const randomIndex = await getRandomMemeIndexWithSave();
+                setCurrentAvatarIndex(randomIndex);
+            }
+        };
+
+        loadSavedAvatar();
+    }, [user?.avatar_url]);
 
     // Function to show toast notification
     const showSuccessMessage = () => {
@@ -76,15 +99,20 @@ const ChangeProfileModal: React.FC<ChangeProfileModalProps> = ({
                         size="xl"
                         color={theme.colors.text}
                         weight="bold"
+                        textCenter={true}
                     />
                 </View>
 
                 <View style={styles.avatarContainer}>
-                    <View
-                        style={[styles.avatarPlaceholder, { backgroundColor: theme.colors.secondary }]}
-                    >
-                        <Ionicons name="person" size={60} color={theme.colors.primary} />
-                    </View>
+                    <ImageBackground
+                        source={
+                            currentAvatarIndex !== null
+                                ? getMemeByIndex(currentAvatarIndex)
+                                : require("../../assets/images/memes/meme10.jpg")
+                        }
+                        style={styles.avatarPlaceholder}
+                        imageStyle={{ borderRadius: 50 }}
+                    />
                 </View>
 
                 <View style={styles.inputContainer}>
